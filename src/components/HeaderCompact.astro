@@ -1,0 +1,145 @@
+<header id="header-compact">
+  <div class="header-compact-inner">
+    <a href="/" class="header-compact-logo" id="header-compact-logo">
+      <img src="/images/monogramma-full.svg" alt="Datyca" width="60" height="60" class="logo-full" />
+      <img src="/images/monogramma-stroke.svg" alt="" width="60" height="60" class="logo-stroke" aria-hidden="true" />
+    </a>
+    <button id="menu-toggle" class="header-compact-menu" aria-label="Apri menu">
+      <svg width="40" height="40" aria-hidden="true" fill="currentColor"><use href="#icon-hamburger" /></svg>
+    </button>
+  </div>
+</header>
+
+<style>
+  #header-compact {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 100;
+    visibility: hidden;
+  }
+
+  .header-compact-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 10px 10px 40px;
+  }
+
+  .header-compact-logo {
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+
+  .logo-stroke {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  .header-compact-menu {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 15px;
+    color: var(--color-purple-600);
+  }
+</style>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  function initHeaderCompact() {
+    const compact = document.getElementById('header-compact');
+    const full = document.getElementById('header');
+    const logo = document.getElementById('header-compact-logo');
+    const menuBtn = document.getElementById('menu-toggle');
+    if (!compact || !full || !logo || !menuBtn) return;
+
+    const logoFull = logo.querySelector('.logo-full') as HTMLElement;
+    const logoStroke = logo.querySelector('.logo-stroke') as HTMLElement;
+
+    const root = getComputedStyle(document.documentElement);
+    const colorRed = root.getPropertyValue('--color-red').trim();
+    const colorPurple = root.getPropertyValue('--color-purple-600').trim();
+
+    // Initial state: stroke hidden
+    gsap.set(logoStroke, { autoAlpha: 0 });
+
+    // Logo hover
+    logo.addEventListener('mouseenter', () => {
+      gsap.to(logoFull, { autoAlpha: 0, duration: 0.2, overwrite: true });
+      gsap.to(logoStroke, { autoAlpha: 1, duration: 0.2, overwrite: true });
+    });
+
+    logo.addEventListener('mouseleave', () => {
+      gsap.to(logoFull, { autoAlpha: 1, duration: 0.2, overwrite: true });
+      gsap.to(logoStroke, { autoAlpha: 0, duration: 0.2, overwrite: true });
+    });
+
+    // Hamburger hover
+    menuBtn.addEventListener('mouseenter', () => {
+      gsap.to(menuBtn, { color: colorRed, duration: 0.2, overwrite: true });
+    });
+
+    menuBtn.addEventListener('mouseleave', () => {
+      gsap.to(menuBtn, { color: colorPurple, duration: 0.2, overwrite: true });
+    });
+
+    // State that survives breakpoint crossing
+    let hasSwapped = false;
+
+    // Header swap — toggle-based, autonomous
+    function setupHeaderSwap() {
+      if (hasSwapped) {
+        gsap.set(compact, { yPercent: 0, visibility: 'visible' });
+        gsap.set(full, { yPercent: -100 });
+        full.style.overflow = 'hidden';
+      } else {
+        gsap.set(compact, { yPercent: -100, visibility: 'visible' });
+      }
+
+      const tl = gsap.timeline({
+        paused: true,
+        onReverseComplete: () => { full.style.overflow = ''; },
+      });
+
+      tl.to(full, { yPercent: -100, duration: 0.55, ease: 'power1.out' }, 0);
+      tl.to(compact, { yPercent: 0, duration: 0.45, ease: 'power3.out' }, '>');
+
+      if (hasSwapped) tl.progress(1);
+
+      ScrollTrigger.create({
+        id: 'header-swap',
+        start: () => {
+          const heroST = ScrollTrigger.getById('hero-anim');
+          return heroST ? heroST.end : innerHeight;
+        },
+        end: 'max',
+        onEnter: () => {
+          hasSwapped = true;
+          full.style.overflow = 'hidden';
+          tl.play();
+        },
+        onLeaveBack: () => {
+          hasSwapped = false;
+          tl.reverse();
+        },
+      });
+
+      return () => { full.style.overflow = ''; };
+    }
+
+    const mm = gsap.matchMedia();
+    mm.add('(min-width: 768px)', setupHeaderSwap);
+    mm.add('(max-width: 767px)', setupHeaderSwap);
+  }
+
+  ((window as any).__initQueue ??= []).push(initHeaderCompact);
+</script>
