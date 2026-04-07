@@ -1,0 +1,414 @@
+---
+import Section from './Section.astro';
+import SectionHeader from './SectionHeader.astro';
+
+const OFFSET = 138;
+const VB_H = 488 + 4 * OFFSET; // 1040
+
+const layers = [
+  { name: 'AI GOVERNANCE', side: 'left', index: 0 },
+  { name: 'DATA<br>PROTECTION', side: 'right', index: 1 },
+  { name: 'CYBERSECURITY', side: 'left', index: 2 },
+  { name: 'LEGAL DESIGN', side: 'right', index: 3 },
+  { name: 'LEGAL DESK', side: 'left', index: 4 },
+];
+
+const labelY = (i: number) =>
+  ((i * OFFSET + 235) / VB_H * 100).toFixed(1) + '%';
+
+/* SVG paths extracted from cosa_facciamo_off.svg */
+const FACE =
+  'M4.65625 231.381L397.546 2.27429C399.598 1.08175 402.12 1.08175 ' +
+  '404.143 2.27429L795.315 228.22C799.695 230.743 799.695 237.094 ' +
+  '795.315 239.618L402.148 467.255C400.124 468.42 397.602 468.448 ' +
+  '395.578 467.255L4.68397 242.78C0.27664 240.256 0.27664 233.933 ' +
+  '4.65625 231.381Z';
+
+const SIDE =
+  'M798.615 234.044V253.013C798.393 255.01 797.312 256.952 795.316 ' +
+  '258.116L402.149 485.753C400.125 486.918 397.603 486.946 395.579 ' +
+  '485.753L4.68491 261.278C2.66142 260.113 1.58038 258.172 1.41406 ' +
+  '256.147V255.593V237.094';
+
+const CONN = 'M398.766 468.143V486.613';
+
+/* Render order: layer 4 first (behind), layer 0 last (in front) */
+const renderOrder = [4, 3, 2, 1, 0];
+---
+
+<Section id="cosa-facciamo">
+  <SectionHeader
+    title="Cosa facciamo"
+    subtitle="I valori che guidano la nostra idea di innovazione responsabile"
+    titleClass="text-section-title"
+  />
+
+  <div class="cf-stack" id="cf-stack">
+    <svg
+      class="cf-svg"
+      id="cf-svg"
+      viewBox={`0 0 800 ${VB_H}`}
+      fill="none"
+      overflow="visible"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      role="presentation"
+    >
+      <defs>
+        <!-- Gradient for ON state (objectBoundingBox = same look on every layer) -->
+        <linearGradient
+          id="cf-gradient"
+          gradientUnits="objectBoundingBox"
+          x1="0.82" y1="0.19" x2="0.24" y2="0.84"
+        >
+          <stop stop-color="#000857" />
+          <stop offset="0.207" stop-color="#E1E1E1" stop-opacity="0.2" />
+          <stop offset="0.548" stop-color="#FFBAFF" stop-opacity="0" />
+          <stop offset="0.803" stop-color="#6666FF" stop-opacity="0.3" />
+          <stop offset="1" stop-color="#0600B8" stop-opacity="0.5" />
+        </linearGradient>
+
+      </defs>
+
+      {renderOrder.map(i => (
+        <g transform={`translate(0, ${i * OFFSET})`}>
+          <g class="cf-layer" data-index={i}>
+            {/* Side wall (fill covers layers behind, stroke draws outline) */}
+            <path d={SIDE} fill="#0D0826" stroke="#4545F7" stroke-width="2" stroke-miterlimit="10" />
+            {/* Front connector */}
+            <path d={CONN} stroke="#4545F7" stroke-width="2" stroke-miterlimit="10" />
+            {/* Face base (background fill + stroke) */}
+            <path d={FACE} fill="#0D0826" stroke="#4545F7" stroke-width="2" stroke-miterlimit="10" />
+            {/* Face glow (gradient + noise, initially hidden) */}
+            <path
+              class="cf-glow"
+              d={FACE}
+              fill="url(#cf-gradient)"
+              stroke="#4545F7" stroke-width="2" stroke-miterlimit="10"
+              pointer-events="none"
+            />
+          </g>
+        </g>
+      ))}
+    </svg>
+
+    {/* HTML labels — positioned at each layer's face center */}
+    {layers.map(l => (
+      <span
+        class:list={['cf-label', `cf-label--${l.side}`]}
+        data-layer={l.index}
+        style={`top: ${labelY(l.index)}`}
+        set:html={l.name}
+      />
+    ))}
+  </div>
+</Section>
+
+<style>
+  .cf-stack {
+    position: relative;
+    max-width: 1100px;
+    margin: clamp(50px, 6vw, 80px) auto 0;
+    overflow: hidden;
+  }
+
+  .cf-svg {
+    display: block;
+    width: 55%;
+    height: auto;
+    margin: 0 auto;
+  }
+
+  .cf-label {
+    position: absolute;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: clamp(16px, 1.67vw, 24px);
+    line-height: 1.2;
+    text-transform: uppercase;
+    color: var(--color-grey-toned-400);
+    white-space: nowrap;
+  }
+
+  /* Left labels: right-aligned, to the LEFT of the SVG */
+  .cf-label--left {
+    right: calc(77.5% + 24px);
+    text-align: right;
+  }
+
+  /* Right labels: left-aligned, to the RIGHT of the SVG */
+  .cf-label--right {
+    left: calc(77.5% + 24px);
+    text-align: left;
+  }
+
+  /* DATA<br>PROTECTION needs wrapping */
+  .cf-label--right:nth-child(2) {
+    white-space: normal;
+    max-width: 180px;
+  }
+
+  @media (max-width: 767px) {
+    .cf-svg {
+      width: 80%;
+    }
+
+    .cf-label {
+      font-size: 13px;
+    }
+
+    .cf-label--left {
+      right: calc(90% + 10px);
+    }
+
+    .cf-label--right {
+      left: calc(90% + 10px);
+    }
+  }
+</style>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  function initCosaFacciamo() {
+    const section = document.getElementById('cosa-facciamo');
+    if (!section) return;
+
+    const svgEl = document.getElementById('cf-svg')!;
+    const stackEl = document.getElementById('cf-stack')!;
+
+    const allLayers = [0, 1, 2, 3, 4].map(
+      i => svgEl.querySelector(`[data-index="${i}"]`) as SVGGElement
+    );
+    const glows = allLayers.map(
+      g => g.querySelector('.cf-glow') as SVGPathElement
+    );
+    const labelEls = [0, 1, 2, 3, 4].map(
+      i => section.querySelector(`.cf-label[data-layer="${i}"]`) as HTMLElement
+    );
+    const titleEl = section.querySelector('.section-header__title') as HTMLElement;
+    const subtitleEl = section.querySelector('.section-header__subtitle') as HTMLElement;
+
+    if (allLayers.some(l => !l) || labelEls.some(l => !l)) return;
+
+    const root = getComputedStyle(document.documentElement);
+    const whiteAlmost = root.getPropertyValue('--color-white-almost').trim();
+    const greyToned400 = root.getPropertyValue('--color-grey-toned-400').trim();
+
+    // ── State ──────────────────────────────────────────────────
+    let hasRevealed = false;   // survives matchMedia revert
+    let entranceDone = false;  // blocks hover during entrance
+    let currentLayer = -1;
+
+    // ── Spotlight interaction ──────────────────────────────────
+    function setActiveLayer(index: number) {
+      if (!entranceDone) return;
+      if (index === currentLayer) return;
+      currentLayer = index;
+
+      allLayers.forEach((group, i) => {
+        const glow = glows[i];
+        if (index === -1) {
+          // Neutral: all layers at 0.5, no glow
+          gsap.to(group, { opacity: 0.5, duration: 0.35, ease: 'power2.out', overwrite: true });
+          gsap.to(glow, { opacity: 0, duration: 0.35, ease: 'power2.out', overwrite: true });
+        } else if (i === index) {
+          // Active: full brightness + glow
+          gsap.to(group, { opacity: 1, duration: 0.35, ease: 'power2.out', overwrite: true });
+          gsap.to(glow, { opacity: 1, duration: 0.35, ease: 'power2.out', overwrite: true });
+        } else if (Math.abs(i - index) === 1) {
+          // Adjacent: subtle glow bleed
+          gsap.to(group, { opacity: 0.25, duration: 0.35, ease: 'power2.out', overwrite: true });
+          gsap.to(glow, { opacity: 0, duration: 0.35, ease: 'power2.out', overwrite: true });
+        } else {
+          // Distant: very dim
+          gsap.to(group, { opacity: 0.15, duration: 0.35, ease: 'power2.out', overwrite: true });
+          gsap.to(glow, { opacity: 0, duration: 0.35, ease: 'power2.out', overwrite: true });
+        }
+      });
+
+      labelEls.forEach((label, i) => {
+        if (index === -1) {
+          // Neutral: dormant — dimmed, not fully visible
+          gsap.to(label, {
+            color: greyToned400, autoAlpha: 0.5,
+            duration: 0.35, ease: 'power2.out', overwrite: true,
+          });
+        } else if (i === index) {
+          gsap.to(label, {
+            color: whiteAlmost, autoAlpha: 1,
+            duration: 0.35, ease: 'power2.out', overwrite: true,
+          });
+        } else {
+          gsap.to(label, {
+            color: greyToned400, autoAlpha: 0.35,
+            duration: 0.35, ease: 'power2.out', overwrite: true,
+          });
+        }
+      });
+    }
+
+    // ── Entrance animation ────────────────────────────────────
+    function buildEntrance() {
+      gsap.set(glows, { opacity: 0 });
+      gsap.set(labelEls, { yPercent: -50 });
+
+      if (hasRevealed) {
+        // Breakpoint crossed after reveal — snap to final state
+        entranceDone = true;
+        gsap.set(allLayers, { opacity: 0.5, y: 0 });
+        if (titleEl) gsap.set(titleEl, { autoAlpha: 1, y: 0 });
+        if (subtitleEl) gsap.set(subtitleEl, { autoAlpha: 1, y: 0 });
+        labelEls.forEach(l => gsap.set(l, { autoAlpha: 0.5, x: 0 }));
+        return;
+      }
+
+      // Initial hidden state — layers start in "exploded" positions
+      // Spread symmetrically from center (layer 2 stays, others offset)
+      const SPREAD = 100; // px extra spread per step from center
+      const explodedY = [
+        -2 * SPREAD,  // layer 0: far above
+        -1 * SPREAD,  // layer 1: slightly above
+         0,           // layer 2: center, stays put
+         1 * SPREAD,  // layer 3: slightly below
+         2 * SPREAD,  // layer 4: far below
+      ];
+
+      allLayers.forEach((layer, i) => {
+        gsap.set(layer, { opacity: 0, y: explodedY[i] });
+      });
+      if (titleEl) gsap.set(titleEl, { autoAlpha: 0, y: 25 });
+      if (subtitleEl) gsap.set(subtitleEl, { autoAlpha: 0, y: 20 });
+      labelEls.forEach(l => {
+        const xFrom = l.classList.contains('cf-label--left') ? -20 : 20;
+        gsap.set(l, { autoAlpha: 0, x: xFrom });
+      });
+
+      const tl = gsap.timeline({ paused: true });
+
+      // Phase 1: Title + subtitle
+      if (titleEl) {
+        tl.to(titleEl, {
+          autoAlpha: 1, y: 0, duration: 0.7, ease: 'power3.out',
+        }, 0);
+      }
+      if (subtitleEl) {
+        tl.to(subtitleEl, {
+          autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out',
+        }, 0.15);
+      }
+
+      // Phase 2: Converge — all layers move simultaneously to y:0
+      allLayers.forEach((layer, i) => {
+        tl.to(layer, {
+          opacity: 0.5, y: 0,
+          duration: 1, ease: 'power3.inOut',
+        }, 0.25);
+      });
+
+      // Phase 3: Pulse wave — overlaps tail of converge
+      allLayers.forEach((layer, i) => {
+        const glow = glows[i];
+        const t = 0.9 + i * 0.1;
+        // Layer flash
+        tl.to(layer, { opacity: 1, duration: 0.2, ease: 'power1.in' }, t);
+        tl.to(layer, { opacity: 0.5, duration: 0.45, ease: 'power2.out' }, t + 0.2);
+        // Glow flash
+        tl.to(glow, { opacity: 0.6, duration: 0.2, ease: 'power1.in' }, t);
+        tl.to(glow, { opacity: 0, duration: 0.45, ease: 'power2.out' }, t + 0.2);
+      });
+
+      // Labels enter during converge, pulse with the wave
+      labelEls.forEach((label, i) => {
+        // Slide in
+        tl.to(label, {
+          x: 0, autoAlpha: 0.5,
+          duration: 0.5, ease: 'power2.out',
+        }, 0.55 + i * 0.08);
+        // Flash in sync with its layer's pulse
+        const t = 0.9 + i * 0.1;
+        tl.to(label, { autoAlpha: 0.9, duration: 0.2, ease: 'power1.in' }, t);
+        tl.to(label, { autoAlpha: 0.5, duration: 0.45, ease: 'power2.out' }, t + 0.2);
+      });
+
+      tl.eventCallback('onComplete', () => { entranceDone = true; });
+
+      ScrollTrigger.create({
+        id: 'cf-reveal',
+        trigger: section,
+        start: 'top 55%',
+        once: true,
+        onEnter: () => {
+          hasRevealed = true;
+          tl.play();
+        },
+      });
+    }
+
+    // ── matchMedia: Desktop ───────────────────────────────────
+    const mm = gsap.matchMedia();
+
+    mm.add('(min-width: 768px)', () => {
+      currentLayer = -1;
+      buildEntrance();
+
+      const ac = new AbortController();
+
+      if (!ScrollTrigger.isTouch) {
+        // Native SVG hit-testing: the face fills are opaque and
+        // layer 0 is painted last (in front), so e.target returns
+        // the visually topmost layer at the cursor position.
+        svgEl.addEventListener('mousemove', (e: MouseEvent) => {
+          const target = e.target as Element;
+          const layerGroup = target.closest('.cf-layer');
+          if (layerGroup) {
+            setActiveLayer(parseInt(layerGroup.getAttribute('data-index')!));
+          }
+        }, { signal: ac.signal, passive: true });
+
+        // Hovering a label activates its layer
+        labelEls.forEach(label => {
+          const idx = parseInt(label.dataset.layer!);
+          label.addEventListener('mouseenter', () => setActiveLayer(idx), {
+            signal: ac.signal,
+          });
+        });
+
+        // Leaving the stack resets to neutral
+        stackEl.addEventListener('mouseleave', () => setActiveLayer(-1), {
+          signal: ac.signal,
+        });
+      }
+
+      return () => { ac.abort(); currentLayer = -1; };
+    });
+
+    // ── matchMedia: Mobile ────────────────────────────────────
+    mm.add('(max-width: 767px)', () => {
+      currentLayer = -1;
+      buildEntrance();
+
+      // Scroll-based sequential activation
+      ScrollTrigger.create({
+        id: 'cf-mobile-scroll',
+        trigger: section,
+        start: 'top 40%',
+        end: 'bottom 60%',
+        onUpdate: (self) => {
+          const p = self.progress;
+          if (p < 0.05 || p > 0.95) {
+            setActiveLayer(-1);
+          } else {
+            const adjusted = (p - 0.05) / 0.9;
+            setActiveLayer(Math.min(4, Math.floor(adjusted * 5)));
+          }
+        },
+      });
+
+      return () => { currentLayer = -1; };
+    });
+  }
+
+  ((window as any).__initQueue ??= []).push(initCosaFacciamo);
+</script>

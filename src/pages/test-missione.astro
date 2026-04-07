@@ -1,0 +1,50 @@
+---
+import '../styles/global.css';
+import Missione from '../components/Missione.astro';
+---
+
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preload" href="/src/fonts/Optik/Optik-DemiBold.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/src/fonts/Optik/Optik-Regular.woff2" as="font" type="font/woff2" crossorigin />
+  <title>Test Missione — Datyca</title>
+</head>
+<body>
+  <div id="smooth-wrapper"><div id="smooth-content">
+  <main>
+    <!-- Spacer to test scroll reveal -->
+    <section style="height: 120vh;"></section>
+
+    <Missione />
+
+    <section style="height: 100vh;"></section>
+  </main>
+  </div></div>
+
+  <script>
+    import gsap from 'gsap';
+    import { ScrollTrigger } from 'gsap/ScrollTrigger';
+    import { ScrollSmoother } from 'gsap/ScrollSmoother';
+    import { SplitText } from 'gsap/SplitText';
+
+    gsap.registerPlugin(ScrollTrigger, ScrollSmoother, SplitText);
+    gsap.config({ nullTargetWarn: false });
+    ScrollTrigger.config({ ignoreMobileResize: true });
+
+    ScrollSmoother.create({
+      smooth: 1,
+      normalizeScroll: true,
+      smoothTouch: false,
+    });
+
+    requestAnimationFrame(() => {
+      const queue: Array<() => void> = (window as any).__initQueue ?? [];
+      for (const fn of queue) { try { fn(); } catch(e) { console.error(e); } }
+      (window as any).__initQueue = null;
+      requestAnimationFrame(() => ScrollTrigger.refresh());
+    });
+  </script>
+</body>
+</html>

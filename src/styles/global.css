@@ -1,11 +1,108 @@
 @import "tailwindcss";
 
-@theme {
-  --color-bg: #ffffff;
-  --color-text: #0a0a0a;
-  --color-accent: #3b82f6;
-  --font-sans: system-ui, -apple-system, sans-serif;
+/* ═══ FONT FACES ═══ */
+
+@font-face {
+  font-family: 'Optik';
+  src: url('../fonts/Optik/Optik-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Optik';
+  src: url('../fonts/Optik/Optik-DemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Spectral';
+  src: url('../fonts/Spectral/Spectralregular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Spectral';
+  src: url('../fonts/Spectral/Spectralitalic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Spectral';
+  src: url('../fonts/Spectral/Spectral600.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Spectral';
+  src: url('../fonts/Spectral/Spectral600italic.woff2') format('woff2');
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+
+@theme static {
+  /* Whites */
+  --color-white-almost: #EBEBEB;
+  --color-white-snow: #F7F9FB;
+
+  /* Greys */
+  --color-grey-100: #E1E1E1;
+  --color-grey-200: #C8C8C8;
+  --color-grey-300: #B4B4B4;
+  --color-grey-400: #9C9C9C;
+
+  /* Grey Toned */
+  --color-grey-toned-800: #E4E9F9;
+  --color-grey-toned-600: #D0D8F2;
+  --color-grey-toned-400: #B3BFE7;
+
+  /* Black Almost */
+  --color-black-almost-900: #0D0826;
+  --color-black-almost-700: #1D185B;
+
+  /* Blue Deep */
+  --color-blue-deep-800: #000857;
+  --color-blue-deep-700: #0600B8;
+
+  /* Light Blue */
+  --color-light-blue-300: #146EFF;
+  --color-light-blue-400: #145CE8;
+
+  /* Purple */
+  --color-purple-500: #4545F7;
+  --color-purple-600: #6666FF;
+
+  /* Accent */
+  --color-red: #F21763;
+  --color-pink: #FF00FF;
+
+  /* Semantic aliases */
+  --color-bg: #0D0826;
+  --color-text: #EBEBEB;
+
+  /* Typography */
+  --font-sans: 'Optik', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Spectral', Georgia, serif;
+
+  /* Easing */
   --ease-signature: cubic-bezier(0.76, 0, 0.24, 1);
+
+  /* Section spacing */
+  --section-padding-x: 40px;
+  --section-padding-y: clamp(80px, 8vw, 120px);
+  --section-gap: 20px;
+  --card-padding: 30px;
+  --grid-border-color: #1D185B;
 }
 
 * {
@@ -21,6 +118,7 @@ html {
   color: var(--color-text);
   font-family: var(--font-sans);
   overflow-x: hidden;
+  overscroll-behavior: none;
 }
 
 body {
@@ -42,7 +140,133 @@ body {
   width: 100%;
 }
 
+.pin-spacer {
+  background-color: var(--color-bg);
+}
+
 ::selection {
-  background-color: var(--color-accent);
+  background-color: var(--color-purple-500);
   color: #ffffff;
+}
+
+/* ═══ TYPOGRAPHY — Figma Datyca text styles ═══ */
+
+/* XL: 60/60 → XS: 45/50 */
+.text-h1 {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: clamp(45px, calc(45px + 15 * (100vw - 375px) / 1065), 60px);
+  line-height: clamp(50px, calc(50px + 10 * (100vw - 375px) / 1065), 60px);
+}
+
+/* XL: 45/auto → XS: 30/auto */
+.text-h2 {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: clamp(30px, calc(30px + 15 * (100vw - 375px) / 1065), 45px);
+  line-height: normal;
+}
+
+/* 30/auto — no XS variant */
+.text-h3 {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 30px;
+  line-height: normal;
+}
+
+/* XL: 20/28 → XS: 17/24 */
+.text-body {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: clamp(17px, calc(17px + 3 * (100vw - 375px) / 1065), 20px);
+  line-height: clamp(24px, calc(24px + 4 * (100vw - 375px) / 1065), 28px);
+}
+
+/* XL: 20/28 bold → XS: 17/24 bold */
+.text-body-bold {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: clamp(17px, calc(17px + 3 * (100vw - 375px) / 1065), 20px);
+  line-height: clamp(24px, calc(24px + 4 * (100vw - 375px) / 1065), 28px);
+}
+
+/* XL: 20/auto 600 → XS: 18/auto 600 */
+.text-para-title {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: clamp(18px, calc(18px + 2 * (100vw - 375px) / 1065), 20px);
+  line-height: normal;
+}
+
+/* XL: 17/24 → XS: 15/22 */
+.text-regular {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: clamp(15px, calc(15px + 2 * (100vw - 375px) / 1065), 17px);
+  line-height: clamp(22px, calc(22px + 2 * (100vw - 375px) / 1065), 24px);
+}
+
+/* 16/20 600 uppercase — fixed size */
+.text-cta {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+/* 18/auto 600 uppercase — fixed size */
+.text-kicker {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 18px;
+  line-height: normal;
+  text-transform: uppercase;
+}
+
+/* Optik 65/65 ls:-4% — titoli sezione centrati */
+.text-section-title {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: clamp(45px, calc(45px + 20 * (100vw - 375px) / 1065), 65px);
+  line-height: clamp(50px, calc(50px + 15 * (100vw - 375px) / 1065), 65px);
+  letter-spacing: -0.04em;
+}
+
+/* Spectral — XL: 60/60 → XS: 45/50, ls:-4% */
+.text-hero {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(45px, calc(45px + 15 * (100vw - 375px) / 1065), 60px);
+  line-height: clamp(50px, calc(50px + 10 * (100vw - 375px) / 1065), 60px);
+  letter-spacing: -0.04em;
+}
+
+/* Spectral 45/50 ls:-4% */
+.text-serif-lg {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 45px;
+  line-height: 50px;
+  letter-spacing: -0.04em;
+}
+
+/* Spectral 40/65 ls:-4% */
+.text-serif-md {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 40px;
+  line-height: 65px;
+  letter-spacing: -0.04em;
+}
+
+/* Spectral 32/40 ls:-4% */
+.text-serif-sm {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 32px;
+  line-height: 40px;
+  letter-spacing: -0.04em;
 }

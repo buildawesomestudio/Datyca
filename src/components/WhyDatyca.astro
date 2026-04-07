@@ -1,0 +1,252 @@
+---
+import Section from './Section.astro';
+import SectionHeader from './SectionHeader.astro';
+
+const cards = [
+  {
+    title: 'ISO/IEC 42001',
+    description: 'Siamo tra le prime società in Italia certificate per i Sistemi di Gestione dell\'Intelligenza Artificiale.',
+  },
+  {
+    title: 'AIGP (IAPP)',
+    description: 'I nostri professionisti sono certificati AIGP, qualifica di riferimento a livello internazionale per la governance dell\'intelligenza artificiale.',
+  },
+  {
+    title: 'Alta formazione',
+    description: 'Docenti e ideatori di percorsi di alta formazione universitaria in materia di governance dell\'intelligenza artificiale.',
+  },
+  {
+    title: 'Legal Tech',
+    description: 'Sviluppiamo piattaforme e strumenti digitali per la gestione integrata della compliance in materia di AI, privacy e cybersecurity.',
+  },
+  {
+    title: 'Ricerca applicata',
+    description: 'Promotori di TAIG Lab, centro studi indipendente dedicato alla ricerca applicata sulla Technical AI Governance.',
+  },
+];
+---
+
+<Section id="why-datyca">
+  <SectionHeader
+    title="Perché Datyca"
+    subtitle="Investiamo in competenze, standard e tecnologie per garantire ai nostri clienti il massimo livello di affidabilità."
+  />
+
+  <div class="why-grid" id="why-grid">
+    {cards.map((card) => (
+      <div class="why-card">
+        <img src="/images/XL/Ico_visual.svg" alt="" width="120" height="120" class="why-card__icon" />
+        <h3 class="text-para-title why-card__title">{card.title}</h3>
+        <p class="text-regular">{card.description}</p>
+      </div>
+    ))}
+    <div class="why-card why-card--cta">
+      <a href="#metodo" class="text-cta why-cta" id="why-cta">
+        <span>SCOPRI COME LAVORIAMO</span>
+        <svg width="18" height="18" aria-hidden="true"><use href="#icon-arrow-forward" /></svg>
+      </a>
+    </div>
+  </div>
+</Section>
+
+<style>
+  .why-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin-top: clamp(40px, 4vw, 60px);
+  }
+
+  .why-card {
+    padding: var(--card-padding);
+    display: flex;
+    flex-direction: column;
+    border-right: 2px solid var(--grid-border-color);
+    border-bottom: 2px solid var(--grid-border-color);
+  }
+
+  /* First row: top border */
+  .why-card:nth-child(-n+3) {
+    border-top: 2px solid var(--grid-border-color);
+  }
+
+  /* First column: left border */
+  .why-card:nth-child(3n+1) {
+    border-left: 2px solid var(--grid-border-color);
+  }
+
+  .why-card__icon {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 30px;
+  }
+
+  .why-card__title {
+    color: var(--color-red);
+    margin-bottom: 30px;
+  }
+
+  .why-card--cta {
+    justify-content: flex-end;
+    align-items: flex-end;
+  }
+
+  .why-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 24px;
+    border: 1px solid var(--color-text);
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  @media (max-width: 767px) {
+    .why-grid {
+      grid-template-columns: 1fr;
+    }
+
+    /* Mobile: all cards get left + right borders */
+    .why-card {
+      border-left: 2px solid var(--grid-border-color);
+    }
+
+    /* Mobile: only first card gets top border */
+    .why-card:nth-child(-n+3) {
+      border-top: none;
+    }
+    .why-card:first-child {
+      border-top: 2px solid var(--grid-border-color);
+    }
+  }
+</style>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import { SplitText } from 'gsap/SplitText';
+
+  function initWhyDatyca() {
+    const section = document.getElementById('why-datyca');
+    if (!section) return;
+
+    // Survives matchMedia revert — tracks whether entrance has played
+    let hasRevealed = false;
+
+    function setupWhyDatyca() {
+      const root = getComputedStyle(document.documentElement);
+      const colorRed = root.getPropertyValue('--color-red').trim();
+      const colorPurple600 = root.getPropertyValue('--color-purple-600').trim();
+      const colorText = root.getPropertyValue('--color-text').trim();
+
+      const titleEl = section.querySelector('.section-header__title') as HTMLElement;
+      const subtitleEl = section.querySelector('.section-header__subtitle') as HTMLElement;
+      const cards = section.querySelectorAll<HTMLElement>('.why-card');
+      const cta = section.querySelector<HTMLElement>('#why-cta');
+
+      if (hasRevealed) {
+        // Already revealed — set final state immediately
+        if (subtitleEl) gsap.set(subtitleEl, { autoAlpha: 1, y: 0 });
+        gsap.set(cards, { autoAlpha: 1, y: 0 });
+      } else {
+        // Initial hidden states
+        gsap.set(cards, { autoAlpha: 0, y: 30 });
+        if (subtitleEl) gsap.set(subtitleEl, { autoAlpha: 0, y: 20 });
+
+        const tl = gsap.timeline({ paused: true });
+
+        if (titleEl) {
+          // Split into words first, then chars on "Datyca" for the wave
+          const wordSplit = SplitText.create(titleEl, { type: 'words', aria: 'none' });
+          const words = wordSplit.words;
+          const datycaWord = words[words.length - 1] as HTMLElement;
+
+          const charSplit = SplitText.create(datycaWord, { type: 'chars', aria: 'none' });
+          charSplit.chars.forEach(c => {
+            (c as HTMLElement).style.display = 'inline-block';
+            (c as HTMLElement).style.perspective = '400px';
+          });
+
+          // Initial state: words hidden below
+          gsap.set(words, { autoAlpha: 0, y: 25 });
+
+          // Words rise with overlap (0.12s delay between)
+          tl.to(words, {
+            autoAlpha: 1, y: 0,
+            duration: 0.7, stagger: 0.12,
+            ease: 'power3.out',
+          }, 0);
+
+          // Color wave + Flip X on "Datyca" chars
+          charSplit.chars.forEach((char, i) => {
+            const offset = 0.25 + i * 0.18;
+
+            tl.to(char, {
+              keyframes: [
+                { color: colorRed, duration: 0.32, ease: 'power1.in' },
+                { color: colorText, duration: 0.58, ease: 'power2.out' },
+              ],
+            }, offset);
+
+            tl.to(char, {
+              rotationX: 360,
+              duration: 0.9,
+              ease: 'power2.inOut',
+            }, offset);
+
+            tl.set(char, { rotationX: 0 }, offset + 0.9);
+          });
+        }
+
+        // Subtitle fade + slide (enters during the wave)
+        if (subtitleEl) {
+          tl.to(subtitleEl, {
+            autoAlpha: 1, y: 0,
+            duration: 0.8, ease: 'power2.out',
+          }, 0.7);
+        }
+
+        // Cards staggered
+        tl.to(cards, {
+          autoAlpha: 1, y: 0,
+          duration: 0.7, stagger: 0.16,
+          ease: 'power2.out',
+        }, 0.85);
+
+        ScrollTrigger.create({
+          id: 'why-datyca-reveal',
+          trigger: section,
+          start: 'top 70%',
+          once: true,
+          onEnter: () => {
+            hasRevealed = true;
+            tl.play();
+          },
+        });
+      }
+
+      // CTA hover
+      const ac = new AbortController();
+      if (cta) {
+        const ctaArrow = cta.querySelector('svg') as SVGElement;
+
+        cta.addEventListener('mouseenter', () => {
+          gsap.to(cta, { borderColor: colorPurple600, color: colorPurple600, duration: 0.25, overwrite: true });
+          if (ctaArrow) gsap.to(ctaArrow, { x: 5, duration: 0.3, ease: 'power2.out', overwrite: true });
+        }, { signal: ac.signal });
+
+        cta.addEventListener('mouseleave', () => {
+          gsap.to(cta, { borderColor: colorText, color: colorText, duration: 0.25, overwrite: true });
+          if (ctaArrow) gsap.to(ctaArrow, { x: 0, duration: 0.3, ease: 'power2.out', overwrite: true });
+        }, { signal: ac.signal });
+      }
+
+      return () => { ac.abort(); };
+    }
+
+    const mm = gsap.matchMedia();
+    mm.add('(min-width: 768px)', setupWhyDatyca);
+    mm.add('(max-width: 767px)', setupWhyDatyca);
+  }
+
+  ((window as any).__initQueue ??= []).push(initWhyDatyca);
+</script>

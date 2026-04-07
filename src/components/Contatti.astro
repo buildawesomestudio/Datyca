@@ -1,0 +1,616 @@
+---
+const sedi = [
+  { city: 'Palermo', address: 'Via Principe di Belmonte, 101', href: 'https://maps.app.goo.gl/rN8tKF9DiP8kpdCK9' },
+  { city: 'Milano', address: 'Via Monte Rosa, 21', href: 'https://maps.app.goo.gl/YUbD2QCikD3WygVc7' },
+  { city: 'Roma', address: 'Via Giuseppe Pisanelli, 1', href: 'https://maps.app.goo.gl/kvgE5BPMKDGFuqpCA' },
+];
+
+const footerLinksLeft = [
+  { label: 'Chi siamo', href: '#' },
+  { label: 'AI Governance', href: '#' },
+  { label: 'Servizi', href: '#' },
+  { label: 'Il nostro impatto', href: '#' },
+  { label: 'Risorse', href: '#' },
+];
+
+const footerLinksRight = [
+  { label: 'info@datyca.com', href: 'mailto:info@datyca.com' },
+  { label: 'Privacy Policy', href: '#' },
+  { label: 'AI Policy', href: '#' },
+  { label: 'Cookie Policy', href: '#' },
+];
+---
+
+<section id="contatti" class="contatti">
+  <div class="contatti__inner">
+    <h2 class="text-h2 contatti__title">Contatti</h2>
+
+    <div class="contatti__grid">
+      <!-- Left: Sedi -->
+      <div class="contatti__info">
+        <p class="text-para-title contatti__sedi-label">Le nostre sedi</p>
+        <div class="contatti__sedi-list">
+          {sedi.map(({ city, address, href }) => (
+            <div class="contatti__sede">
+              <p class="text-para-title contatti__sede-city">{city}</p>
+              <a href={href} target="_blank" rel="noopener noreferrer" class="contatti__sede-address" data-contatti-address>{address}</a>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Right: Form -->
+      <form class="contatti__form" novalidate>
+        <div class="contatti__field">
+          <label for="contatti-nome" class="sr-only">Nome</label>
+          <input
+            type="text"
+            id="contatti-nome"
+            name="nome"
+            class="contatti__input"
+            placeholder="Nome*"
+          />
+          <span class="contatti__error"></span>
+        </div>
+
+        <div class="contatti__row">
+          <div class="contatti__field contatti__field--half">
+            <label for="contatti-email" class="sr-only">Email</label>
+            <input
+              type="email"
+              id="contatti-email"
+              name="email"
+              class="contatti__input"
+              placeholder="Email*"
+            />
+            <span class="contatti__error"></span>
+          </div>
+          <div class="contatti__field contatti__field--half">
+            <label for="contatti-oggetto" class="sr-only">Oggetto</label>
+            <div class="contatti__select-wrap">
+              <select
+                id="contatti-oggetto"
+                name="oggetto"
+                class="contatti__input contatti__select"
+              >
+                <option value="" disabled selected>Oggetto*</option>
+                <option value="info">Informazioni generali</option>
+                <option value="collaborazione">Collaborazione</option>
+                <option value="consulenza">Consulenza</option>
+                <option value="altro">Altro</option>
+              </select>
+              <svg class="contatti__select-icon" width="12" height="12" aria-hidden="true"><use href="#icon-chevron-down" /></svg>
+            </div>
+            <span class="contatti__error"></span>
+          </div>
+        </div>
+
+        <div class="contatti__field">
+          <label for="contatti-messaggio" class="sr-only">Messaggio</label>
+          <textarea
+            id="contatti-messaggio"
+            name="messaggio"
+            class="contatti__input contatti__textarea"
+            placeholder="Messaggio*"
+            rows="5"
+          ></textarea>
+          <span class="contatti__error"></span>
+        </div>
+
+        <button type="submit" class="contatti__submit text-cta" data-contatti-submit>
+          <span>INVIA</span>
+          <svg width="24" height="24" aria-hidden="true"><use href="#icon-arrow-forward" /></svg>
+        </button>
+      </form>
+    </div>
+
+    <hr class="contatti__separator" />
+
+    <footer class="contatti__footer">
+      <div class="contatti__footer-links">
+        <nav class="contatti__footer-col">
+          {footerLinksLeft.map(({ label, href }) => (
+            <a href={href} class="contatti__footer-link" data-contatti-footer-link>{label}</a>
+          ))}
+        </nav>
+        <div class="contatti__footer-col">
+          {footerLinksRight.map(({ label, href }) => (
+            <a href={href} class="contatti__footer-link" data-contatti-footer-link>{label}</a>
+          ))}
+        </div>
+      </div>
+
+      <div class="contatti__bottom">
+        <img
+          src="/images/logo-full_dark.svg"
+          alt="Datyca - Legal Design Lab"
+          class="contatti__logo"
+          width="193"
+          height="60"
+        />
+        <p class="contatti__copyright">
+          &copy; 2025 Datyca S.r.l. &mdash; P.IVA 07026110820
+        </p>
+      </div>
+    </footer>
+  </div>
+</section>
+
+<style>
+  /* ── Section wrapper ── */
+  .contatti {
+    --_pad-x: clamp(40px, 10.9vw, 157px);
+    background: var(--color-white-snow);
+    color: var(--color-black-almost-900);
+    position: relative;
+  }
+
+  /* ── Title ── */
+  .contatti__title {
+    padding: var(--section-padding-y) var(--_pad-x) 0;
+  }
+
+  /* ── Grid ── */
+  .contatti__grid {
+    display: flex;
+    justify-content: space-between;
+    padding: 60px var(--_pad-x) 0;
+    gap: clamp(40px, 6vw, 80px);
+  }
+
+  /* ── Left: Info / Sedi ── */
+  .contatti__info {
+    width: 277px;
+    flex-shrink: 0;
+  }
+
+  .contatti__sedi-label {
+    margin-bottom: 40px;
+  }
+
+  .contatti__sedi-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .contatti__sede-address {
+    display: block;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 20px;
+    color: var(--color-purple-500);
+    text-decoration: none;
+  }
+
+  /* ── Right: Form ── */
+  .contatti__form {
+    flex: 1;
+    max-width: 660px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .contatti__input {
+    width: 100%;
+    border: 2px solid var(--color-black-almost-900);
+    padding: 21px 20px 21px 25px;
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 28px;
+    background: transparent;
+    color: var(--color-black-almost-900);
+    outline: none;
+    border-radius: 0;
+    -webkit-appearance: none;
+  }
+
+  .contatti__input::placeholder {
+    color: var(--color-black-almost-900);
+  }
+
+  /* Collapse adjacent borders */
+  .contatti__row {
+    display: flex;
+  }
+
+  .contatti__row .contatti__input {
+    margin-top: -2px;
+  }
+
+  .contatti__field--half {
+    flex: 1;
+  }
+
+  .contatti__field--half:last-child .contatti__input {
+    border-left: none;
+  }
+
+  /* First input — no collapsed border needed */
+  .contatti__row ~ .contatti__field .contatti__input,
+  .contatti__field:first-child + .contatti__row .contatti__input {
+    /* textarea and row after first input: collapse top border */
+  }
+
+  .contatti__field + .contatti__row .contatti__input {
+    margin-top: -2px;
+  }
+
+  .contatti__row + .contatti__field .contatti__input {
+    margin-top: -2px;
+  }
+
+  /* Textarea */
+  .contatti__textarea {
+    min-height: 200px;
+    resize: vertical;
+  }
+
+  /* Select */
+  .contatti__select-wrap {
+    position: relative;
+  }
+
+  .contatti__select {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 50px;
+    cursor: pointer;
+  }
+
+  /* Placeholder-like style for unselected state */
+  .contatti__select:invalid {
+    color: var(--color-black-almost-900);
+  }
+
+  .contatti__select-icon {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--color-black-almost-900);
+  }
+
+  /* Submit button */
+  .contatti__submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 20px;
+    background: var(--color-purple-500);
+    color: var(--color-white-almost);
+    border: none;
+    padding: 18px 20px 18px 25px;
+    align-self: flex-end;
+    margin-top: 20px;
+    cursor: pointer;
+    border-radius: 0;
+  }
+
+  /* ── Errors ── */
+  .contatti__error {
+    display: none;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--color-red);
+    padding: 6px 0 8px 25px;
+  }
+
+  .contatti__field--error .contatti__error {
+    display: block;
+  }
+
+  /* When a field has an error, remove the negative margin collapse on the next row */
+  .contatti__field--error + .contatti__row .contatti__input,
+  .contatti__field--error + .contatti__field .contatti__input {
+    margin-top: 0;
+  }
+
+  .contatti__row:has(.contatti__field--error) + .contatti__field .contatti__input {
+    margin-top: 0;
+  }
+
+  /* ── Separator ── */
+  .contatti__separator {
+    border: none;
+    border-top: 2px solid var(--color-grey-toned-600);
+    margin: 100px var(--_pad-x);
+  }
+
+  /* ── Footer ── */
+  .contatti__footer-links {
+    display: flex;
+    gap: clamp(80px, 16vw, 233px);
+    padding: 0 var(--_pad-x);
+  }
+
+  .contatti__footer-col {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .contatti__footer-link {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 24px;
+    color: var(--color-black-almost-900);
+    text-decoration: none;
+  }
+
+  /* ── Bottom bar ── */
+  .contatti__bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 60px var(--_pad-x) 60px;
+  }
+
+  .contatti__logo {
+    width: 193px;
+    height: 60px;
+  }
+
+  .contatti__copyright {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 24px;
+    color: var(--color-black-almost-900);
+    text-align: right;
+  }
+</style>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import { SplitText } from 'gsap/SplitText';
+
+  function initContatti() {
+    const section = document.getElementById('contatti');
+    if (!section) return;
+
+    let hasRevealed = false;
+
+    function setup() {
+      const ac = new AbortController();
+
+      const title = section.querySelector('.contatti__title') as HTMLElement;
+      const sediLabel = section.querySelector('.contatti__sedi-label') as HTMLElement;
+      const sedi = section.querySelectorAll<HTMLElement>('.contatti__sede');
+      const fields = section.querySelectorAll<HTMLElement>('.contatti__field, .contatti__row');
+      const submitBtn = section.querySelector('[data-contatti-submit]') as HTMLElement;
+      const separator = section.querySelector('.contatti__separator') as HTMLElement;
+      const footerLinks = section.querySelectorAll<HTMLAnchorElement>('[data-contatti-footer-link]');
+      const bottom = section.querySelector('.contatti__bottom') as HTMLElement;
+      const form = section.querySelector('.contatti__form') as HTMLFormElement;
+      const addresses = section.querySelectorAll<HTMLAnchorElement>('[data-contatti-address]');
+
+      // ── Reveal animation ──
+      if (hasRevealed) {
+        gsap.set(title, { autoAlpha: 1 });
+        gsap.set(sediLabel, { autoAlpha: 1, y: 0 });
+        gsap.set(sedi, { autoAlpha: 1, y: 0 });
+        gsap.set(fields, { autoAlpha: 1, y: 0 });
+        gsap.set(submitBtn, { autoAlpha: 1, y: 0 });
+        gsap.set(separator, { scaleX: 1 });
+        gsap.set(footerLinks, { autoAlpha: 1, y: 0 });
+        gsap.set(bottom, { autoAlpha: 1 });
+      } else {
+        gsap.set(title, { autoAlpha: 0 });
+        gsap.set(sediLabel, { autoAlpha: 0, y: 20 });
+        gsap.set(sedi, { autoAlpha: 0, y: 15 });
+        gsap.set(fields, { autoAlpha: 0, y: 20 });
+        gsap.set(submitBtn, { autoAlpha: 0, y: 15 });
+        gsap.set(separator, { scaleX: 0, transformOrigin: 'left center' });
+        gsap.set(footerLinks, { autoAlpha: 0, y: 15 });
+        gsap.set(bottom, { autoAlpha: 0 });
+
+        const titleSplit = SplitText.create(title, { type: 'words', aria: 'none' });
+        gsap.set(titleSplit.words, { autoAlpha: 0, y: 25 });
+
+        const revealTl = gsap.timeline({ paused: true });
+
+        // Title words
+        revealTl.to(titleSplit.words, {
+          autoAlpha: 1, y: 0,
+          duration: 0.7, stagger: 0.12,
+          ease: 'power2.out',
+        }, 0);
+
+        // "Le nostre sedi"
+        revealTl.to(sediLabel, {
+          autoAlpha: 1, y: 0,
+          duration: 0.6, ease: 'power2.out',
+        }, 0.2);
+
+        // Cities
+        revealTl.to(sedi, {
+          autoAlpha: 1, y: 0,
+          duration: 0.5, stagger: 0.1,
+          ease: 'power2.out',
+        }, 0.3);
+
+        // Form fields
+        revealTl.to(fields, {
+          autoAlpha: 1, y: 0,
+          duration: 0.5, stagger: 0.1,
+          ease: 'power2.out',
+        }, 0.2);
+
+        // Submit button
+        revealTl.to(submitBtn, {
+          autoAlpha: 1, y: 0,
+          duration: 0.5, ease: 'power2.out',
+        }, 0.5);
+
+        // Separator
+        revealTl.to(separator, {
+          scaleX: 1,
+          duration: 0.8, ease: 'power2.out',
+        }, 0.7);
+
+        // Footer links
+        revealTl.to(footerLinks, {
+          autoAlpha: 1, y: 0,
+          duration: 0.4, stagger: 0.06,
+          ease: 'power2.out',
+        }, 0.85);
+
+        // Bottom bar
+        revealTl.to(bottom, {
+          autoAlpha: 1,
+          duration: 0.5, ease: 'power2.out',
+        }, 1.0);
+
+        revealTl.eventCallback('onComplete', () => {
+          titleSplit.revert();
+        });
+
+        ScrollTrigger.create({
+          id: 'contatti-reveal',
+          trigger: section,
+          start: 'top 70%',
+          once: true,
+          onEnter: () => {
+            hasRevealed = true;
+            revealTl.play();
+          },
+        });
+      }
+
+      // ── Hover: Submit button ──
+      const submitArrow = submitBtn.querySelector('svg') as SVGElement;
+
+      submitBtn.addEventListener('mouseenter', () => {
+        gsap.to(submitBtn, {
+          backgroundColor: '#6666FF',
+          duration: 0.3, overwrite: true,
+        });
+        gsap.to(submitArrow, {
+          x: 5, duration: 0.3, ease: 'power2.out', overwrite: true,
+        });
+      }, { signal: ac.signal });
+
+      submitBtn.addEventListener('mouseleave', () => {
+        gsap.to(submitBtn, {
+          backgroundColor: '#4545F7',
+          duration: 0.3, overwrite: true,
+        });
+        gsap.to(submitArrow, {
+          x: 0, duration: 0.3, ease: 'power2.out', overwrite: true,
+        });
+      }, { signal: ac.signal });
+
+      // ── Hover: Footer links ──
+      footerLinks.forEach(link => {
+        link.addEventListener('mouseenter', () => {
+          gsap.to(link, {
+            color: '#F21763',
+            duration: 0.25, overwrite: true,
+          });
+        }, { signal: ac.signal });
+
+        link.addEventListener('mouseleave', () => {
+          gsap.to(link, {
+            color: '#0D0826',
+            duration: 0.25, overwrite: true,
+          });
+        }, { signal: ac.signal });
+      });
+
+      // ── Hover: Indirizzi sedi ──
+      addresses.forEach(addr => {
+        addr.addEventListener('mouseenter', () => {
+          gsap.to(addr, {
+            color: '#F21763',
+            duration: 0.25, overwrite: true,
+          });
+        }, { signal: ac.signal });
+
+        addr.addEventListener('mouseleave', () => {
+          gsap.to(addr, {
+            color: '#4545F7',
+            duration: 0.25, overwrite: true,
+          });
+        }, { signal: ac.signal });
+      });
+
+      // ── Form validation ──
+      const validationRules: Record<string, { test: (v: string) => boolean; message: string }> = {
+        nome:      { test: (v) => v.trim().length > 0,                    message: 'Inserisci il tuo nome' },
+        email:     { test: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),  message: 'Inserisci un\'email valida' },
+        oggetto:   { test: (v) => v.length > 0,                           message: 'Seleziona un oggetto' },
+        messaggio: { test: (v) => v.trim().length > 0,                    message: 'Inserisci un messaggio' },
+      };
+
+      function showError(fieldEl: HTMLElement, input: HTMLElement, message: string) {
+        fieldEl.classList.add('contatti__field--error');
+        const errSpan = fieldEl.querySelector('.contatti__error') as HTMLElement;
+        if (errSpan) errSpan.textContent = message;
+        gsap.to(input, { borderColor: '#F21763', duration: 0.3, overwrite: true });
+      }
+
+      function clearError(fieldEl: HTMLElement, input: HTMLElement) {
+        fieldEl.classList.remove('contatti__field--error');
+        const errSpan = fieldEl.querySelector('.contatti__error') as HTMLElement;
+        if (errSpan) errSpan.textContent = '';
+        gsap.to(input, { borderColor: '#0D0826', duration: 0.3, overwrite: true });
+      }
+
+      // Clear error on focus/input
+      form.querySelectorAll<HTMLElement>('.contatti__input').forEach(input => {
+        const fieldEl = input.closest('.contatti__field') as HTMLElement;
+        if (!fieldEl) return;
+
+        input.addEventListener('focus', () => {
+          if (fieldEl.classList.contains('contatti__field--error')) {
+            clearError(fieldEl, input);
+          }
+        }, { signal: ac.signal });
+
+        input.addEventListener('input', () => {
+          if (fieldEl.classList.contains('contatti__field--error')) {
+            clearError(fieldEl, input);
+          }
+        }, { signal: ac.signal });
+      });
+
+      // Submit handler
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        let valid = true;
+
+        for (const [name, rule] of Object.entries(validationRules)) {
+          const input = form.querySelector<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(`[name="${name}"]`);
+          if (!input) continue;
+
+          const fieldEl = input.closest('.contatti__field') as HTMLElement;
+          if (!fieldEl) continue;
+
+          if (!rule.test(input.value)) {
+            showError(fieldEl, input, rule.message);
+            valid = false;
+          } else {
+            clearError(fieldEl, input);
+          }
+        }
+
+        if (valid) {
+          console.log('[Contatti] Form submitted', Object.fromEntries(new FormData(form)));
+        }
+      }, { signal: ac.signal });
+
+      return () => { ac.abort(); };
+    }
+
+    const mm = gsap.matchMedia();
+    mm.add('(min-width: 768px)', setup);
+  }
+
+  ((window as any).__initQueue ??= []).push(initContatti);
+</script>

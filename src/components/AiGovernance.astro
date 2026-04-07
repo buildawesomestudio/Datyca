@@ -1,0 +1,283 @@
+---
+---
+
+<section id="ai-governance" class="aig">
+  <div class="aig__bg" id="aig-bg"></div>
+
+  <div class="aig__grid">
+    <div class="aig__content">
+      <h2 class="text-h1 aig__title">AI Governance</h2>
+      <p class="aig__subtitle">
+        <strong>Responsible e Trustworthy AI</strong> in una visione unica e integrata
+      </p>
+      <p class="text-body aig__body">
+        Guidiamo le organizzazioni nell'integrazione dell'intelligenza artificiale nei processi interni, coniugando i principi di Responsible e Trustworthy AI in una visione strategica unitaria.
+      </p>
+    </div>
+
+    <div class="aig__services">
+      <p class="text-kicker aig__kicker">I NOSTRI SERVIZI DI AI GOVERNANCE</p>
+
+      <div class="aig__links">
+        <a href="#responsible-ai" class="aig__cta" data-aig-cta>
+          <span>RESPONSIBLE AI</span>
+          <svg width="18" height="18" aria-hidden="true"><use href="#icon-arrow-forward" /></svg>
+        </a>
+        <a href="#trustworthy-ai" class="aig__cta" data-aig-cta>
+          <span>TRUSTWORTHY AI</span>
+          <svg width="18" height="18" aria-hidden="true"><use href="#icon-arrow-forward" /></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .aig {
+    --_pad-left: clamp(40px, 10.9vw, 157px);
+    position: relative;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background: var(--color-bg);
+  }
+
+  /* ── Background image ── */
+  .aig__bg {
+    position: absolute;
+    inset: 0;
+    background: url('/images/Pattern_lettere.webp') center / cover no-repeat;
+    z-index: 0;
+  }
+
+  /* ── Grid layout ── */
+  .aig__grid {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: clamp(40px, 6vw, 80px);
+    width: 100%;
+    padding: var(--section-padding-y) clamp(40px, 10.9vw, 157px) var(--section-padding-y) var(--_pad-left);
+  }
+
+  /* ── Left column ── */
+  .aig__content {
+    max-width: 543px;
+  }
+
+  .aig__title {
+    font-family: var(--font-serif);
+    margin-bottom: clamp(16px, 2vw, 24px);
+  }
+
+  .aig__subtitle {
+    font-family: var(--font-sans);
+    font-size: clamp(22px, calc(22px + 8 * (100vw - 375px) / 1065), 30px);
+    font-weight: 400;
+    line-height: normal;
+    letter-spacing: 0;
+    color: var(--color-text);
+    margin-bottom: clamp(16px, 2vw, 24px);
+  }
+
+  .aig__subtitle strong {
+    font-weight: 600;
+  }
+
+  .aig__body {
+    color: var(--color-grey-200);
+  }
+
+  /* ── Right column ── */
+  .aig__services {
+    flex-shrink: 0;
+  }
+
+  .aig__kicker {
+    margin-bottom: clamp(20px, 2.5vw, 32px);
+  }
+
+  .aig__links {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .aig__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 24px;
+    background: var(--color-black-almost-900);
+    border: 1px solid var(--color-text);
+    color: var(--color-text);
+    text-decoration: none;
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 20px;
+    letter-spacing: 0;
+    text-transform: uppercase;
+    min-width: 280px;
+    justify-content: space-between;
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 767px) {
+    .aig {
+      min-height: auto;
+    }
+
+    .aig__grid {
+      flex-direction: column;
+      gap: 40px;
+      padding-right: var(--section-padding-x);
+    }
+
+    .aig__content {
+      max-width: none;
+    }
+
+    .aig__services {
+      width: 100%;
+    }
+
+    .aig__cta {
+      min-width: 0;
+      width: 100%;
+    }
+  }
+</style>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import { SplitText } from 'gsap/SplitText';
+
+  function initAiGovernance() {
+    const section = document.getElementById('ai-governance');
+    if (!section) return;
+
+    let hasRevealed = false;
+
+    function setup() {
+      const title = section.querySelector('.aig__title') as HTMLElement;
+      const subtitle = section.querySelector('.aig__subtitle') as HTMLElement;
+      const body = section.querySelector('.aig__body') as HTMLElement;
+      const kicker = section.querySelector('.aig__kicker') as HTMLElement;
+      const ctas = section.querySelectorAll<HTMLElement>('[data-aig-cta]');
+      const bg = document.getElementById('aig-bg') as HTMLElement;
+
+      const ac = new AbortController();
+
+      if (hasRevealed) {
+        gsap.set(title, { autoAlpha: 1 });
+        gsap.set(subtitle, { autoAlpha: 1, y: 0 });
+        gsap.set(body, { autoAlpha: 1, y: 0 });
+        gsap.set(kicker, { autoAlpha: 1, y: 0 });
+        gsap.set(ctas, { autoAlpha: 1, y: 0 });
+        gsap.set(bg, { autoAlpha: 1, scale: 1 });
+      } else {
+        // Initial hidden states
+        gsap.set(subtitle, { autoAlpha: 0, y: 20 });
+        gsap.set(body, { autoAlpha: 0, y: 15 });
+        gsap.set(kicker, { autoAlpha: 0, y: 20 });
+        gsap.set(ctas, { autoAlpha: 0, y: 15 });
+        gsap.set(bg, { autoAlpha: 0.3, scale: 1.05 });
+
+        const titleSplit = SplitText.create(title, { type: 'words', aria: 'none' });
+        gsap.set(titleSplit.words, { autoAlpha: 0, y: 25 });
+
+        const revealTl = gsap.timeline({ paused: true });
+
+        // Background reveal
+        revealTl.to(bg, {
+          autoAlpha: 1, scale: 1,
+          duration: 1.2, ease: 'power2.out',
+        }, 0);
+
+        // Title words
+        revealTl.to(titleSplit.words, {
+          autoAlpha: 1, y: 0,
+          duration: 0.7, stagger: 0.12,
+          ease: 'power2.out',
+        }, 0.1);
+
+        // Subtitle
+        revealTl.to(subtitle, {
+          autoAlpha: 1, y: 0,
+          duration: 0.6, ease: 'power2.out',
+        }, 0.4);
+
+        // Body text
+        revealTl.to(body, {
+          autoAlpha: 1, y: 0,
+          duration: 0.6, ease: 'power2.out',
+        }, 0.55);
+
+        // Kicker
+        revealTl.to(kicker, {
+          autoAlpha: 1, y: 0,
+          duration: 0.5, ease: 'power2.out',
+        }, 0.5);
+
+        // CTA buttons staggered
+        revealTl.to(ctas, {
+          autoAlpha: 1, y: 0,
+          duration: 0.5, stagger: 0.12,
+          ease: 'power2.out',
+        }, 0.65);
+
+        revealTl.eventCallback('onComplete', () => {
+          titleSplit.revert();
+        });
+
+        ScrollTrigger.create({
+          id: 'aig-reveal',
+          trigger: section,
+          start: 'top 70%',
+          once: true,
+          onEnter: () => {
+            hasRevealed = true;
+            revealTl.play();
+          },
+        });
+      }
+
+      // ── CTA hover ──
+      ctas.forEach(cta => {
+        const ctaArrow = cta.querySelector('svg') as SVGElement;
+
+        cta.addEventListener('mouseenter', () => {
+          gsap.to(cta, {
+            borderColor: '#6666FF',
+            color: '#6666FF',
+            duration: 0.3, overwrite: true,
+          });
+          if (ctaArrow) gsap.to(ctaArrow, { x: 5, duration: 0.3, ease: 'power2.out', overwrite: true });
+        }, { signal: ac.signal });
+
+        cta.addEventListener('mouseleave', () => {
+          gsap.to(cta, {
+            borderColor: '#EBEBEB',
+            color: '#EBEBEB',
+            duration: 0.3, overwrite: true,
+          });
+          if (ctaArrow) gsap.to(ctaArrow, { x: 0, duration: 0.3, ease: 'power2.out', overwrite: true });
+        }, { signal: ac.signal });
+      });
+
+      return () => { ac.abort(); };
+    }
+
+    const mm = gsap.matchMedia();
+    mm.add('(min-width: 768px)', setup);
+    mm.add('(max-width: 767px)', setup);
+  }
+
+  ((window as any).__initQueue ??= []).push(initAiGovernance);
+</script>

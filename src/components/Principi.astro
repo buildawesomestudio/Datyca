@@ -1,0 +1,308 @@
+---
+import Principio01Anim from './Principio01Anim.astro';
+---
+
+<section id="principi">
+  <div class="tp-inner">
+    <div class="tp-header">
+      <h2 class="text-section-title">I nostri principi</h2>
+      <p class="text-body">I valori che guidano la nostra idea di innovazione responsabile</p>
+    </div>
+
+    <div class="tp-states">
+      <div class="tp-state" data-state="0">
+        <div class="tp-placeholder">
+          <Principio01Anim />
+        </div>
+        <h3 class="text-hero tp-state__title">
+          Facilitiamo il <em>cambiamento</em>
+        </h3>
+        <p class="text-body tp-state__desc">Siamo al fianco delle persone e delle organizzazioni nei momenti di transizione tecnologica. Trasformiamo la complessità in scelte concrete, rendendo l'adozione dell'intelligenza artificiale un percorso sostenibile, comprensibile e umano.</p>
+      </div>
+
+      <div class="tp-state" data-state="1">
+        <div class="tp-placeholder">
+          <span class="text-regular" style="opacity: 0.3;">Animazione 2</span>
+        </div>
+        <h3 class="text-hero tp-state__title">
+          Semplifichiamo la <em>complessità</em>
+        </h3>
+        <p class="text-body tp-state__desc">Applichiamo metodologie tipiche del Legal Design per rendere la compliance accessibile. Traduciamo la complessità normativa e i processi tecnologici in esperienze chiare e inclusive, capaci di generare la fiducia degli stakeholder.</p>
+      </div>
+
+      <div class="tp-state" data-state="2">
+        <div class="tp-placeholder">
+          <span class="text-regular" style="opacity: 0.3;">Animazione 3</span>
+        </div>
+        <h3 class="text-hero tp-state__title">
+          Progettiamo la <em>fiducia</em>
+        </h3>
+        <p class="text-body tp-state__desc">Rendiamo la fiducia un elemento concreto di governance e di design. La integriamo nei modelli organizzativi e nelle interfacce dei sistemi di intelligenza artificiale per creare interazioni trasparenti, sicure e responsabili tra persone e tecnologia.</p>
+      </div>
+
+      <div class="tp-state" data-state="3">
+        <div class="tp-placeholder">
+          <span class="text-regular" style="opacity: 0.3;">Animazione 4</span>
+        </div>
+        <h3 class="text-hero tp-state__title">
+          Mescoliamo <em>competenze</em>
+        </h3>
+        <p class="text-body tp-state__desc">Integriamo diritto, strategia e tecnologia in un linguaggio comune. Creiamo soluzioni che siano insieme conformi alla cornice normativa di riferimento, etiche e orientate al futuro.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  #principi {
+    height: 100vh;
+    height: 100dvh;
+    position: relative;
+    overflow: hidden;
+    background: var(--color-white-snow);
+    color: var(--color-black-almost-900);
+  }
+
+  .tp-inner {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: clamp(40px, 5vw, 70px) 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+  }
+
+  .tp-header {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--section-gap);
+  }
+
+  .tp-states {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-content: center;
+    flex: 1;
+    margin-top: clamp(20px, 2vw, 40px);
+    width: 100%;
+    text-align: center;
+  }
+
+  .tp-state {
+    grid-row: 1 / -1;
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(24px, 3vw, 40px);
+  }
+
+  .tp-placeholder {
+    width: clamp(160px, 30vw, 260px);
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .tp-placeholder :global(svg) {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  /* Placeholder style for states still without animation */
+  .tp-placeholder:not(:has(svg)) {
+    width: 500px;
+    max-width: 100%;
+    height: 140px;
+    border: 2px dashed var(--color-grey-300);
+  }
+
+  .tp-state__title {
+    color: var(--color-black-almost-900);
+  }
+
+  .tp-state__title em {
+    font-style: italic;
+    color: var(--color-red);
+  }
+
+  .tp-state__desc {
+    max-width: 540px;
+  }
+</style>
+
+<style is:global>
+  .pin-spacer:has(> #principi) {
+    background-color: var(--color-white-snow) !important;
+  }
+</style>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+
+  function initPrincipi() {
+    const section = document.getElementById('principi');
+    if (!section) return;
+
+    let principiTl: gsap.core.Timeline | null = null;
+
+    // Lightweight resize: pin-spacer width + invalidate (every frame, non-debounced)
+    window.addEventListener('resize', () => {
+      const spacer = section.parentElement;
+      if (spacer?.classList.contains('pin-spacer')) {
+        const w = innerWidth + 'px';
+        spacer.style.width = spacer.style.maxWidth = w;
+        section.style.width = section.style.maxWidth = w;
+      }
+      if (principiTl) {
+        principiTl.invalidate();
+        principiTl.progress(principiTl.progress());
+      }
+    });
+
+    function setupPrincipi() {
+      const states = section.querySelectorAll<HTMLElement>('.tp-state');
+
+      // Initial: first visible, rest hidden
+      gsap.set(states[0], { autoAlpha: 1 });
+      gsap.set(Array.from(states).slice(1), { autoAlpha: 0, yPercent: 8 });
+
+      // Set initial state for stagger children
+      states.forEach(state => {
+        const children = state.querySelectorAll<HTMLElement>('.tp-placeholder, .tp-state__title, .tp-state__desc');
+        gsap.set(children, { y: 0 });
+      });
+
+      const tl = principiTl = gsap.timeline({
+        scrollTrigger: {
+          id: 'principi-anim',
+          trigger: section,
+          start: 'top top',
+          end: '+=300%',
+          pin: true,
+          scrub: 0.5,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          snap: {
+            snapTo: 'labels',
+            duration: { min: 0.2, max: 0.6 },
+            delay: 0.1,
+            ease: 'power1.inOut',
+          },
+          onRefresh: (self) => {
+            const t = self.getTween();
+            if (t) t.progress(self.progress);
+          },
+        },
+      });
+
+      // Label for first state
+      tl.addLabel('state0', 0);
+
+      states.forEach((state, i) => {
+        if (i < states.length - 1) {
+          // Phase 1: Children stagger OUT (desc → title → placeholder)
+          const currChildren = state.querySelectorAll<HTMLElement>('.tp-placeholder, .tp-state__title, .tp-state__desc');
+          const reversed = Array.from(currChildren).reverse();
+          reversed.forEach((child, ci) => {
+            tl.fromTo(child,
+              { y: 0, autoAlpha: 1 },
+              { y: -20, autoAlpha: 0, ease: 'none', duration: 0.12 },
+              i + 0.15 + ci * 0.05,
+            );
+          });
+
+          // Hide the whole state after children are gone
+          const hidePos = i + 0.15 + reversed.length * 0.05 + 0.12;
+          tl.fromTo(state,
+            { autoAlpha: 1 },
+            { autoAlpha: 0, duration: 0.001 },
+            hidePos,
+          );
+
+          // Phase 2: Next state — container fades in (tighter gap after exit)
+          tl.fromTo(states[i + 1],
+            { autoAlpha: 0 },
+            { autoAlpha: 1, ease: 'none', duration: 0.1 },
+            hidePos + 0.03,
+          );
+
+          // Phase 3: Children stagger in from below
+          const nextChildren = states[i + 1].querySelectorAll<HTMLElement>('.tp-placeholder, .tp-state__title, .tp-state__desc');
+          const enterStart = hidePos + 0.05;
+          nextChildren.forEach((child, ci) => {
+            tl.fromTo(child,
+              { y: 20, autoAlpha: 0 },
+              { y: 0, autoAlpha: 1, ease: 'none', duration: 0.15 },
+              enterStart + ci * 0.06,
+            );
+          });
+
+          // Label at the resting point
+          tl.addLabel(`state${i + 1}`, i + 1);
+        }
+      });
+
+      // Final dwell so last state has hold time
+      tl.to({}, { duration: 0.5 });
+
+      // Per-state SMIL SVG pause management
+      const animSvgs = section.querySelectorAll<SVGSVGElement>('.tp-anim-svg');
+      let activeAnim = -1;
+      let sectionVisible = false;
+
+      function setActiveAnim(idx: number) {
+        if (idx === activeAnim) return;
+        if (activeAnim >= 0 && animSvgs[activeAnim]) animSvgs[activeAnim].pauseAnimations();
+        activeAnim = idx;
+        if (sectionVisible && animSvgs[idx]) animSvgs[idx].unpauseAnimations();
+      }
+
+      function pauseAll() {
+        sectionVisible = false;
+        animSvgs.forEach(s => s.pauseAnimations());
+      }
+
+      // Track state changes via timeline time (labels at integer positions)
+      tl.eventCallback('onUpdate', () => {
+        setActiveAnim(Math.min(Math.round(tl.time()), states.length - 1));
+      });
+
+      // Section visibility gate — pause all when off-screen
+      const visTrigger = ScrollTrigger.create({
+        id: 'principi-anim-visibility',
+        trigger: section,
+        start: 'top bottom',
+        end: 'bottom top',
+        onEnter: () => { sectionVisible = true; if (animSvgs[activeAnim]) animSvgs[activeAnim].unpauseAnimations(); },
+        onLeave: pauseAll,
+        onEnterBack: () => { sectionVisible = true; if (animSvgs[activeAnim]) animSvgs[activeAnim].unpauseAnimations(); },
+        onLeaveBack: pauseAll,
+      });
+
+      // Activate state 0 initially
+      setActiveAnim(0);
+
+      // Cleanup: kill visibility trigger, pause all SVGs (matchMedia revert handles the rest)
+      return () => {
+        principiTl = null;
+        visTrigger.kill();
+        pauseAll();
+        activeAnim = -1;
+      };
+    }
+
+    const mm = gsap.matchMedia();
+    mm.add('(min-width: 768px)', setupPrincipi);
+    mm.add('(max-width: 767px)', setupPrincipi);
+  }
+
+  ((window as any).__initQueue ??= []).push(initPrincipi);
+</script>

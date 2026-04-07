@@ -1,0 +1,219 @@
+<section id="hero">
+  <div id="hero-video-frame">
+    <video id="hero-video" autoplay muted loop playsinline>
+      <source src="/video/hero-av1.mp4" type='video/mp4; codecs="av01.0.08M.08"' />
+      <source src="/video/hero-h264.mp4" type="video/mp4" />
+    </video>
+    <div id="hero-overlay"></div>
+  </div>
+
+  <div id="hero-content">
+    <h1 id="hero-title">
+      Empowering <span class="hero-accent">trust</span>, creating opportunities
+    </h1>
+
+    <div id="hero-details">
+      <p>Siamo una società di consulenza legale specializzata in AI Governance, Data Protection e Cybersecurity.</p>
+      <p>Progettiamo modelli di governance e compliance evoluti capaci di assicurare conformità normativa e generare fiducia, valore e competitività</p>
+      <a href="#servizi" id="hero-cta">
+        <span>SCOPRI COSA FACCIAMO</span>
+        <svg width="18" height="18" aria-hidden="true"><use href="#icon-arrow-forward" /></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  #hero {
+    height: 100vh;
+    height: 100dvh;
+    position: relative;
+    overflow: hidden;
+    background: var(--color-bg);
+  }
+
+  #hero-video-frame {
+    position: absolute;
+    overflow: hidden;
+  }
+
+  #hero-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  #hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(284.84deg, rgba(13, 8, 38, 0.8) 0%, rgba(13, 8, 38, 0) 100%);
+  }
+
+  #hero-content {
+    position: absolute;
+    top: 50%;
+    right: clamp(20px, 5.6vw, 80px);
+    max-width: clamp(320px, 37.7vw, 543px);
+    visibility: hidden;
+  }
+
+  #hero-title {
+    font-family: var(--font-serif);
+    font-size: clamp(45px, calc(45px + 15 * (100vw - 375px) / 1065), 60px);
+    font-weight: 400;
+    line-height: clamp(50px, calc(50px + 10 * (100vw - 375px) / 1065), 60px);
+    letter-spacing: -0.04em;
+  }
+
+  .hero-accent {
+    color: var(--color-pink);
+    font-style: italic;
+  }
+
+  #hero-details {
+    max-width: clamp(300px, 29.6vw, 426px);
+  }
+
+  #hero-details p {
+    font-size: clamp(17px, calc(17px + 3 * (100vw - 375px) / 1065), 20px);
+    line-height: clamp(24px, calc(24px + 4 * (100vw - 375px) / 1065), 28px);
+    margin-bottom: clamp(12px, 1.4vw, 20px);
+  }
+
+  #hero-cta {
+    display: inline-flex;
+    margin-top: 20px;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 24px;
+    border: 1px solid var(--color-text);
+    color: var(--color-text);
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 20px;
+    letter-spacing: 0;
+    text-transform: uppercase;
+  }
+</style>
+
+<script>
+  import gsap from 'gsap';
+  import { SplitText } from 'gsap/SplitText';
+
+  function initHero() {
+    const hero = document.getElementById('hero');
+    if (!hero) return;
+
+    let heroTl: gsap.core.Timeline | null = null;
+
+    // Lightweight resize: pin-spacer width + invalidate (every frame, non-debounced)
+    window.addEventListener('resize', () => {
+      const spacer = hero.parentElement;
+      if (spacer?.classList.contains('pin-spacer')) {
+        const w = innerWidth + 'px';
+        spacer.style.width = spacer.style.maxWidth = w;
+        hero.style.width = hero.style.maxWidth = w;
+      }
+      if (heroTl) {
+        heroTl.invalidate();
+        heroTl.progress(heroTl.progress());
+      }
+    });
+
+    function setupHero() {
+      const getHeaderH = () => {
+        if (innerWidth >= 768) {
+          return document.getElementById('header')?.offsetHeight ?? 140;
+        }
+        return document.getElementById('header-compact')?.offsetHeight ?? 80;
+      };
+      const getInset = () => innerWidth * 0.028;
+      const root = getComputedStyle(document.documentElement);
+      const colorPurple600 = root.getPropertyValue('--color-purple-600').trim();
+      const colorText = root.getPropertyValue('--color-text').trim();
+
+      // SplitText must run before collapsing height — needs natural layout
+      const paragraphs = hero.querySelectorAll<HTMLElement>('#hero-details p');
+      const splits = Array.from(paragraphs).map(p =>
+        SplitText.create(p, { type: 'lines', aria: 'none' })
+      );
+      const allLines = splits.flatMap(s => s.lines);
+
+      // Initial states
+      gsap.set('#hero-video-frame', { top: 0, left: 0, right: 0, bottom: 0 });
+      gsap.set('#hero-content', { yPercent: -50, autoAlpha: 1 });
+      gsap.set(allLines, { autoAlpha: 0, y: 20 });
+      gsap.set('#hero-cta', { autoAlpha: 0, y: 20 });
+      gsap.set('#hero-details', { height: 0, marginTop: 0 });
+
+      const tl = heroTl = gsap.timeline({
+        scrollTrigger: {
+          id: 'hero-anim',
+          trigger: hero,
+          start: 'top top',
+          end: '+=200%',
+          pin: true,
+          scrub: 0.8,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          onRefresh: (self) => {
+            const t = self.getTween();
+            if (t) t.progress(self.progress);
+          },
+        },
+      });
+
+      // Phase 1: video shrinks + content recenters (0 → 1)
+      tl.fromTo('#hero-video-frame', {
+        top: 0, left: 0, right: 0, bottom: 0,
+      }, {
+        top: () => getHeaderH(), left: () => getInset(), right: () => getInset(), bottom: 0,
+        ease: 'none', duration: 1,
+      }, 0);
+
+      tl.fromTo('#hero-content', { y: 0 }, {
+        y: () => getHeaderH() / 2, ease: 'none', duration: 1,
+      }, 0);
+
+      // Phase 2: details expand + lines reveal (1 → 2)
+      tl.fromTo('#hero-details', { height: 0, marginTop: 0 }, {
+        height: 'auto', marginTop: () => innerWidth * 0.022,
+        ease: 'none', duration: 1,
+      }, 1);
+
+      tl.fromTo(allLines, { autoAlpha: 0, y: 20 }, {
+        autoAlpha: 1, y: 0, ease: 'none',
+        duration: 0.15, stagger: 0.08,
+      }, 1.1);
+
+      tl.fromTo('#hero-cta', { autoAlpha: 0, y: 20 }, {
+        autoAlpha: 1, y: 0, ease: 'none', duration: 0.15,
+      }, '>');
+
+      // CTA hover
+      const cta = hero.querySelector<HTMLElement>('#hero-cta')!;
+      const ac = new AbortController();
+
+      const ctaArrow = cta.querySelector('svg') as SVGElement;
+
+      cta.addEventListener('mouseenter', () => {
+        gsap.to(cta, { borderColor: colorPurple600, color: colorPurple600, duration: 0.25, overwrite: true });
+        if (ctaArrow) gsap.to(ctaArrow, { x: 5, duration: 0.3, ease: 'power2.out', overwrite: true });
+      }, { signal: ac.signal });
+
+      cta.addEventListener('mouseleave', () => {
+        gsap.to(cta, { borderColor: colorText, color: colorText, duration: 0.25, overwrite: true });
+        if (ctaArrow) gsap.to(ctaArrow, { x: 0, duration: 0.3, ease: 'power2.out', overwrite: true });
+      }, { signal: ac.signal });
+
+      return () => { heroTl = null; ac.abort(); };
+    }
+
+    const mm = gsap.matchMedia();
+    mm.add('(min-width: 768px)', setupHero);
+    mm.add('(max-width: 767px)', setupHero);
+  }
+
+  ((window as any).__initQueue ??= []).push(initHero);
+</script>

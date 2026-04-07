@@ -1,0 +1,302 @@
+---
+interface SubItem {
+  label: string;
+  href: string;
+}
+
+interface NavGroup {
+  label: string;
+  href: string;
+  children?: SubItem[];
+}
+
+const leftColumn: (NavGroup | { label: string; href: string })[] = [
+  { label: 'Home', href: '/' },
+  {
+    label: 'Chi siamo',
+    href: '/chi-siamo',
+    children: [
+      { label: 'Perché Datyca', href: '/chi-siamo/perche-datyca' },
+      { label: 'Missione', href: '/chi-siamo/missione' },
+      { label: 'Principi', href: '/chi-siamo/principi' },
+      { label: 'Metodo', href: '/chi-siamo/metodo' },
+    ],
+  },
+  {
+    label: 'Il nostro impatto',
+    href: '/il-nostro-impatto',
+    children: [
+      { label: 'TAIG Lab', href: '/il-nostro-impatto/taig-lab' },
+      { label: 'AI Learn Hub', href: '/il-nostro-impatto/ai-learn-hub' },
+      { label: 'Centro Studi', href: '/il-nostro-impatto/centro-studi' },
+    ],
+  },
+];
+
+const rightColumn: (NavGroup | { label: string; href: string })[] = [
+  {
+    label: 'AI Governance',
+    href: '/ai-governance',
+    children: [
+      { label: 'Responsible AI', href: '/ai-governance/responsible-ai' },
+      { label: 'Trustworthy AI', href: '/ai-governance/trustworthy-ai' },
+    ],
+  },
+  {
+    label: 'Servizi',
+    href: '/servizi',
+    children: [
+      { label: 'Data Protection', href: '/servizi/data-protection' },
+      { label: 'Cybersecurity', href: '/servizi/cybersecurity' },
+      { label: 'Legal Desk', href: '/servizi/legal-desk' },
+      { label: 'Legal Design', href: '/servizi/legal-design' },
+    ],
+  },
+  { label: 'Risorse', href: '/risorse' },
+  { label: 'Contatti', href: '/contatti' },
+];
+---
+
+<div id="megamenu">
+  <div class="megamenu-header">
+    <a href="/" class="megamenu-logo">
+      <img src="/images/logo-full_dark.svg" alt="Datyca - Legal Design Lab" width="220" height="68" />
+    </a>
+    <button id="megamenu-close" class="megamenu-close" aria-label="Chiudi menu">
+      <svg width="40" height="40" aria-hidden="true" fill="currentColor"><use href="#icon-close" /></svg>
+    </button>
+  </div>
+
+  <div class="megamenu-columns">
+    <div class="megamenu-col">
+      {leftColumn.map((group) => (
+        <div class="megamenu-group">
+          {'children' in group && group.children ? (
+            <>
+              <span class="megamenu-parent">{group.label}</span>
+              {group.children.map((child) => (
+                <a href={child.href} class="megamenu-link">
+                  <span>{child.label}</span>
+                  <svg class="megamenu-arrow" width="18" height="18" aria-hidden="true"><use href="#icon-arrow-forward" /></svg>
+                </a>
+              ))}
+            </>
+          ) : (
+            <a href={group.href} class="megamenu-link megamenu-link--top">{group.label}</a>
+          )}
+        </div>
+      ))}
+    </div>
+
+    <div class="megamenu-col">
+      {rightColumn.map((group) => (
+        <div class="megamenu-group">
+          {'children' in group && group.children ? (
+            <>
+              <span class="megamenu-parent">{group.label}</span>
+              {group.children.map((child) => (
+                <a href={child.href} class="megamenu-link">
+                  <span>{child.label}</span>
+                  <svg class="megamenu-arrow" width="18" height="18" aria-hidden="true"><use href="#icon-arrow-forward" /></svg>
+                </a>
+              ))}
+            </>
+          ) : (
+            <a href={group.href} class="megamenu-link megamenu-link--top">{group.label}</a>
+          )}
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
+
+<style>
+  #megamenu {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: var(--color-white-snow);
+    clip-path: circle(0% at 95% 3%);
+    pointer-events: none;
+    overflow-y: auto;
+  }
+
+  .megamenu-header {
+    display: flex;
+    align-items: center;
+    padding: 30px 40px;
+  }
+
+  .megamenu-logo {
+    display: flex;
+    align-items: center;
+  }
+
+  .megamenu-logo img {
+    width: 220px;
+    height: auto;
+  }
+
+  .megamenu-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 15px;
+    color: var(--color-purple-500);
+  }
+
+  .megamenu-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 60px;
+    padding: 0 40px 80px;
+  }
+
+  .megamenu-group {
+    border-bottom: 2px solid var(--color-grey-toned-600);
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+  }
+
+  .megamenu-group:first-child {
+    border-top: 2px solid var(--color-grey-toned-600);
+    padding-top: 10px;
+  }
+
+  .megamenu-parent {
+    display: block;
+    font-size: 26px;
+    font-weight: 400;
+    line-height: 20px;
+    letter-spacing: -0.04em;
+    color: var(--color-blue-deep-800);
+    padding: 20px 0;
+  }
+
+  .megamenu-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 26px;
+    font-weight: 400;
+    line-height: 20px;
+    letter-spacing: 0;
+    color: var(--color-purple-500);
+    text-decoration: none;
+    padding: 20px 0 20px 40px;
+  }
+
+  .megamenu-link--top {
+    padding: 20px 0;
+  }
+
+  .megamenu-arrow {
+    color: var(--color-purple-500);
+  }
+</style>
+
+<script>
+  import gsap from 'gsap';
+
+  function initMegamenu() {
+    const megamenu = document.getElementById('megamenu');
+    const openBtn = document.getElementById('menu-toggle');
+    const closeBtn = document.getElementById('megamenu-close');
+    if (!megamenu || !openBtn || !closeBtn) return;
+
+    const smoother = (window as any).__smoother;
+    const root = getComputedStyle(document.documentElement);
+    const colorPurple = root.getPropertyValue('--color-purple-500').trim();
+    const colorRed = root.getPropertyValue('--color-red').trim();
+    let isOpen = false;
+    let tween: gsap.core.Tween | null = null;
+
+    const ac = new AbortController();
+    const { signal } = ac;
+
+    // ═══ CIRCLE ORIGIN (center of hamburger button) ═══
+    function getOrigin() {
+      const rect = openBtn.getBoundingClientRect();
+      const x = ((rect.left + rect.width / 2) / window.innerWidth) * 100;
+      const y = ((rect.top + rect.height / 2) / window.innerHeight) * 100;
+      return `${x.toFixed(1)}% ${y.toFixed(1)}%`;
+    }
+
+    // ═══ OPEN ═══
+    openBtn.addEventListener('click', () => {
+      if (isOpen) return;
+      isOpen = true;
+      if (tween) tween.kill();
+
+      const origin = getOrigin();
+      gsap.set(megamenu, { clipPath: `circle(0% at ${origin})` });
+      megamenu.style.pointerEvents = 'auto';
+      if (smoother) smoother.paused(true);
+
+      tween = gsap.to(megamenu, {
+        clipPath: `circle(150% at ${origin})`,
+        duration: 1,
+        ease: 'power3.inOut',
+      });
+    }, { signal });
+
+    // ═══ CLOSE ═══
+    function close() {
+      if (!isOpen) return;
+      isOpen = false;
+      if (tween) tween.kill();
+
+      const origin = getOrigin();
+      tween = gsap.to(megamenu, {
+        clipPath: `circle(0% at ${origin})`,
+        duration: 0.8,
+        ease: 'power3.inOut',
+        onComplete: () => {
+          megamenu.style.pointerEvents = 'none';
+          if (smoother) smoother.paused(false);
+        },
+      });
+    }
+
+    closeBtn.addEventListener('click', close, { signal });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isOpen) close();
+    }, { signal });
+
+    // ═══ INITIAL STATES ═══
+    gsap.set('.megamenu-arrow', { autoAlpha: 0, x: -8 });
+
+    // ═══ LINK HOVER ═══
+    megamenu.querySelectorAll<HTMLElement>('.megamenu-link').forEach((link) => {
+      const arrow = link.querySelector<SVGElement>('.megamenu-arrow');
+
+      link.addEventListener('mouseenter', () => {
+        gsap.to(link, { color: colorRed, duration: 0.25, overwrite: true });
+        if (arrow) gsap.to(arrow, { autoAlpha: 1, x: 0, color: colorRed, duration: 0.25, overwrite: true });
+      }, { signal });
+
+      link.addEventListener('mouseleave', () => {
+        gsap.to(link, { color: colorPurple, duration: 0.25, overwrite: true });
+        if (arrow) gsap.to(arrow, { autoAlpha: 0, x: -8, duration: 0.2, overwrite: true });
+      }, { signal });
+    });
+
+    // ═══ CLOSE BUTTON HOVER ═══
+    closeBtn.addEventListener('mouseenter', () => {
+      gsap.to(closeBtn, { color: colorRed, duration: 0.25, overwrite: true });
+    }, { signal });
+
+    closeBtn.addEventListener('mouseleave', () => {
+      gsap.to(closeBtn, { color: colorPurple, duration: 0.25, overwrite: true });
+    }, { signal });
+  }
+
+  ((window as any).__initQueue ??= []).push(initMegamenu);
+</script>

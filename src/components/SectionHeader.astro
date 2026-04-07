@@ -1,0 +1,24 @@
+---
+interface Props {
+  title: string;
+  subtitle?: string;
+  titleClass?: string;
+}
+
+const { title, subtitle, titleClass = 'text-h1' } = Astro.props;
+---
+
+<div class="section-header">
+  <h2 class:list={[titleClass, 'section-header__title']}>{title}</h2>
+  {subtitle && <p class="text-body section-header__subtitle">{subtitle}</p>}
+</div>
+
+<style>
+  .section-header {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--section-gap);
+  }
+</style>

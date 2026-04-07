@@ -1,11 +1,24 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero.astro';
+import WhyDatyca from '../components/WhyDatyca.astro';
+import Missione from '../components/Missione.astro';
+import Principi from '../components/Principi.astro';
+import CosaFacciamo from '../components/CosaFacciamo.astro';
+import AiGovernance from '../components/AiGovernance.astro';
+import CtaImpatto from '../components/CtaImpatto.astro';
+import Contatti from '../components/Contatti.astro';
 ---
 
-<Layout title="Datyca" description="Datyca">
+<Layout title="Datyca" description="Datyca - Legal Design Lab. Consulenza legale specializzata in AI Governance, Data Protection e Cybersecurity.">
   <main>
-    <section class="min-h-screen flex items-center justify-center">
-      <h1 class="text-4xl font-bold">Datyca</h1>
-    </section>
+    <Hero />
+    <WhyDatyca />
+    <Missione />
+    <Principi />
+    <CosaFacciamo />
+    <AiGovernance />
+    <CtaImpatto />
+    <Contatti />
   </main>
 </Layout>

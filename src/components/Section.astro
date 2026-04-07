@@ -1,0 +1,18 @@
+---
+interface Props {
+  id: string;
+  class?: string;
+}
+
+const { id, class: className } = Astro.props;
+---
+
+<section id={id} class:list={['section', className]}>
+  <slot />
+</section>
+
+<style>
+  .section {
+    padding: var(--section-padding-y) var(--section-padding-x);
+  }
+</style>

@@ -1,0 +1,329 @@
+---
+---
+
+<section id="missione" class="missione">
+  <!-- Image: absolute right, spans full section height -->
+  <div class="missione__image-wrap" id="missione-image-wrap">
+    <img
+      src="/images/nitish-goswami-zZuk1GV3V28-unsplash 2.webp"
+      alt="Una mano protesa in luce colorata, simbolo di fiducia e connessione"
+      class="missione__image"
+      width="543"
+      height="437"
+      loading="lazy"
+      decoding="async"
+    />
+  </div>
+
+  <p class="text-kicker missione__kicker">LA NOSTRA MISSIONE</p>
+
+  <!-- Ticker: base (white) + clip container with colored version -->
+  <div class="missione__ticker-wrap" id="missione-ticker-wrap" aria-hidden="true">
+    <div class="missione__ticker" id="ticker-base">
+      <span class="missione__ticker-text">TRUST&ensp;→&ensp;</span>
+      <span class="missione__ticker-text">TRUST&ensp;→&ensp;</span>
+      <span class="missione__ticker-text">TRUST&ensp;→&ensp;</span>
+      <span class="missione__ticker-text">TRUST&ensp;→&ensp;</span>
+      <span class="missione__ticker-text">TRUST&ensp;→&ensp;</span>
+      <span class="missione__ticker-text">TRUST&ensp;→&ensp;</span>
+      <span class="missione__ticker-text">TRUST&ensp;→&ensp;</span>
+      <span class="missione__ticker-text">TRUST&ensp;→&ensp;</span>
+    </div>
+    <!-- Clip container: overflow:hidden, positioned over image -->
+    <div class="missione__ticker-clip" id="ticker-clip">
+      <div class="missione__ticker missione__ticker--colored" id="ticker-colored">
+        <span class="missione__ticker-text">TRUST&ensp;→&ensp;</span>
+        <span class="missione__ticker-text">TRUST&ensp;→&ensp;</span>
+        <span class="missione__ticker-text">TRUST&ensp;→&ensp;</span>
+        <span class="missione__ticker-text">TRUST&ensp;→&ensp;</span>
+        <span class="missione__ticker-text">TRUST&ensp;→&ensp;</span>
+        <span class="missione__ticker-text">TRUST&ensp;→&ensp;</span>
+        <span class="missione__ticker-text">TRUST&ensp;→&ensp;</span>
+        <span class="missione__ticker-text">TRUST&ensp;→&ensp;</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="missione__content">
+    <h2 class="text-h2 missione__title">Diamo forma alla <em>fiducia</em></h2>
+
+    <div class="missione__paragraphs">
+      <p class="text-body">Il concetto di "Trust" è al centro della nostra missione: un requisito indispensabile da integrare, misurare e coltivare nel tempo.</p>
+
+      <p class="text-body"><strong>Progettiamo la fiducia</strong> come architettura che sostiene sistemi di governance, processi decisionali e interfacce digitali. La fiducia diventa così linguaggio, metodo e risultato: ciò che consente di innovare con responsabilità, condividere conoscenza e generare valore sostenibile.</p>
+
+      <p class="text-body"><strong>"Empowering Trust"</strong> per noi significa costruire ecosistemi in cui trasparenza, spiegabilità e sicurezza diventano esperienze tangibili per le persone che vivono, guidano e usano la tecnologia.</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .missione {
+    --_pad-left: clamp(40px, 10.9vw, 157px);
+    position: relative;
+    padding: var(--section-padding-y) 0 var(--section-padding-y) var(--_pad-left);
+    overflow: hidden;
+  }
+
+  /* ── Image: absolute right, flush to viewport edge ── */
+  .missione__image-wrap {
+    position: absolute;
+    top: var(--section-padding-y);
+    right: 0;
+    width: clamp(340px, 38vw, 543px);
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .missione__image {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+
+  /* ── Kicker ── */
+  .missione__kicker {
+    position: relative;
+    z-index: 2;
+    margin-bottom: 20px;
+  }
+
+  /* ── Ticker ── */
+  .missione__ticker-wrap {
+    position: relative;
+    z-index: 2;
+    margin-left: calc(-1 * var(--_pad-left));
+    margin-bottom: clamp(20px, 2vw, 32px);
+    overflow: hidden;
+  }
+
+  .missione__ticker {
+    display: flex;
+    white-space: nowrap;
+    will-change: transform;
+  }
+
+  .missione__ticker-text {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 60px;
+    line-height: normal;
+    letter-spacing: 0;
+    color: var(--color-white-almost);
+    flex-shrink: 0;
+  }
+
+  /* Clip container: sits over image area, hides overflow */
+  .missione__ticker-clip {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+    /* left + width set by JS */
+  }
+
+  .missione__ticker--colored {
+    position: absolute;
+    top: 0;
+    /* left set by JS to align with base ticker */
+  }
+
+  .missione__ticker--colored .missione__ticker-text {
+    background: linear-gradient(90deg, #6666FF, #FF00FF, #F21763);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* ── Content ── */
+  .missione__content {
+    position: relative;
+    z-index: 2;
+    max-width: 543px;
+  }
+
+  .missione__title {
+    margin-bottom: clamp(20px, 2vw, 32px);
+  }
+
+  .missione__title em {
+    font-style: normal;
+    color: var(--color-pink);
+  }
+
+  .missione__paragraphs {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .missione__paragraphs strong {
+    font-weight: 600;
+  }
+
+  @media (max-width: 767px) {
+    .missione__image-wrap {
+      position: relative;
+      top: auto;
+      right: auto;
+      width: 100%;
+      margin-bottom: 24px;
+    }
+
+    .missione__content {
+      max-width: none;
+    }
+
+    .missione__ticker-text {
+      font-size: 40px;
+    }
+  }
+</style>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import { SplitText } from 'gsap/SplitText';
+
+  function initMissione() {
+    const section = document.getElementById('missione');
+    if (!section) return;
+
+    let hasRevealed = false;
+    let idleTweens: gsap.core.Tween[] = [];
+
+    function setup() {
+      idleTweens = [];
+
+      const kicker = section.querySelector('.missione__kicker') as HTMLElement;
+      const titleEl = section.querySelector('.missione__title') as HTMLElement;
+      const paragraphs = section.querySelectorAll<HTMLElement>('.missione__paragraphs .text-body');
+      const imageWrap = document.getElementById('missione-image-wrap') as HTMLElement;
+      const tickerWrap = document.getElementById('missione-ticker-wrap') as HTMLElement;
+      const tickerBase = document.getElementById('ticker-base') as HTMLElement;
+      const tickerClip = document.getElementById('ticker-clip') as HTMLElement;
+      const tickerColored = document.getElementById('ticker-colored') as HTMLElement;
+
+      // ── Position colored ticker clip over image ──
+      function updateClip() {
+        const imgRect = imageWrap.getBoundingClientRect();
+        const wrapRect = tickerWrap.getBoundingClientRect();
+
+        const clipLeft = imgRect.left - wrapRect.left;
+        const clipWidth = imgRect.width;
+
+        tickerClip.style.left = clipLeft + 'px';
+        tickerClip.style.width = clipWidth + 'px';
+
+        // Offset colored ticker so text aligns with base ticker
+        tickerColored.style.left = (-clipLeft) + 'px';
+      }
+
+      const ac = new AbortController();
+      window.addEventListener('resize', updateClip, { signal: ac.signal });
+      updateClip();
+
+      // ── Ticker animation (repeat: -1) ──
+      // Use identical pixel distance (not xPercent) so both layers stay in perfect sync
+      const halfWidth = tickerBase.scrollWidth / 2;
+      const tickerDuration = 20;
+
+      const tweenBase = gsap.to(tickerBase, {
+        x: -halfWidth, duration: tickerDuration,
+        ease: 'none', repeat: -1, paused: true,
+      });
+      idleTweens.push(tweenBase);
+
+      const tweenColored = gsap.to(tickerColored, {
+        x: -halfWidth, duration: tickerDuration,
+        ease: 'none', repeat: -1, paused: true,
+      });
+      idleTweens.push(tweenColored);
+
+      // ── Entrance animation ──
+      if (hasRevealed) {
+        gsap.set(kicker, { autoAlpha: 1, y: 0 });
+        gsap.set(tickerWrap, { autoAlpha: 1 });
+        gsap.set(titleEl, { autoAlpha: 1 });
+        gsap.set(paragraphs, { autoAlpha: 1, y: 0 });
+        gsap.set(imageWrap, { autoAlpha: 1, scale: 1 });
+        idleTweens.forEach(t => t.play());
+      } else {
+        gsap.set(kicker, { autoAlpha: 0, y: 20 });
+        gsap.set(tickerWrap, { autoAlpha: 0 });
+        gsap.set(paragraphs, { autoAlpha: 0, y: 15 });
+        gsap.set(imageWrap, { autoAlpha: 0, scale: 1.03 });
+
+        const wordSplit = SplitText.create(titleEl, { type: 'words', aria: 'none' });
+        gsap.set(wordSplit.words, { autoAlpha: 0, y: 20 });
+
+        const revealTl = gsap.timeline({ paused: true });
+
+        revealTl.to(kicker, {
+          autoAlpha: 1, y: 0,
+          duration: 0.4, ease: 'power2.out',
+        }, 0);
+
+        revealTl.to(tickerWrap, {
+          autoAlpha: 1,
+          duration: 0.5, ease: 'power2.out',
+        }, 0.1);
+
+        revealTl.to(wordSplit.words, {
+          autoAlpha: 1, y: 0,
+          duration: 0.6, stagger: 0.1,
+          ease: 'power2.out',
+        }, 0.2);
+
+        revealTl.to(paragraphs, {
+          autoAlpha: 1, y: 0,
+          duration: 0.6, stagger: 0.15,
+          ease: 'power2.out',
+        }, 0.5);
+
+        revealTl.to(imageWrap, {
+          autoAlpha: 1, scale: 1,
+          duration: 0.8, ease: 'power2.out',
+        }, 0.3);
+
+        revealTl.eventCallback('onComplete', () => {
+          wordSplit.revert();
+        });
+
+        ScrollTrigger.create({
+          id: 'missione-reveal',
+          trigger: section,
+          start: 'top 70%',
+          once: true,
+          onEnter: () => {
+            hasRevealed = true;
+            revealTl.play();
+            idleTweens.forEach(t => t.play());
+          },
+        });
+      }
+
+      // ── Visibility gate ──
+      ScrollTrigger.create({
+        id: 'missione-visibility',
+        trigger: section,
+        start: 'top bottom',
+        end: 'bottom top',
+        onEnter:     () => { if (hasRevealed) idleTweens.forEach(t => t.play()); },
+        onLeave:     () => idleTweens.forEach(t => t.pause()),
+        onEnterBack: () => { if (hasRevealed) idleTweens.forEach(t => t.play()); },
+        onLeaveBack: () => idleTweens.forEach(t => t.pause()),
+      });
+
+      return () => { ac.abort(); idleTweens = []; };
+    }
+
+    const mm = gsap.matchMedia();
+    mm.add('(min-width: 768px)', setup);
+    mm.add('(max-width: 767px)', setup);
+  }
+
+  ((window as any).__initQueue ??= []).push(initMissione);
+</script>

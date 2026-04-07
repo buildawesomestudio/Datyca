@@ -18,9 +18,11 @@ Never call `init()` directly. Never use events to trigger init.
 
 IMPORTANT: Never set CSS `transform`, `opacity`, or `scale` on elements GSAP will animate. GSAP overwrites the entire `transform` property. Use `gsap.set()` for initial states. For centering: `xPercent: -50`, not CSS `translateX(-50%)`.
 
-## gsap.context()
+Corollary: if GSAP does NOT animate a property, keep it in CSS — `gsap.set()` converts all values (including `%`, `vw`) to pixels, freezing them. Example: `top: 50%` in CSS + `gsap.set(el, { yPercent: -50 })` for the animated part.
 
-Wrap every init function body in `gsap.context(() => { ... })` for cleanup on rebuild.
+## gsap.matchMedia()
+
+Components use `gsap.matchMedia()` for animation setup. Each breakpoint gets its own callback — matchMedia auto-reverts all GSAP objects when the condition stops matching, and re-runs the callback when it matches again. State that must survive breakpoint crossing (e.g., `hasRevealed`, `accentRevealed`) lives outside matchMedia. DOM listeners use AbortController, aborted in the cleanup function returned from the callback.
 
 ## ScrollTrigger IDs
 
@@ -39,9 +41,25 @@ Every ScrollTrigger MUST have a unique `id` string for debugging.
 - No `rotation` in `repeat: -1` tweens on mobile — jagged edges on iOS Safari
 - Known issue: `normalizeScroll` momentum is truncated at page boundaries (iOS) — architectural in GSAP, no fix
 
-## Resize Rebuild
+## No Markup Duplication
 
-Layout.astro dispatches `app-rebuild` on resize (width-only guard, ignores address bar height changes). Components listen and rebuild. Never call `ScrollTrigger.refresh()` inside component `build()` — the coordinator handles it centrally.
+Never repeat the same markup. Apply the right deduplication strategy:
+- **SVG icons**: `<symbol>` + `<use href="#id">`, `fill="currentColor"`, `aria-hidden="true"`. **NEVER `<img>` for icons.**
+- **SVG non interattivi** (loghi, illustrazioni): `<img src="file.svg">`.
+- **Repeated HTML blocks** (cards, list items, links with same structure): extract into Astro components immediately — never copy-paste the same HTML more than once.
+- **Repeated style patterns**: extract into Tailwind utility classes or CSS custom properties.
+
+## Resize Strategy
+
+**No centralized rebuild.** Layout.astro has no resize handler. Components are autonomous.
+
+Two-tier resize:
+1. **Within a breakpoint** (every frame, non-debounced): pin-spacer width fix + `timeline.invalidate()` + `timeline.progress(timeline.progress())`. GSAP's built-in auto-refresh (200ms debounce) handles `ScrollTrigger.refresh()`.
+2. **At breakpoint crossing** (768px): `gsap.matchMedia()` auto-reverts and re-runs the callback — SplitText re-splits, pins are recreated, values recalculated.
+
+Pinned sections MUST have a non-debounced resize listener that updates pin-spacer and section `width`/`maxWidth` to `innerWidth + 'px'`.
+
+Fluid resize principle: CSS fluid units (`clamp()`, `vw`, `%`) for real-time layout. GSAP function-based values + `invalidateOnRefresh: true` for animation values recalculated on auto-refresh.
 
 ## Build
 

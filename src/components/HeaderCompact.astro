@@ -49,6 +49,12 @@
     padding: 15px;
     color: var(--color-purple-600);
   }
+
+  @media (max-width: 767px) {
+    #header-compact {
+      visibility: visible;
+    }
+  }
 </style>
 
 <script>
@@ -95,50 +101,42 @@
     // State that survives breakpoint crossing
     let hasSwapped = false;
 
-    // Header swap — toggle-based, autonomous
+    // Header swap — fully scrubbed, single timeline
     function setupHeaderSwap() {
-      if (hasSwapped) {
-        gsap.set(compact, { yPercent: 0, visibility: 'visible' });
-        gsap.set(full, { yPercent: -100 });
-        full.style.overflow = 'hidden';
-      } else {
-        gsap.set(compact, { yPercent: -100, visibility: 'visible' });
-      }
+      gsap.set(compact, { visibility: 'visible' });
 
-      const tl = gsap.timeline({
-        paused: true,
-        onReverseComplete: () => { full.style.overflow = ''; },
-      });
-
-      tl.to(full, { yPercent: -100, duration: 0.55, ease: 'power1.out' }, 0);
-      tl.to(compact, { yPercent: 0, duration: 0.45, ease: 'power3.out' }, '>');
-
-      if (hasSwapped) tl.progress(1);
-
-      ScrollTrigger.create({
-        id: 'header-swap',
-        start: () => {
-          const heroST = ScrollTrigger.getById('hero-anim');
-          return heroST ? heroST.end : innerHeight;
-        },
-        end: 'max',
-        onEnter: () => {
-          hasSwapped = true;
-          full.style.overflow = 'hidden';
-          tl.play();
-        },
-        onLeaveBack: () => {
-          hasSwapped = false;
-          tl.reverse();
+      const swapTl = gsap.timeline({
+        scrollTrigger: {
+          id: 'header-swap',
+          start: () => {
+            const heroST = ScrollTrigger.getById('hero-anim');
+            return heroST ? heroST.end : innerHeight;
+          },
+          end: () => {
+            const heroST = ScrollTrigger.getById('hero-anim');
+            return (heroST ? heroST.end : innerHeight) + 120;
+          },
+          scrub: 0.5,
+          onEnter: () => { full.style.overflow = 'hidden'; },
+          onLeaveBack: () => { full.style.overflow = ''; },
+          onLeave: () => { hasSwapped = true; },
+          onEnterBack: () => { hasSwapped = false; },
         },
       });
+
+      swapTl.fromTo(full, { yPercent: 0 }, { yPercent: -100, ease: 'none' }, 0);
+      swapTl.fromTo(compact, { yPercent: -100 }, { yPercent: 0, ease: 'none' }, 0.5);
 
       return () => { full.style.overflow = ''; };
     }
 
+    function setupMobile() {
+      gsap.set(compact, { visibility: 'visible' });
+    }
+
     const mm = gsap.matchMedia();
     mm.add('(min-width: 768px)', setupHeaderSwap);
-    mm.add('(max-width: 767px)', setupHeaderSwap);
+    mm.add('(max-width: 767px)', setupMobile);
   }
 
   ((window as any).__initQueue ??= []).push(initHeaderCompact);

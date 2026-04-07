@@ -1,5 +1,8 @@
 ---
 import '../styles/global.css';
+import Header from '../components/Header.astro';
+import HeaderCompact from '../components/HeaderCompact.astro';
+import Megamenu from '../components/Megamenu.astro';
 
 interface Props {
   title?: string;
@@ -9,15 +12,21 @@ interface Props {
 const { title = 'Datyca', description = '' } = Astro.props;
 ---
 
-<html lang="en">
+<html lang="it">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   {description && <meta name="description" content={description} />}
+  <link rel="preload" href="/src/fonts/Optik/Optik-DemiBold.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/src/fonts/Optik/Optik-Regular.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <title>{title}</title>
 </head>
 <body>
+
+  <Header />
+  <HeaderCompact />
+  <Megamenu />
 
   <!-- ScrollSmoother wrapper -->
   <div id="smooth-wrapper">
@@ -31,98 +40,25 @@ const { title = 'Datyca', description = '' } = Astro.props;
     import { ScrollTrigger } from 'gsap/ScrollTrigger';
     import { ScrollSmoother } from 'gsap/ScrollSmoother';
     import { SplitText } from 'gsap/SplitText';
-    import { MorphSVGPlugin } from 'gsap/MorphSVGPlugin';
-    import { Flip } from 'gsap/Flip';
-    import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
-    import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
-    import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin';
-
-    // Import debug tools (auto-exposes to window)
     import '../utils/gsap-debug';
 
-    gsap.registerPlugin(
-      ScrollTrigger,
-      ScrollSmoother,
-      SplitText,
-      MorphSVGPlugin,
-      Flip,
-      ScrollToPlugin,
-      MotionPathPlugin,
-      ScrambleTextPlugin,
-    );
-
+    gsap.registerPlugin(ScrollTrigger, ScrollSmoother, SplitText);
     gsap.config({ nullTargetWarn: false });
-
-    // Prevent mobile address-bar resize from triggering ScrollTrigger refresh
     ScrollTrigger.config({ ignoreMobileResize: true });
 
-    // ═══ SCROLLSMOOTHER ═══
-    // normalizeScroll: true is REQUIRED — without it, scrub/pin animations jitter on iOS.
-    // Tradeoff: iOS Safari address bar won't collapse natively, and momentum at page
-    // boundaries is JS-simulated. Acceptable — jitter-free animations are priority.
-    const smoother = ScrollSmoother.create({
+    (window as any).__smoother = ScrollSmoother.create({
       smooth: 1,
-      effects: true,
       normalizeScroll: true,
-      smoothTouch: false,
     });
 
-    // Expose to window for other components
-    (window as any).__smoother = smoother;
-    (window as any).__gsap = gsap;
-
-    // ═══ INIT QUEUE SYSTEM ═══
-    // Components push their init fn into __initQueue at script evaluation time.
-    // Layout (running last thanks to preserveScriptOrder) drains the queue
-    // synchronously in one frame — no yielding. Components have inter-dependencies
-    // that break if execution is interrupted.
-    function drainInitQueue() {
+    // Drain init queue, then refresh
+    requestAnimationFrame(() => {
       const queue: Array<() => void> = (window as any).__initQueue ?? [];
-
-      for (const initFn of queue) {
-        try {
-          initFn();
-        } catch (e) {
-          console.error('[init-queue] component init failed:', e);
-        }
+      for (const fn of queue) {
+        try { fn(); } catch (e) { console.error('[init-queue]', e); }
       }
-
-      // Freeze queue — late-loading components will check __smoother directly
       (window as any).__initQueue = null;
-
-      // Single authoritative refresh after ALL inits complete
-      requestAnimationFrame(() => {
-        ScrollTrigger.refresh();
-      });
-    }
-
-    // Drain the queue
-    requestAnimationFrame(() => { drainInitQueue(); });
-
-    // ═══ GLOBAL RESIZE COORDINATOR ═══
-    // Width-only guard: skips height-only changes from mobile address bar.
-    // Without this, address bar collapse/expand triggers ScrollTrigger.refresh()
-    // in a feedback loop on iOS.
-    let resizeTimer: number;
-    let lastWidth = window.innerWidth;
-    window.addEventListener('resize', () => {
-      if (window.innerWidth === lastWidth) return;
-      lastWidth = window.innerWidth;
-
-      clearTimeout(resizeTimer);
-      resizeTimer = window.setTimeout(() => {
-        const maxScroll = ScrollTrigger.maxScroll(window);
-        const ratio = maxScroll > 0 ? smoother.scrollTop() / maxScroll : 0;
-
-        window.dispatchEvent(new CustomEvent('app-rebuild'));
-
-        requestAnimationFrame(() => {
-          ScrollTrigger.refresh();
-          const newMax = ScrollTrigger.maxScroll(window);
-          const targetScroll = ratio * newMax;
-          smoother.scrollTo(targetScroll, false);
-        });
-      }, 300);
+      requestAnimationFrame(() => ScrollTrigger.refresh());
     });
   </script>
 </body>
