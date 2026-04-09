@@ -425,27 +425,40 @@ const renderOrder = [4, 3, 2, 1, 0];
         if (subtitleEl) gsap.set(subtitleEl, { autoAlpha: 0, y: 20 });
         labelEls.forEach(l => gsap.set(l, { autoAlpha: 0 }));
 
-        const tl = gsap.timeline({ paused: true });
+        // Title/subtitle: appear once and stay (not tied to scrub)
+        const titleTl = gsap.timeline({ paused: true });
+        if (titleEl) titleTl.to(titleEl, { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power3.out' }, 0);
+        if (subtitleEl) titleTl.to(subtitleEl, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0.1);
 
-        if (titleEl) tl.to(titleEl, { autoAlpha: 1, y: 0, duration: 0.7, ease: 'power3.out' }, 0);
-        if (subtitleEl) tl.to(subtitleEl, { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 0.15);
+        ScrollTrigger.create({
+          id: 'cf-title-reveal',
+          trigger: section,
+          start: 'top 80%',
+          once: true,
+          onEnter: () => titleTl.play(),
+        });
 
-        allLayers.forEach((layer) => {
-          tl.to(layer, { opacity: 0.5, y: 0, duration: 0.8, ease: 'power3.inOut' }, 0.25);
+        // Scrub-based entrance for layers + labels: completes where illumination begins
+        const entranceTl = gsap.timeline({
+          scrollTrigger: {
+            id: 'cf-reveal',
+            trigger: section,
+            start: 'top 80%',
+            end: 'top 40%',
+            scrub: 0.5,
+            onLeave: () => { hasRevealed = true; entranceDone = true; },
+            onEnterBack: () => { entranceDone = false; },
+          },
+        });
+
+        allLayers.forEach((layer, i) => {
+          entranceTl.fromTo(layer,
+            { opacity: 0, y: explodedY[i] }, { opacity: 0.5, y: 0, ease: 'none', duration: 0.5 }, 0.1);
         });
 
         labelEls.forEach((label, i) => {
-          tl.to(label, { autoAlpha: 0.5, duration: 0.5, ease: 'power2.out' }, 0.55 + i * 0.08);
-        });
-
-        tl.eventCallback('onComplete', () => { entranceDone = true; });
-
-        ScrollTrigger.create({
-          id: 'cf-reveal',
-          trigger: section,
-          start: 'top 75%',
-          once: true,
-          onEnter: () => { hasRevealed = true; tl.play(); },
+          entranceTl.fromTo(label,
+            { autoAlpha: 0 }, { autoAlpha: 0.5, ease: 'none', duration: 0.3 }, 0.3 + i * 0.04);
         });
       }
 
