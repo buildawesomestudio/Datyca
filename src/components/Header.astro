@@ -270,8 +270,14 @@ const navItems: NavItem[] = [
     if (!nav || !hamburger || !logoEl) return;
 
     // ═══ FIT DETECTION: nav vs hamburger ═══
-    // Measured before any hiding — init runs before first paint
+    // Nav starts hidden via CSS — temporarily show for measurement
+    nav.style.position = 'absolute';
+    nav.style.visibility = 'hidden';
+    nav.style.display = 'flex';
     let cachedNavWidth = nav.scrollWidth;
+    nav.style.position = '';
+    nav.style.visibility = '';
+    nav.style.display = '';
     const FIT_GAP = 80;
 
     function checkNavFit() {

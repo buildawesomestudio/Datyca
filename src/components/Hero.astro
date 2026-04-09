@@ -110,6 +110,10 @@
       max-width: none;
       margin-top: 20px;
     }
+    #hero-title,
+    #hero-details {
+      visibility: hidden;
+    }
   }
 </style>
 
@@ -236,8 +240,11 @@
       // SplitText for title — needs natural layout before hiding
       const titleSplit = SplitText.create(titleEl, { type: 'words', aria: 'none' });
 
-      // Initial states
+      // Initial states — reveal containers (CSS hides them to prevent FOUC),
+      // then hide children for entrance animation
       gsap.set(content, { autoAlpha: 1 });
+      gsap.set(titleEl, { visibility: 'visible' });
+      gsap.set('#hero-details', { visibility: 'visible' });
       gsap.set(titleSplit.words, { autoAlpha: 0, y: 20 });
       gsap.set(paragraphs, { autoAlpha: 0, y: 15 });
       gsap.set(cta, { autoAlpha: 0, y: 15 });
