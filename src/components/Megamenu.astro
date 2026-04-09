@@ -63,7 +63,7 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
       <img src="/images/logo-full_dark.svg" alt="Datyca - Legal Design Lab" width="220" height="68" />
     </a>
     <button id="megamenu-close" class="megamenu-close" aria-label="Chiudi menu">
-      <svg width="40" height="40" aria-hidden="true" fill="currentColor"><use href="#icon-close" /></svg>
+      <svg width="30" height="30" aria-hidden="true" fill="currentColor"><use href="#icon-close" /></svg>
     </button>
   </div>
 
@@ -73,13 +73,18 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
         <div class="megamenu-group">
           {'children' in group && group.children ? (
             <>
-              <span class="megamenu-parent">{group.label}</span>
-              {group.children.map((child) => (
-                <a href={child.href} class="megamenu-link">
-                  <span>{child.label}</span>
-                  <svg class="megamenu-arrow" width="18" height="18" aria-hidden="true"><use href="#icon-arrow-forward" /></svg>
-                </a>
-              ))}
+              <button class="megamenu-parent" type="button" aria-expanded="false">
+                <span>{group.label}</span>
+                <svg class="megamenu-chevron" width="12" height="12" aria-hidden="true"><use href="#icon-chevron-down" /></svg>
+              </button>
+              <div class="megamenu-children">
+                {group.children.map((child) => (
+                  <a href={child.href} class="megamenu-link">
+                    <span>{child.label}</span>
+                    <svg class="megamenu-arrow" width="18" height="18" aria-hidden="true"><use href="#icon-arrow-forward" /></svg>
+                  </a>
+                ))}
+              </div>
             </>
           ) : (
             <a href={group.href} class="megamenu-link megamenu-link--top">{group.label}</a>
@@ -93,13 +98,18 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
         <div class="megamenu-group">
           {'children' in group && group.children ? (
             <>
-              <span class="megamenu-parent">{group.label}</span>
-              {group.children.map((child) => (
-                <a href={child.href} class="megamenu-link">
-                  <span>{child.label}</span>
-                  <svg class="megamenu-arrow" width="18" height="18" aria-hidden="true"><use href="#icon-arrow-forward" /></svg>
-                </a>
-              ))}
+              <button class="megamenu-parent" type="button" aria-expanded="false">
+                <span>{group.label}</span>
+                <svg class="megamenu-chevron" width="12" height="12" aria-hidden="true"><use href="#icon-chevron-down" /></svg>
+              </button>
+              <div class="megamenu-children">
+                {group.children.map((child) => (
+                  <a href={child.href} class="megamenu-link">
+                    <span>{child.label}</span>
+                    <svg class="megamenu-arrow" width="18" height="18" aria-hidden="true"><use href="#icon-arrow-forward" /></svg>
+                  </a>
+                ))}
+              </div>
             </>
           ) : (
             <a href={group.href} class="megamenu-link megamenu-link--top">{group.label}</a>
@@ -119,12 +129,19 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
     clip-path: circle(0% at 95% 3%);
     pointer-events: none;
     overflow-y: auto;
+    scrollbar-width: none;
+  }
+
+  #megamenu::-webkit-scrollbar {
+    display: none;
   }
 
   .megamenu-header {
     display: flex;
     align-items: center;
-    padding: 30px 40px;
+    justify-content: space-between;
+    height: 120px;
+    padding: 0 40px;
   }
 
   .megamenu-logo {
@@ -138,9 +155,6 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
   }
 
   .megamenu-close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -148,6 +162,7 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
     border: none;
     cursor: pointer;
     padding: 15px;
+    margin-right: -15px;
     color: var(--color-purple-500);
   }
 
@@ -170,13 +185,26 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
   }
 
   .megamenu-parent {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: none;
+    border: none;
+    font-family: inherit;
     font-size: 26px;
     font-weight: 400;
     line-height: 20px;
     letter-spacing: -0.04em;
     color: var(--color-blue-deep-800);
     padding: 20px 0;
+    cursor: default;
+    text-align: left;
+  }
+
+  .megamenu-chevron {
+    display: none;
+    flex-shrink: 0;
   }
 
   .megamenu-link {
@@ -202,7 +230,12 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
 
   @media (max-width: 767px) {
     .megamenu-header {
-      padding: 20px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: var(--color-white-snow);
+      height: 80px;
+      padding: 0 20px;
     }
     .megamenu-logo img {
       width: 180px;
@@ -213,8 +246,13 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
       padding: 0 20px 60px;
     }
     .megamenu-parent {
+      cursor: pointer;
       font-size: 22px;
       padding: 16px 0;
+    }
+    .megamenu-chevron {
+      display: block;
+      color: var(--color-blue-deep-800);
     }
     .megamenu-link {
       font-size: 22px;
@@ -271,6 +309,8 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
         activeOpenBtn = btn;
         isOpen = true;
         if (tween) tween.kill();
+
+        megamenu.scrollTop = 0;
 
         const origin = getOrigin();
         gsap.set(megamenu, { clipPath: `circle(0% at ${origin})` });
@@ -335,6 +375,42 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
     closeBtn.addEventListener('mouseleave', () => {
       gsap.to(closeBtn, { color: colorPurple, duration: 0.25, overwrite: true });
     }, { signal });
+
+    // ═══ MOBILE ACCORDION ═══
+    const mm = gsap.matchMedia();
+
+    mm.add('(max-width: 767px)', () => {
+      const mobileAc = new AbortController();
+      const { signal: mobileSignal } = mobileAc;
+
+      megamenu.querySelectorAll('.megamenu-group').forEach((group) => {
+        const parent = group.querySelector<HTMLButtonElement>('.megamenu-parent');
+        const children = group.querySelector<HTMLElement>('.megamenu-children');
+        const chevron = group.querySelector<SVGElement>('.megamenu-chevron');
+        if (!parent || !children || !chevron) return;
+
+        // Collapsed by default
+        gsap.set(children, { height: 0, overflow: 'hidden' });
+        gsap.set(chevron, { rotation: 0 });
+
+        let expanded = false;
+
+        parent.addEventListener('click', () => {
+          expanded = !expanded;
+          parent.setAttribute('aria-expanded', String(expanded));
+
+          if (expanded) {
+            gsap.to(children, { height: 'auto', duration: 0.4, ease: 'power2.out', overwrite: true });
+            gsap.to(chevron, { rotation: 180, duration: 0.3, overwrite: true });
+          } else {
+            gsap.to(children, { height: 0, duration: 0.3, ease: 'power2.in', overwrite: true });
+            gsap.to(chevron, { rotation: 0, duration: 0.3, overwrite: true });
+          }
+        }, { signal: mobileSignal });
+      });
+
+      return () => { mobileAc.abort(); };
+    });
   }
 
   ((window as any).__initQueue ??= []).push(initMegamenu);
