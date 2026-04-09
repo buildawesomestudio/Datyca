@@ -22,22 +22,10 @@
     <div class="missione__ticker" id="ticker-base">
       <span class="missione__ticker-text">TRUST&ensp;→&ensp;</span>
       <span class="missione__ticker-text">TRUST&ensp;→&ensp;</span>
-      <span class="missione__ticker-text">TRUST&ensp;→&ensp;</span>
-      <span class="missione__ticker-text">TRUST&ensp;→&ensp;</span>
-      <span class="missione__ticker-text">TRUST&ensp;→&ensp;</span>
-      <span class="missione__ticker-text">TRUST&ensp;→&ensp;</span>
-      <span class="missione__ticker-text">TRUST&ensp;→&ensp;</span>
-      <span class="missione__ticker-text">TRUST&ensp;→&ensp;</span>
     </div>
     <!-- Clip container: overflow:hidden, positioned over image -->
     <div class="missione__ticker-clip" id="ticker-clip">
       <div class="missione__ticker missione__ticker--colored" id="ticker-colored">
-        <span class="missione__ticker-text">TRUST&ensp;→&ensp;</span>
-        <span class="missione__ticker-text">TRUST&ensp;→&ensp;</span>
-        <span class="missione__ticker-text">TRUST&ensp;→&ensp;</span>
-        <span class="missione__ticker-text">TRUST&ensp;→&ensp;</span>
-        <span class="missione__ticker-text">TRUST&ensp;→&ensp;</span>
-        <span class="missione__ticker-text">TRUST&ensp;→&ensp;</span>
         <span class="missione__ticker-text">TRUST&ensp;→&ensp;</span>
         <span class="missione__ticker-text">TRUST&ensp;→&ensp;</span>
       </div>
@@ -61,6 +49,8 @@
   .missione {
     --_pad-left: clamp(40px, 10.9vw, 157px);
     position: relative;
+    max-width: 1440px;
+    margin-inline: auto;
     padding: var(--section-padding-y) 0 var(--section-padding-y) var(--_pad-left);
     overflow: hidden;
   }
@@ -141,7 +131,7 @@
   .missione__content {
     position: relative;
     z-index: 2;
-    max-width: 543px;
+    max-width: min(543px, calc(100% - clamp(340px, 38vw, 543px) - clamp(20px, 3vw, 40px)));
   }
 
   .missione__title {
@@ -164,20 +154,54 @@
   }
 
   @media (max-width: 767px) {
+    .missione {
+      --_pad-left: var(--section-padding-x);
+      display: grid;
+      grid-template-columns: 1fr;
+      row-gap: clamp(20px, 3vw, 32px);
+      padding: var(--section-padding-y) var(--section-padding-x);
+    }
+
+    /* Image fills row 1, determines row height */
     .missione__image-wrap {
+      grid-row: 1;
+      grid-column: 1;
       position: relative;
       top: auto;
       right: auto;
-      width: 100%;
-      margin-bottom: 24px;
+      width: 75%;
+      margin-left: auto;
+      margin-right: calc(-1 * var(--section-padding-x));
+      z-index: 0;
     }
 
-    .missione__content {
-      max-width: none;
+    /* Kicker overlaps image bottom, positioned above ticker */
+    .missione__kicker {
+      grid-row: 1;
+      grid-column: 1;
+      align-self: end;
+      margin-bottom: 60px;
+    }
+
+    /* Ticker at image bottom edge */
+    .missione__ticker-wrap {
+      grid-row: 1;
+      grid-column: 1;
+      align-self: end;
+      margin-bottom: 0;
+      margin-left: calc(-1 * var(--section-padding-x));
+      margin-right: calc(-1 * var(--section-padding-x));
     }
 
     .missione__ticker-text {
       font-size: 40px;
+    }
+
+    /* Content in own row — never overlaps image */
+    .missione__content {
+      grid-row: 2;
+      grid-column: 1;
+      max-width: none;
     }
   }
 </style>
@@ -194,8 +218,10 @@
     let hasRevealed = false;
     let idleTweens: gsap.core.Tween[] = [];
 
-    function setup() {
+    function setup(ctx: gsap.Context) {
       idleTweens = [];
+
+      const isDesktop = window.innerWidth >= 768;
 
       const kicker = section.querySelector('.missione__kicker') as HTMLElement;
       const titleEl = section.querySelector('.missione__title') as HTMLElement;
@@ -205,6 +231,24 @@
       const tickerBase = document.getElementById('ticker-base') as HTMLElement;
       const tickerClip = document.getElementById('ticker-clip') as HTMLElement;
       const tickerColored = document.getElementById('ticker-colored') as HTMLElement;
+
+      // ── Dynamic ticker fill ──
+      // Calculate spans needed for max visible width within this breakpoint
+      const maxVisibleWidth = isDesktop ? 1440 : 767;
+      function fillTicker(ticker: HTMLElement) {
+        const firstSpan = ticker.querySelector('.missione__ticker-text') as HTMLElement;
+        if (!firstSpan) return;
+        const spanWidth = firstSpan.offsetWidth;
+        const halfCount = Math.ceil(maxVisibleWidth / spanWidth) + 1;
+        const totalNeeded = halfCount * 2;
+        while (ticker.children.length < totalNeeded) {
+          const clone = firstSpan.cloneNode(true) as HTMLElement;
+          clone.dataset.tickerDynamic = '';
+          ticker.appendChild(clone);
+        }
+      }
+      fillTicker(tickerBase);
+      fillTicker(tickerColored);
 
       // ── Position colored ticker clip over image ──
       function updateClip() {
@@ -226,8 +270,10 @@
       updateClip();
 
       // ── Ticker animation (repeat: -1) ──
-      // Use identical pixel distance (not xPercent) so both layers stay in perfect sync
-      const halfWidth = tickerBase.scrollWidth / 2;
+      // halfWidth = exact multiple of spanWidth for seamless loop
+      const spanWidth = (tickerBase.querySelector('.missione__ticker-text') as HTMLElement).offsetWidth;
+      const halfCount = tickerBase.children.length / 2;
+      const halfWidth = halfCount * spanWidth;
       const tickerDuration = 20;
 
       const tweenBase = gsap.to(tickerBase, {
@@ -286,7 +332,7 @@
         revealTl.to(imageWrap, {
           autoAlpha: 1, scale: 1,
           duration: 0.8, ease: 'power2.out',
-        }, 0.3);
+        }, 0);
 
         revealTl.eventCallback('onComplete', () => {
           wordSplit.revert();
@@ -295,7 +341,7 @@
         ScrollTrigger.create({
           id: 'missione-reveal',
           trigger: section,
-          start: 'top 70%',
+          start: 'top 75%',
           once: true,
           onEnter: () => {
             hasRevealed = true;
@@ -317,7 +363,13 @@
         onLeaveBack: () => idleTweens.forEach(t => t.pause()),
       });
 
-      return () => { ac.abort(); idleTweens = []; };
+      return () => {
+        ac.abort();
+        idleTweens = [];
+        // Remove dynamically cloned spans
+        tickerBase.querySelectorAll('[data-ticker-dynamic]').forEach(el => el.remove());
+        tickerColored.querySelectorAll('[data-ticker-dynamic]').forEach(el => el.remove());
+      };
     }
 
     const mm = gsap.matchMedia();

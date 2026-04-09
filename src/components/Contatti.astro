@@ -129,7 +129,7 @@ const footerLinksRight = [
           height="60"
         />
         <p class="contatti__copyright">
-          &copy; 2025 Datyca S.r.l. &mdash; P.IVA 07026110820
+          &copy; 2026 DATYCA Legal Design Lab S.r.l. &mdash; P.IVA 06954020829
         </p>
       </div>
     </footer>
@@ -143,6 +143,11 @@ const footerLinksRight = [
     background: var(--color-white-snow);
     color: var(--color-black-almost-900);
     position: relative;
+  }
+
+  .contatti__inner {
+    max-width: 1440px;
+    margin-inline: auto;
   }
 
   /* ── Title ── */
@@ -363,6 +368,67 @@ const footerLinksRight = [
     color: var(--color-black-almost-900);
     text-align: right;
   }
+
+  @media (max-width: 1023px) {
+    .contatti {
+      --_pad-x: var(--section-padding-x);
+    }
+    .contatti__grid {
+      flex-direction: column;
+      gap: 40px;
+    }
+    .contatti__form {
+      order: -1;
+      max-width: none;
+    }
+    .contatti__info {
+      width: 100%;
+      padding-left: var(--_pad-x);
+    }
+    .contatti__sedi-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .contatti__row {
+      flex-direction: column;
+    }
+    .contatti__row .contatti__input {
+      margin-top: -2px;
+    }
+    .contatti__field--half:last-child .contatti__input {
+      border-left: 2px solid var(--color-black-almost-900);
+    }
+    .contatti__textarea {
+      min-height: 150px;
+    }
+    .contatti__submit {
+      align-self: flex-end;
+    }
+    .contatti__separator {
+      margin: 60px var(--_pad-x);
+    }
+    .contatti__footer-links {
+      gap: 20px;
+      padding-left: calc(var(--_pad-x) * 2);
+    }
+    .contatti__footer-col {
+      flex: 1;
+    }
+    .contatti__bottom {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 24px;
+      padding-left: calc(var(--_pad-x) * 2);
+    }
+    .contatti__copyright {
+      text-align: left;
+    }
+    .contatti__input {
+      font-size: 17px;
+      padding: 16px 16px 16px 20px;
+    }
+  }
 </style>
 
 <script>
@@ -412,6 +478,7 @@ const footerLinksRight = [
 
         const titleSplit = SplitText.create(title, { type: 'words', aria: 'none' });
         gsap.set(titleSplit.words, { autoAlpha: 0, y: 25 });
+        gsap.set(title, { autoAlpha: 1 });
 
         const revealTl = gsap.timeline({ paused: true });
 
@@ -474,7 +541,7 @@ const footerLinksRight = [
         ScrollTrigger.create({
           id: 'contatti-reveal',
           trigger: section,
-          start: 'top 70%',
+          start: 'top 75%',
           once: true,
           onEnter: () => {
             hasRevealed = true;
@@ -609,7 +676,8 @@ const footerLinksRight = [
     }
 
     const mm = gsap.matchMedia();
-    mm.add('(min-width: 768px)', setup);
+    mm.add('(min-width: 1024px)', setup);
+    mm.add('(max-width: 1023px)', setup);
   }
 
   ((window as any).__initQueue ??= []).push(initContatti);

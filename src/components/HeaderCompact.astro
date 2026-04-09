@@ -5,7 +5,7 @@
       <img src="/images/monogramma-stroke.svg" alt="" width="60" height="60" class="logo-stroke" aria-hidden="true" />
     </a>
     <button id="menu-toggle" class="header-compact-menu" aria-label="Apri menu">
-      <svg width="40" height="40" aria-hidden="true" fill="currentColor"><use href="#icon-hamburger" /></svg>
+      <svg width="32" height="22" aria-hidden="true" fill="currentColor"><use href="#icon-hamburger" /></svg>
     </button>
   </div>
 </header>
@@ -24,7 +24,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 10px 10px 40px;
+    padding: 10px 40px;
   }
 
   .header-compact-logo {
@@ -39,6 +39,11 @@
     left: 0;
   }
 
+  .header-compact-logo img {
+    width: 50px;
+    height: 50px;
+  }
+
   .header-compact-menu {
     display: flex;
     align-items: center;
@@ -47,13 +52,8 @@
     border: none;
     cursor: pointer;
     padding: 15px;
+    margin-right: -15px;
     color: var(--color-purple-600);
-  }
-
-  @media (max-width: 767px) {
-    #header-compact {
-      visibility: visible;
-    }
   }
 </style>
 
@@ -101,9 +101,11 @@
     // State that survives breakpoint crossing
     let hasSwapped = false;
 
-    // Header swap — fully scrubbed, single timeline
+    // Desktop: full header swap (both headers slide)
     function setupHeaderSwap() {
       gsap.set(compact, { visibility: 'visible' });
+
+      const headerH = full.offsetHeight;
 
       const swapTl = gsap.timeline({
         scrollTrigger: {
@@ -114,9 +116,10 @@
           },
           end: () => {
             const heroST = ScrollTrigger.getById('hero-anim');
-            return (heroST ? heroST.end : innerHeight) + 120;
+            return (heroST ? heroST.end : innerHeight) + headerH;
           },
           scrub: 0.5,
+          invalidateOnRefresh: true,
           onEnter: () => { full.style.overflow = 'hidden'; },
           onLeaveBack: () => { full.style.overflow = ''; },
           onLeave: () => { hasSwapped = true; },
@@ -130,13 +133,45 @@
       return () => { full.style.overflow = ''; };
     }
 
-    function setupMobile() {
-      gsap.set(compact, { visibility: 'visible' });
+    // Mobile: crossfade logo only, hamburger stays in place
+    function setupMobileLogoSwap() {
+      const logoFullImg = full.querySelector('.header-logo-full') as HTMLElement;
+      const logoMono = full.querySelector('.header-logo-mono') as HTMLElement;
+      if (!logoFullImg || !logoMono) return;
+
+      gsap.set(logoMono, { autoAlpha: 0 });
+
+      const headerH = full.offsetHeight;
+
+      const swapTl = gsap.timeline({
+        scrollTrigger: {
+          id: 'header-swap',
+          start: () => {
+            const videoFrame = document.getElementById('hero-video-frame');
+            if (videoFrame) return videoFrame.offsetHeight - headerH;
+            return innerHeight;
+          },
+          end: () => {
+            const videoFrame = document.getElementById('hero-video-frame');
+            if (videoFrame) return videoFrame.offsetHeight;
+            return innerHeight + headerH;
+          },
+          scrub: 0.5,
+          invalidateOnRefresh: true,
+          onLeave: () => { hasSwapped = true; },
+          onEnterBack: () => { hasSwapped = false; },
+        },
+      });
+
+      swapTl.fromTo(logoFullImg, { autoAlpha: 1 }, { autoAlpha: 0, ease: 'none' }, 0);
+      swapTl.fromTo(logoMono, { autoAlpha: 0 }, { autoAlpha: 1, ease: 'none' }, 0);
+
+      return () => {};
     }
 
     const mm = gsap.matchMedia();
     mm.add('(min-width: 768px)', setupHeaderSwap);
-    mm.add('(max-width: 767px)', setupMobile);
+    mm.add('(max-width: 767px)', setupMobileLogoSwap);
   }
 
   ((window as any).__initQueue ??= []).push(initHeaderCompact);

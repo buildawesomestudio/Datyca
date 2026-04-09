@@ -4,7 +4,6 @@
       <source src="/video/hero-av1.mp4" type='video/mp4; codecs="av01.0.08M.08"' />
       <source src="/video/hero-h264.mp4" type="video/mp4" />
     </video>
-    <div id="hero-overlay"></div>
   </div>
 
   <div id="hero-content">
@@ -41,12 +40,6 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-  }
-
-  #hero-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(284.84deg, rgba(13, 8, 38, 0.8) 0%, rgba(13, 8, 38, 0) 100%);
   }
 
   #hero-content {
@@ -94,6 +87,29 @@
     line-height: 20px;
     letter-spacing: 0;
     text-transform: uppercase;
+  }
+
+  @media (max-width: 1023px) {
+    #hero {
+      height: auto;
+    }
+    #hero-video-frame {
+      position: relative;
+      height: 50dvh;
+    }
+    #hero-content {
+      position: relative;
+      top: auto;
+      right: auto;
+      left: auto;
+      max-width: none;
+      padding: 24px var(--section-padding-x) 40px;
+      visibility: visible;
+    }
+    #hero-details {
+      max-width: none;
+      margin-top: 20px;
+    }
   }
 </style>
 
@@ -210,9 +226,74 @@
       return () => { heroTl = null; ac.abort(); };
     }
 
+    function setupHeroMobile() {
+      const video = hero.querySelector('#hero-video') as HTMLElement;
+      const content = hero.querySelector('#hero-content') as HTMLElement;
+      const titleEl = hero.querySelector('#hero-title') as HTMLElement;
+      const paragraphs = hero.querySelectorAll<HTMLElement>('#hero-details p');
+      const cta = hero.querySelector('#hero-cta') as HTMLElement;
+
+      // SplitText for title — needs natural layout before hiding
+      const titleSplit = SplitText.create(titleEl, { type: 'words', aria: 'none' });
+
+      // Initial states
+      gsap.set(content, { autoAlpha: 1 });
+      gsap.set(titleSplit.words, { autoAlpha: 0, y: 20 });
+      gsap.set(paragraphs, { autoAlpha: 0, y: 15 });
+      gsap.set(cta, { autoAlpha: 0, y: 15 });
+      // Entrance timeline — plays on page load
+      const tl = gsap.timeline({ delay: 0.3 });
+
+      tl.to(titleSplit.words, {
+        autoAlpha: 1, y: 0,
+        duration: 0.6, stagger: 0.1,
+        ease: 'power3.out',
+      }, 0);
+
+      tl.to(paragraphs, {
+        autoAlpha: 1, y: 0,
+        duration: 0.5, stagger: 0.12,
+        ease: 'power2.out',
+      }, 0.4);
+
+      tl.to(cta, {
+        autoAlpha: 1, y: 0,
+        duration: 0.5, ease: 'power2.out',
+      }, 0.65);
+
+      const videoFrame = hero.querySelector('#hero-video-frame') as HTMLElement;
+
+      // Shared ScrollTrigger for both effects
+      const scrollTl = gsap.timeline({
+        scrollTrigger: {
+          id: 'hero-parallax',
+          trigger: hero,
+          start: 'top top',
+          end: 'bottom top',
+          scrub: 0.5,
+        },
+      });
+
+      // Parallax: video scrolls slower than content
+      scrollTl.fromTo(video,
+        { y: 0 },
+        { y: () => innerHeight * 0.15, ease: 'none', duration: 1 },
+        0
+      );
+
+      // Card effect: frame gains inset + border-radius
+      scrollTl.fromTo(videoFrame,
+        { clipPath: 'inset(0px round 0px)', },
+        { clipPath: () => `inset(0px ${innerWidth * 0.1}px ${innerHeight * 0.15}px round 28px)`, ease: 'none', duration: 1 },
+        0
+      );
+
+      return () => { heroTl = null; };
+    }
+
     const mm = gsap.matchMedia();
-    mm.add('(min-width: 768px)', setupHero);
-    mm.add('(max-width: 767px)', setupHero);
+    mm.add('(min-width: 1024px)', setupHero);
+    mm.add('(max-width: 1023px)', setupHeroMobile);
   }
 
   ((window as any).__initQueue ??= []).push(initHero);

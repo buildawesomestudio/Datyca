@@ -270,3 +270,32 @@ body {
   line-height: 40px;
   letter-spacing: -0.04em;
 }
+
+/* ═══ RESPONSIVE OVERRIDES (mobile < 768px) ═══ */
+
+@media (max-width: 767px) {
+  :root {
+    --section-padding-x: 20px;
+    --section-gap: 16px;
+    --card-padding: 20px;
+  }
+
+  .text-h3 {
+    font-size: 24px;
+  }
+
+  .text-serif-lg {
+    font-size: 32px;
+    line-height: 38px;
+  }
+
+  .text-serif-md {
+    font-size: 28px;
+    line-height: 36px;
+  }
+
+  .text-serif-sm {
+    font-size: 26px;
+    line-height: 32px;
+  }
+}

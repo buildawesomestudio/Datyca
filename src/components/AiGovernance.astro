@@ -61,6 +61,8 @@
     justify-content: space-between;
     gap: clamp(40px, 6vw, 80px);
     width: 100%;
+    max-width: 1440px;
+    margin-inline: auto;
     padding: var(--section-padding-y) clamp(40px, 10.9vw, 157px) var(--section-padding-y) var(--_pad-left);
   }
 
@@ -135,6 +137,7 @@
     .aig__grid {
       flex-direction: column;
       gap: 40px;
+      padding-left: var(--section-padding-x);
       padding-right: var(--section-padding-x);
     }
 
@@ -239,7 +242,7 @@
         ScrollTrigger.create({
           id: 'aig-reveal',
           trigger: section,
-          start: 'top 70%',
+          start: 'top 75%',
           once: true,
           onEnter: () => {
             hasRevealed = true;

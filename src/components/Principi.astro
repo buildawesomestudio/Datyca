@@ -134,6 +134,46 @@ import Principio01Anim from './Principio01Anim.astro';
   .tp-state__desc {
     max-width: 540px;
   }
+
+  /* ═══ MOBILE: no pin, all states visible in normal scroll ═══ */
+  @media (max-width: 767px) {
+    #principi {
+      height: auto;
+      overflow: visible;
+    }
+
+    .tp-inner {
+      height: auto;
+      padding: 100px var(--section-padding-x) clamp(48px, 8vw, 80px);
+    }
+
+    .tp-states {
+      flex: initial;
+      margin-top: clamp(40px, 8vw, 64px);
+      gap: clamp(64px, 14vw, 100px);
+    }
+
+    .tp-state {
+      grid-row: auto;
+      grid-column: auto;
+      gap: clamp(16px, 4vw, 28px);
+      min-width: 0;
+    }
+
+    .tp-placeholder {
+      width: clamp(120px, 30vw, 200px);
+    }
+
+    .tp-placeholder:not(:has(svg)) {
+      width: auto;
+      height: auto;
+    }
+
+    .tp-state__title,
+    .tp-state__desc {
+      width: 100%;
+    }
+  }
 </style>
 
 <style is:global>
@@ -153,7 +193,7 @@ import Principio01Anim from './Principio01Anim.astro';
 
     let principiTl: gsap.core.Timeline | null = null;
 
-    // Lightweight resize: pin-spacer width + invalidate (every frame, non-debounced)
+    // Lightweight resize: pin-spacer width + invalidate (desktop only, guards handle mobile)
     window.addEventListener('resize', () => {
       const spacer = section.parentElement;
       if (spacer?.classList.contains('pin-spacer')) {
@@ -301,7 +341,12 @@ import Principio01Anim from './Principio01Anim.astro';
 
     const mm = gsap.matchMedia();
     mm.add('(min-width: 768px)', setupPrincipi);
-    mm.add('(max-width: 767px)', setupPrincipi);
+    mm.add('(max-width: 767px)', () => {
+      // Mobile: unpause SVG animations (paused by default in Principio01Anim)
+      const animSvgs = section.querySelectorAll<SVGSVGElement>('.tp-anim-svg');
+      animSvgs.forEach(s => s.unpauseAnimations());
+      return () => { animSvgs.forEach(s => s.pauseAnimations()); };
+    });
   }
 
   ((window as any).__initQueue ??= []).push(initPrincipi);

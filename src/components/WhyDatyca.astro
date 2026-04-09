@@ -100,22 +100,67 @@ const cards = [
     text-decoration: none;
   }
 
+  /* ── Tablet: 2 columns ── */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .why-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Undo 3-column border rules */
+    .why-card:nth-child(-n+3) {
+      border-top: none;
+    }
+    .why-card:nth-child(3n+1) {
+      border-left: none;
+    }
+
+    /* 2-column: first row (first 2) get top border */
+    .why-card:nth-child(-n+2) {
+      border-top: 2px solid var(--grid-border-color);
+    }
+
+    /* 2-column: odd children = left column → left border */
+    .why-card:nth-child(odd) {
+      border-left: 2px solid var(--grid-border-color);
+    }
+  }
+
+  /* ── Mobile: 1 column ── */
   @media (max-width: 767px) {
     .why-grid {
       grid-template-columns: 1fr;
     }
 
-    /* Mobile: all cards get left + right borders */
+    /* All cards get left border */
     .why-card {
       border-left: 2px solid var(--grid-border-color);
     }
 
-    /* Mobile: only first card gets top border */
+    /* Only first card gets top border */
     .why-card:nth-child(-n+3) {
       border-top: none;
     }
     .why-card:first-child {
       border-top: 2px solid var(--grid-border-color);
+    }
+
+    .why-card__icon {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 20px;
+    }
+    .why-card__title {
+      margin-bottom: 20px;
+    }
+
+    /* CTA: strip card styling, standalone button */
+    .why-card--cta {
+      border: none;
+      padding: 0;
+      margin-top: 32px;
+    }
+    .why-card--cta {
+      align-items: flex-start;
     }
   }
 </style>
@@ -197,25 +242,25 @@ const cards = [
           });
         }
 
-        // Subtitle fade + slide (enters during the wave)
+        // Subtitle fade + slide (enters alongside the wave)
         if (subtitleEl) {
           tl.to(subtitleEl, {
             autoAlpha: 1, y: 0,
             duration: 0.8, ease: 'power2.out',
-          }, 0.7);
+          }, 0.4);
         }
 
-        // Cards staggered
+        // Cards staggered (overlap with wave, don't wait for it)
         tl.to(cards, {
           autoAlpha: 1, y: 0,
           duration: 0.7, stagger: 0.16,
           ease: 'power2.out',
-        }, 0.85);
+        }, 0.4);
 
         ScrollTrigger.create({
           id: 'why-datyca-reveal',
           trigger: section,
-          start: 'top 70%',
+          start: 'top 80%',
           once: true,
           onEnter: () => {
             hasRevealed = true;

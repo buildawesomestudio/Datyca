@@ -138,13 +138,16 @@ const layerPaths = {
   /* ── Section — :global needed because <section> is rendered by Section.astro ── */
   :global(#cta-impatto) {
     position: relative;
-    padding-bottom: clamp(160px, 15.3vw, 220px);
     background: linear-gradient(
       56.66deg,
       var(--color-red) -6.51%,
       var(--color-blue-deep-800) 18.05%,
       var(--color-black-almost-900) 39.52%
     );
+  }
+
+  :global(#cta-impatto .section__inner) {
+    padding-bottom: clamp(160px, 15.3vw, 220px);
   }
 
   /* ── Promo grid ── */
@@ -266,22 +269,33 @@ const layerPaths = {
   @media (max-width: 767px) {
     .promo-grid {
       grid-template-columns: 1fr;
+      gap: 24px;
     }
-
+    .promo-card {
+      padding: 24px;
+      gap: 24px;
+    }
+    .impatto-title {
+      margin-top: 80px;
+    }
     .impatto-grid {
       grid-template-columns: 1fr;
     }
-
     .impatto-card {
+      padding: 24px;
+      min-height: auto;
       border-left: 2px solid var(--grid-border-color);
     }
-
     .impatto-card:nth-child(-n+3) {
       border-top: none;
     }
-
     .impatto-card:first-child {
       border-top: 2px solid var(--grid-border-color);
+    }
+    .promo-card__cta,
+    .impatto-card__cta {
+      align-self: stretch;
+      justify-content: space-between;
     }
   }
 </style>
@@ -353,7 +367,7 @@ const layerPaths = {
         ScrollTrigger.create({
           id: 'cta-impatto-reveal',
           trigger: section,
-          start: 'top 70%',
+          start: 'top 75%',
           once: true,
           onEnter: () => {
             hasRevealed = true;

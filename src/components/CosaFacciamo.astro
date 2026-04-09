@@ -7,7 +7,7 @@ const VB_H = 488 + 4 * OFFSET; // 1040
 
 const layers = [
   { name: 'AI GOVERNANCE', side: 'left', index: 0 },
-  { name: 'DATA<br>PROTECTION', side: 'right', index: 1 },
+  { name: 'DATA <br>PROTECTION', side: 'right', index: 1 },
   { name: 'CYBERSECURITY', side: 'left', index: 2 },
   { name: 'LEGAL DESIGN', side: 'right', index: 3 },
   { name: 'LEGAL DESK', side: 'left', index: 4 },
@@ -15,6 +15,14 @@ const layers = [
 
 const labelY = (i: number) =>
   ((i * OFFSET + 235) / VB_H * 100).toFixed(1) + '%';
+
+/* Mobile overlay: labels must sit in the VISIBLE face area.
+   Each layer's side-wall extends to local y≈486, covering the face of the
+   layer below up to global y = i*138 + 348.  Local y=385 places the label
+   safely inside the visible strip with ~27px clearance at 768px viewport. */
+const MOBILE_ANCHOR_Y = 385;
+const mobileLabelY = (i: number) =>
+  ((i * OFFSET + MOBILE_ANCHOR_Y) / VB_H * 100).toFixed(1) + '%';
 
 /* SVG paths extracted from cosa_facciamo_off.svg */
 const FACE =
@@ -97,7 +105,7 @@ const renderOrder = [4, 3, 2, 1, 0];
       <span
         class:list={['cf-label', `cf-label--${l.side}`]}
         data-layer={l.index}
-        style={`top: ${labelY(l.index)}`}
+        style={`--dt: ${labelY(l.index)}; --mt: ${mobileLabelY(l.index)}`}
         set:html={l.name}
       />
     ))}
@@ -121,6 +129,7 @@ const renderOrder = [4, 3, 2, 1, 0];
 
   .cf-label {
     position: absolute;
+    top: var(--dt);
     font-family: var(--font-sans);
     font-weight: 600;
     font-size: clamp(16px, 1.67vw, 24px);
@@ -148,21 +157,33 @@ const renderOrder = [4, 3, 2, 1, 0];
     max-width: 180px;
   }
 
-  @media (max-width: 767px) {
+  @media (max-width: 1023px) {
+    .cf-stack {
+      overflow: visible;
+    }
     .cf-svg {
       width: 80%;
     }
-
     .cf-label {
-      font-size: 13px;
+      top: var(--mt);
+      left: 0;
+      right: 0;
+      font-size: 16px;
+      text-align: center;
+      white-space: nowrap;
     }
-
     .cf-label--left {
-      right: calc(90% + 10px);
+      right: 0;
     }
-
     .cf-label--right {
-      left: calc(90% + 10px);
+      left: 0;
+    }
+    .cf-label--right:nth-child(2) {
+      white-space: nowrap;
+      max-width: none;
+    }
+    .cf-label :global(br) {
+      display: none;
     }
   }
 </style>
@@ -337,7 +358,7 @@ const renderOrder = [4, 3, 2, 1, 0];
       ScrollTrigger.create({
         id: 'cf-reveal',
         trigger: section,
-        start: 'top 55%',
+        start: 'top 75%',
         once: true,
         onEnter: () => {
           hasRevealed = true;
@@ -349,7 +370,7 @@ const renderOrder = [4, 3, 2, 1, 0];
     // ── matchMedia: Desktop ───────────────────────────────────
     const mm = gsap.matchMedia();
 
-    mm.add('(min-width: 768px)', () => {
+    mm.add('(min-width: 1024px)', () => {
       currentLayer = -1;
       buildEntrance();
 
@@ -384,10 +405,79 @@ const renderOrder = [4, 3, 2, 1, 0];
       return () => { ac.abort(); currentLayer = -1; };
     });
 
-    // ── matchMedia: Mobile ────────────────────────────────────
-    mm.add('(max-width: 767px)', () => {
+    // ── matchMedia: Mobile / Tablet ─────────────────────────
+    mm.add('(max-width: 1023px)', () => {
       currentLayer = -1;
-      buildEntrance();
+
+      // ── Spread diamonds vertically for label readability ──
+      const ORIG_OFFSET = 138;
+      const MOB_OFFSET = 340;
+      const MOB_VB_H = 4 * MOB_OFFSET + 488;
+      const parentGroups = allLayers.map(l => l.parentElement as SVGGElement);
+
+      parentGroups.forEach((g, i) => {
+        g.setAttribute('transform', `translate(0, ${i * MOB_OFFSET})`);
+      });
+      svgEl.setAttribute('viewBox', `0 0 800 ${MOB_VB_H}`);
+
+      // Reposition labels to new face centers
+      labelEls.forEach((label, i) => {
+        label.style.top = ((i * MOB_OFFSET + 235) / MOB_VB_H * 100).toFixed(1) + '%';
+      });
+
+      gsap.set(glows, { opacity: 0 });
+      gsap.set(labelEls, { yPercent: -50 });
+
+      if (hasRevealed) {
+        entranceDone = true;
+        gsap.set(allLayers, { opacity: 0.5, y: 0 });
+        if (titleEl) gsap.set(titleEl, { autoAlpha: 1, y: 0 });
+        if (subtitleEl) gsap.set(subtitleEl, { autoAlpha: 1, y: 0 });
+        labelEls.forEach(l => gsap.set(l, { autoAlpha: 0.5 }));
+      } else {
+        const SPREAD = 80;
+        const explodedY = [-2*SPREAD, -1*SPREAD, 0, 1*SPREAD, 2*SPREAD];
+        allLayers.forEach((layer, i) => gsap.set(layer, { opacity: 0, y: explodedY[i] }));
+        if (titleEl) gsap.set(titleEl, { autoAlpha: 0, y: 25 });
+        if (subtitleEl) gsap.set(subtitleEl, { autoAlpha: 0, y: 20 });
+        labelEls.forEach(l => gsap.set(l, { autoAlpha: 0 }));
+
+        const tl = gsap.timeline({ paused: true });
+
+        if (titleEl) tl.to(titleEl, { autoAlpha: 1, y: 0, duration: 0.7, ease: 'power3.out' }, 0);
+        if (subtitleEl) tl.to(subtitleEl, { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 0.15);
+
+        allLayers.forEach((layer) => {
+          tl.to(layer, { opacity: 0.5, y: 0, duration: 0.8, ease: 'power3.inOut' }, 0.25);
+        });
+
+        // Pulse wave
+        allLayers.forEach((layer, i) => {
+          const glow = glows[i];
+          const t = 0.9 + i * 0.1;
+          tl.to(layer, { opacity: 1, duration: 0.2, ease: 'power1.in' }, t);
+          tl.to(layer, { opacity: 0.5, duration: 0.45, ease: 'power2.out' }, t + 0.2);
+          tl.to(glow, { opacity: 0.6, duration: 0.2, ease: 'power1.in' }, t);
+          tl.to(glow, { opacity: 0, duration: 0.45, ease: 'power2.out' }, t + 0.2);
+        });
+
+        labelEls.forEach((label, i) => {
+          tl.to(label, { autoAlpha: 0.5, duration: 0.5, ease: 'power2.out' }, 0.55 + i * 0.08);
+          const t = 0.9 + i * 0.1;
+          tl.to(label, { autoAlpha: 0.9, duration: 0.2, ease: 'power1.in' }, t);
+          tl.to(label, { autoAlpha: 0.5, duration: 0.45, ease: 'power2.out' }, t + 0.2);
+        });
+
+        tl.eventCallback('onComplete', () => { entranceDone = true; });
+
+        ScrollTrigger.create({
+          id: 'cf-reveal',
+          trigger: section,
+          start: 'top 75%',
+          once: true,
+          onEnter: () => { hasRevealed = true; tl.play(); },
+        });
+      }
 
       // Scroll-based sequential activation
       ScrollTrigger.create({
@@ -397,16 +487,20 @@ const renderOrder = [4, 3, 2, 1, 0];
         end: 'bottom 60%',
         onUpdate: (self) => {
           const p = self.progress;
-          if (p < 0.05 || p > 0.95) {
-            setActiveLayer(-1);
-          } else {
-            const adjusted = (p - 0.05) / 0.9;
-            setActiveLayer(Math.min(4, Math.floor(adjusted * 5)));
-          }
+          if (p < 0.05 || p > 0.95) setActiveLayer(-1);
+          else setActiveLayer(Math.min(4, Math.floor((p - 0.05) / 0.9 * 5)));
         },
       });
 
-      return () => { currentLayer = -1; };
+      return () => {
+        currentLayer = -1;
+        // Restore original SVG layout for desktop
+        svgEl.setAttribute('viewBox', `0 0 800 1040`);
+        parentGroups.forEach((g, i) => {
+          g.setAttribute('transform', `translate(0, ${i * ORIG_OFFSET})`);
+        });
+        labelEls.forEach(l => { l.style.top = ''; });
+      };
     });
   }
 

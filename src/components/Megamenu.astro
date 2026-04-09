@@ -199,6 +199,39 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
   .megamenu-arrow {
     color: var(--color-purple-500);
   }
+
+  @media (max-width: 767px) {
+    .megamenu-header {
+      padding: 20px 20px;
+    }
+    .megamenu-logo img {
+      width: 180px;
+    }
+    .megamenu-columns {
+      grid-template-columns: 1fr;
+      gap: 0;
+      padding: 0 20px 60px;
+    }
+    .megamenu-parent {
+      font-size: 22px;
+      padding: 16px 0;
+    }
+    .megamenu-link {
+      font-size: 22px;
+      padding: 16px 0 16px 24px;
+    }
+    .megamenu-link--top {
+      padding: 16px 0;
+    }
+    .megamenu-group {
+      padding-bottom: 8px;
+      margin-bottom: 8px;
+    }
+    .megamenu-col:last-child .megamenu-group:first-child {
+      border-top: none;
+      padding-top: 0;
+    }
+  }
 </style>
 
 <script>
@@ -206,9 +239,11 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
 
   function initMegamenu() {
     const megamenu = document.getElementById('megamenu');
-    const openBtn = document.getElementById('menu-toggle');
+    const openBtn1 = document.getElementById('menu-toggle');
+    const openBtn2 = document.getElementById('header-menu-toggle');
     const closeBtn = document.getElementById('megamenu-close');
-    if (!megamenu || !openBtn || !closeBtn) return;
+    const openBtns = [openBtn1, openBtn2].filter(Boolean) as HTMLElement[];
+    if (!megamenu || openBtns.length === 0 || !closeBtn) return;
 
     const smoother = (window as any).__smoother;
     const root = getComputedStyle(document.documentElement);
@@ -216,35 +251,39 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
     const colorRed = root.getPropertyValue('--color-red').trim();
     let isOpen = false;
     let tween: gsap.core.Tween | null = null;
+    let activeOpenBtn: HTMLElement = openBtns[0];
 
     const ac = new AbortController();
     const { signal } = ac;
 
-    // ═══ CIRCLE ORIGIN (center of hamburger button) ═══
+    // ═══ CIRCLE ORIGIN (center of whichever hamburger was clicked) ═══
     function getOrigin() {
-      const rect = openBtn.getBoundingClientRect();
+      const rect = activeOpenBtn.getBoundingClientRect();
       const x = ((rect.left + rect.width / 2) / window.innerWidth) * 100;
       const y = ((rect.top + rect.height / 2) / window.innerHeight) * 100;
       return `${x.toFixed(1)}% ${y.toFixed(1)}%`;
     }
 
     // ═══ OPEN ═══
-    openBtn.addEventListener('click', () => {
-      if (isOpen) return;
-      isOpen = true;
-      if (tween) tween.kill();
+    openBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (isOpen) return;
+        activeOpenBtn = btn;
+        isOpen = true;
+        if (tween) tween.kill();
 
-      const origin = getOrigin();
-      gsap.set(megamenu, { clipPath: `circle(0% at ${origin})` });
-      megamenu.style.pointerEvents = 'auto';
-      if (smoother) smoother.paused(true);
+        const origin = getOrigin();
+        gsap.set(megamenu, { clipPath: `circle(0% at ${origin})` });
+        megamenu.style.pointerEvents = 'auto';
+        if (smoother) smoother.paused(true);
 
-      tween = gsap.to(megamenu, {
-        clipPath: `circle(150% at ${origin})`,
-        duration: 1,
-        ease: 'power3.inOut',
-      });
-    }, { signal });
+        tween = gsap.to(megamenu, {
+          clipPath: `circle(150% at ${origin})`,
+          duration: 1,
+          ease: 'power3.inOut',
+        });
+      }, { signal });
+    });
 
     // ═══ CLOSE ═══
     function close() {

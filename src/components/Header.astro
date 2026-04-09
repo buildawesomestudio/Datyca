@@ -63,8 +63,8 @@ const navItems: NavItem[] = [
   <symbol id="icon-arrow-forward" viewBox="0 0 170 170">
     <path d="M105.239 27.0049C107.909 24.3318 112.24 24.3316 114.91 27.0049L167.944 80.0944C168.319 80.4701 168.64 80.8801 168.909 81.3122C169.598 82.3807 170 83.6527 170 85.019C170 86.3422 169.623 87.5765 168.973 88.6236C168.696 89.0796 168.363 89.5121 167.969 89.9064L114.935 142.995C112.265 145.668 107.934 145.668 105.263 142.995C102.593 140.321 102.593 135.987 105.263 133.313L146.666 91.8653H6.83908C3.06203 91.8653 0.000112794 88.8 0 85.019C0 81.2379 3.06196 78.1727 6.83908 78.1727H146.68L105.239 36.6879C102.568 34.0143 102.568 29.6785 105.239 27.0049Z" fill="currentColor" />
   </symbol>
-  <symbol id="icon-hamburger" viewBox="0 0 40 40">
-    <path d="M34.5273 28.6494C35.0796 28.6494 35.5273 29.0971 35.5273 29.6494C35.5273 30.2017 35.0796 30.6494 34.5273 30.6494H5.41016C4.85787 30.6494 4.41016 30.2017 4.41016 29.6494C4.41016 29.0971 4.85787 28.6494 5.41016 28.6494H34.5273ZM34.5273 18.8828C35.0796 18.8828 35.5273 19.3305 35.5273 19.8828C35.5273 20.4351 35.0796 20.8828 34.5273 20.8828H5.41016C4.85787 20.8828 4.41016 20.4351 4.41016 19.8828C4.41016 19.3305 4.85787 18.8828 5.41016 18.8828H34.5273ZM34.5273 9.11719C35.0796 9.11719 35.5273 9.5649 35.5273 10.1172C35.5273 10.6695 35.0796 11.1172 34.5273 11.1172H5.41016C4.85787 11.1172 4.41016 10.6695 4.41016 10.1172C4.41016 9.5649 4.85787 9.11719 5.41016 9.11719H34.5273Z" fill="currentColor" />
+  <symbol id="icon-hamburger" viewBox="0 0 32 22">
+    <path d="M30.1172 19.5322C30.6695 19.5322 31.1172 19.9799 31.1172 20.5322C31.1172 21.0845 30.6695 21.5322 30.1172 21.5322H1C0.447715 21.5322 0 21.0845 0 20.5322C0 19.9799 0.447715 19.5322 1 19.5322H30.1172ZM30.1172 9.76562C30.6695 9.76562 31.1172 10.2133 31.1172 10.7656C31.1172 11.3179 30.6695 11.7656 30.1172 11.7656H1C0.447715 11.7656 0 11.3179 0 10.7656C0 10.2133 0.447715 9.76562 1 9.76562H30.1172ZM30.1172 0C30.6695 0 31.1172 0.447715 31.1172 1C31.1172 1.55228 30.6695 2 30.1172 2H1C0.447715 2 0 1.55228 0 1C0 0.447715 0.447715 0 1 0H30.1172Z" fill="currentColor" />
   </symbol>
   <symbol id="icon-diagonal-down-thick" viewBox="0 0 170 170">
     <path d="M20.05 20.05C22.7836 17.3165 27.2167 17.3168 29.9504 20.05L138.59 128.69V63.7005C138.59 59.8348 141.725 56.7007 145.59 56.7005C149.456 56.7005 152.59 59.8347 152.59 63.7005V145.521C152.59 146.445 152.409 147.326 152.084 148.133C152.072 148.166 152.06 148.199 152.046 148.231C152.039 148.247 152.032 148.263 152.025 148.28C151.683 149.094 151.183 149.857 150.52 150.52C149.494 151.546 148.229 152.187 146.904 152.443C146.441 152.539 145.961 152.59 145.47 152.59H63.6605C59.7947 152.59 56.6604 149.456 56.6604 145.59C56.6607 141.725 59.7948 138.59 63.6605 138.59H128.691L20.05 29.9504C17.3168 27.2167 17.3165 22.7836 20.05 20.05Z" fill="currentColor" />
@@ -77,7 +77,8 @@ const navItems: NavItem[] = [
 <header id="header">
   <div class="header-inner">
     <a href="/" class="header-logo">
-      <img src="/images/logo-full.svg" alt="Datyca - Legal Design Lab" width="220" height="68" />
+      <img src="/images/logo-full.svg" alt="Datyca - Legal Design Lab" width="220" height="68" class="header-logo-full" />
+      <img src="/images/monogramma-full.svg" alt="Datyca" width="40" height="40" class="header-logo-mono" />
     </a>
 
     <nav id="header-nav">
@@ -111,6 +112,10 @@ const navItems: NavItem[] = [
         )
       )}
     </nav>
+
+    <button id="header-menu-toggle" class="header-hamburger" aria-label="Apri menu">
+      <svg width="32" height="22" aria-hidden="true" fill="currentColor"><use href="#icon-hamburger" /></svg>
+    </button>
   </div>
 </header>
 
@@ -135,11 +140,23 @@ const navItems: NavItem[] = [
     display: flex;
     align-items: center;
     height: 100%;
+    position: relative;
   }
 
-  .header-logo img {
+  .header-logo-full {
     width: 220px;
     height: auto;
+  }
+
+  .header-logo-mono {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+    width: 40px;
+    height: 40px;
+    visibility: hidden;
   }
 
   #header-nav {
@@ -211,9 +228,31 @@ const navItems: NavItem[] = [
     flex-shrink: 0;
   }
 
+  .header-hamburger {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 15px;
+    margin-right: -15px;
+    color: var(--color-purple-600);
+  }
+
   @media (max-width: 767px) {
     #header {
-      display: none;
+      height: 80px;
+    }
+    .header-inner {
+      padding: 0 20px;
+    }
+    .header-logo-full {
+      width: 160px;
+    }
+    #header-nav {
+      padding-top: 0;
     }
   }
 </style>
@@ -225,10 +264,69 @@ const navItems: NavItem[] = [
     const header = document.getElementById('header');
     if (!header) return;
 
+    const nav = document.getElementById('header-nav') as HTMLElement;
+    const hamburger = document.getElementById('header-menu-toggle') as HTMLElement;
+    const logoEl = header.querySelector('.header-logo') as HTMLElement;
+    if (!nav || !hamburger || !logoEl) return;
+
+    // ═══ FIT DETECTION: nav vs hamburger ═══
+    // Measured before any hiding — init runs before first paint
+    let cachedNavWidth = nav.scrollWidth;
+    const FIT_GAP = 80;
+
+    function checkNavFit() {
+      const fits = (logoEl.offsetWidth + cachedNavWidth + FIT_GAP) <= innerWidth;
+      if (fits) {
+        nav.style.display = 'flex';
+        hamburger.style.display = 'none';
+      } else {
+        nav.style.display = 'none';
+        hamburger.style.display = 'flex';
+      }
+    }
+
+    checkNavFit();
+
+    // Re-measure after fonts load (widths may change)
+    document.fonts.ready.then(() => {
+      const wasHidden = nav.style.display === 'none';
+      if (wasHidden) {
+        nav.style.visibility = 'hidden';
+        nav.style.position = 'absolute';
+        nav.style.display = 'flex';
+      }
+      cachedNavWidth = nav.scrollWidth;
+      if (wasHidden) {
+        nav.style.visibility = '';
+        nav.style.position = '';
+        nav.style.display = 'none';
+      }
+      checkNavFit();
+    });
+
+    // Debounced resize check
+    let resizeTimer: ReturnType<typeof setTimeout>;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(checkNavFit, 200);
+    });
+
+    // ═══ HAMBURGER HOVER ═══
+    const root = getComputedStyle(document.documentElement);
+    const colorRed = root.getPropertyValue('--color-red').trim();
+    const colorPurple600 = root.getPropertyValue('--color-purple-600').trim();
+
+    hamburger.addEventListener('mouseenter', () => {
+      gsap.to(hamburger, { color: colorRed, duration: 0.2, overwrite: true });
+    });
+    hamburger.addEventListener('mouseleave', () => {
+      gsap.to(hamburger, { color: colorPurple600, duration: 0.2, overwrite: true });
+    });
+
+    // ═══ NAV INTERACTIONS (desktop hover) ═══
     const mm = gsap.matchMedia();
 
     mm.add('(min-width: 768px)', () => {
-      const root = getComputedStyle(document.documentElement);
       const colorPurple = root.getPropertyValue('--color-purple-500').trim();
       const colorText = root.getPropertyValue('--color-text').trim();
 
@@ -248,7 +346,6 @@ const navItems: NavItem[] = [
         const chevron = item.querySelector<SVGElement>('.nav-chevron');
         const dropdown = item.querySelector<HTMLElement>('.nav-dropdown');
 
-        // ═══ HOVER ═══
         const hasDropdown = !!dropdown;
 
         item.addEventListener('mouseenter', () => {
@@ -267,7 +364,6 @@ const navItems: NavItem[] = [
         }, { signal });
       });
 
-      // ═══ DROPDOWN ITEMS HOVER ═══
       header.querySelectorAll<HTMLElement>('.dropdown-item').forEach((item) => {
         const arrow = item.querySelector<SVGElement>('.dropdown-arrow')!;
 
@@ -282,12 +378,10 @@ const navItems: NavItem[] = [
         }, { signal });
       });
 
-      // ═══ CLOSE ON ESCAPE ═══
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && activeItem) closeActive();
       }, { signal });
 
-      // ═══ HELPERS ═══
       function openDropdown(item: HTMLElement) {
         activeItem = item;
         const link = item.querySelector<HTMLElement>('.nav-link')!;
@@ -312,7 +406,6 @@ const navItems: NavItem[] = [
         gsap.to(chevron, { autoAlpha: 0, rotation: 0, duration: 0.25, overwrite: true });
         gsap.to(dropdown, { autoAlpha: 0, y: -8, duration: 0.2, overwrite: true });
 
-        // Reset dropdown items to default
         dropdown.querySelectorAll<HTMLElement>('.dropdown-item').forEach((di) => {
           gsap.set(di, { color: colorText });
         });
