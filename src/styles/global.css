@@ -129,10 +129,14 @@ body {
      real visible viewport, eliminating the dark gap that 100vh causes
      when the address bar is expanded. */
   min-height: 100dvh;
-  /* White matches the Contatti footer. Propagates to the canvas so the
-     iOS bottom rubber-band reveals white (not dark). Top rubber-band is
-     blocked by overscroll-behavior: none on modern iOS. */
-  background-color: var(--color-white-snow);
+  /* Dark to match #hero / main / sections — the iOS Safari translucent
+     status bar and bottom toolbar render a blur of the body background,
+     so body MUST match the page's dominant color (dark) or that blur
+     shows up as a wrong-color sfumatura at top and bottom on mobile.
+     Note: this means iOS bottom rubber-band when overscrolling past the
+     white Contatti footer will reveal dark (not white). Trade-off accepted
+     for now — see PLAN/cookbook if a future fix is needed. */
+  background-color: var(--color-bg);
 }
 
 main {
