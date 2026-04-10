@@ -127,31 +127,24 @@
 
     let heroTl: gsap.core.Timeline | null = null;
 
-    // Lightweight resize: pin-spacer width + invalidate (every frame, non-debounced)
-    window.addEventListener('resize', () => {
-      const spacer = hero.parentElement;
-      if (spacer?.classList.contains('pin-spacer')) {
-        const w = innerWidth + 'px';
-        spacer.style.width = spacer.style.maxWidth = w;
-        hero.style.width = hero.style.maxWidth = w;
-      }
-      if (heroTl) {
-        heroTl.invalidate();
-        heroTl.progress(heroTl.progress());
-      }
-    });
-
     function setupHero() {
       const getHeaderH = () => {
-        if (innerWidth >= 768) {
+        if (document.documentElement.clientWidth >= 768) {
           return document.getElementById('header')?.offsetHeight ?? 140;
         }
         return document.getElementById('header-compact')?.offsetHeight ?? 80;
       };
-      const getInset = () => innerWidth * 0.028;
+      const getInset = () => document.documentElement.clientWidth * 0.028;
       const root = getComputedStyle(document.documentElement);
       const colorPurple600 = root.getPropertyValue('--color-purple-600').trim();
       const colorText = root.getPropertyValue('--color-text').trim();
+
+      // Hard-reset every Hero descendant before desktop setup (symmetric with
+      // setupHeroMobile). clearProps clears GSAP's internal transform cache
+      // (xPercent/yPercent/etc.), then removeAttribute clears DOM inline.
+      const allHeroEls = [hero, ...Array.from(hero.querySelectorAll<HTMLElement>('*'))];
+      gsap.set(allHeroEls, { clearProps: 'all' });
+      allHeroEls.forEach(el => el.removeAttribute('style'));
 
       // SplitText must run before collapsing height — needs natural layout
       const paragraphs = hero.querySelectorAll<HTMLElement>('#hero-details p');
@@ -177,6 +170,7 @@
           scrub: 0.8,
           anticipatePin: 1,
           invalidateOnRefresh: true,
+          refreshPriority: 1000,
           onRefresh: (self) => {
             const t = self.getTween();
             if (t) t.progress(self.progress);
@@ -198,7 +192,7 @@
 
       // Phase 2: details expand + lines reveal (1 → 2)
       tl.fromTo('#hero-details', { height: 0, marginTop: 0 }, {
-        height: 'auto', marginTop: () => innerWidth * 0.022,
+        height: 'auto', marginTop: () => document.documentElement.clientWidth * 0.022,
         ease: 'none', duration: 1,
       }, 1);
 
@@ -236,6 +230,18 @@
       const titleEl = hero.querySelector('#hero-title') as HTMLElement;
       const paragraphs = hero.querySelectorAll<HTMLElement>('#hero-details p');
       const cta = hero.querySelector('#hero-cta') as HTMLElement;
+
+      // Hard-reset every Hero descendant before mobile setup. Two-step:
+      //   1) gsap.set clearProps: 'all' — clears GSAP's INTERNAL transform cache
+      //      (xPercent/yPercent/x/y/rotation/scale that GSAP keeps on el._gsap),
+      //      otherwise the next gsap.set() would re-apply leftover values from
+      //      the desktop callback (e.g. yPercent:-50 → translate(0,-50%) bleeds
+      //      back as transform: matrix(1,0,0,1,0,-85px) on #hero-content).
+      //   2) removeAttribute('style') — defensive DOM cleanup for any non-GSAP
+      //      inline that might remain.
+      const allHeroEls = [hero, ...Array.from(hero.querySelectorAll<HTMLElement>('*'))];
+      gsap.set(allHeroEls, { clearProps: 'all' });
+      allHeroEls.forEach(el => el.removeAttribute('style'));
 
       // SplitText for title — needs natural layout before hiding
       const titleSplit = SplitText.create(titleEl, { type: 'words', aria: 'none' });
@@ -278,20 +284,21 @@
           start: 'top top',
           end: 'bottom top',
           scrub: 0.5,
+          refreshPriority: 1000,
         },
       });
 
       // Parallax: video scrolls slower than content
       scrollTl.fromTo(video,
         { y: 0 },
-        { y: () => innerHeight * 0.15, ease: 'none', duration: 1 },
+        { y: () => document.documentElement.clientHeight * 0.15, ease: 'none', duration: 1 },
         0
       );
 
       // Card effect: frame gains inset + border-radius
       scrollTl.fromTo(videoFrame,
         { clipPath: 'inset(0px round 0px)', },
-        { clipPath: () => `inset(0px ${innerWidth * 0.1}px ${innerHeight * 0.15}px round 28px)`, ease: 'none', duration: 1 },
+        { clipPath: () => `inset(0px ${document.documentElement.clientWidth * 0.1}px ${document.documentElement.clientHeight * 0.15}px round 28px)`, ease: 'none', duration: 1 },
         0
       );
 

@@ -28,6 +28,14 @@ Corollary: if GSAP does NOT animate a property, keep it in CSS — `gsap.set()` 
 
 Components use `gsap.matchMedia()` for animation setup. Each breakpoint gets its own callback — matchMedia auto-reverts all GSAP objects when the condition stops matching, and re-runs the callback when it matches again. State that must survive breakpoint crossing (e.g., `hasRevealed`, `accentRevealed`) lives outside matchMedia. DOM listeners use AbortController, aborted in the cleanup function returned from the callback.
 
+**CRITICAL — clear GSAP transform cache between callbacks**: matchMedia revert kills tweens but does NOT clean GSAP's internal transform cache (`xPercent`, `yPercent`, `x`, `y`, `rotation`, `scale` stored on `el._gsap`). The next `gsap.set()` in the new callback reads the stale cache and re-applies leftover values. **Symptom**: an element animated in one breakpoint shows up at a wrong position in the other breakpoint, even though no inline `style` is visible. **Fix**: at the start of each matchMedia callback that shares elements with another callback, do `gsap.set([...elements], { clearProps: 'all' })` BEFORE any other gsap.set / tween. See `.claude/rules/cookbook.md` → "matchMedia cache cleanup" for the full pattern.
+
+## Use clientWidth, not innerWidth
+
+For layout calculations (function-based GSAP values, inline width on dynamic elements, breakpoint checks inside JS), always use `document.documentElement.clientWidth` and `clientHeight`. **Never** `window.innerWidth`/`innerHeight`.
+
+`innerWidth` is unreliable in several real-world scenarios — Chrome DevTools responsive mode after rapid resize, Safari fullscreen + sidebar transitions — where it reports values that don't match the actual layout viewport. `clientWidth` is the layout viewport the browser uses for CSS media queries and rendering, so JS calculations stay consistent with CSS.
+
 ## ScrollTrigger IDs
 
 Every ScrollTrigger MUST have a unique `id` string for debugging.
@@ -55,15 +63,14 @@ Never repeat the same markup. Apply the right deduplication strategy:
 
 ## Resize Strategy
 
-**No centralized rebuild.** Layout.astro has no resize handler. Components are autonomous.
+**No centralized rebuild. Components are autonomous via `gsap.matchMedia()`.** Layout.astro has no resize handler — it sets `ScrollTrigger.config({ ignoreMobileResize: true })` once and lets ScrollTrigger's built-in auto-refresh handle everything.
 
-Two-tier resize:
-1. **Within a breakpoint** (every frame, non-debounced): pin-spacer width fix + `timeline.invalidate()` + `timeline.progress(timeline.progress())`. GSAP's built-in auto-refresh (200ms debounce) handles `ScrollTrigger.refresh()`.
-2. **At breakpoint crossing** (768px): `gsap.matchMedia()` auto-reverts and re-runs the callback — SplitText re-splits, pins are recreated, values recalculated.
+- **Within a breakpoint** → ScrollTrigger's built-in auto-refresh (debounced ~200ms) handles fluid resize. Use **function-based values** for anything viewport-dependent (`top: () => getHeaderH()`, `end: () => '+=' + clientWidth`, `x: () => clientWidth * 0.3`) + `invalidateOnRefresh: true` on the ScrollTrigger. Do NOT write manual `window.addEventListener('resize', ...)` that touches pin-spacers or calls `invalidate()` — that duplicates ScrollTrigger's work and races with its refresh cycle.
+- **At breakpoint crossing** → `gsap.matchMedia()` auto-reverts and re-runs the component setup callback. **MUST** clear GSAP's transform cache at the start of each callback (see "gsap.matchMedia()" rule above) — otherwise leftover yPercent/xPercent from the previous callback bleeds into the new one.
+- **Pinned ScrollTriggers across breakpoints** → assign `refreshPriority` (decreasing top-down by DOM order) on every pinned trigger. When matchMedia adds/removes pins dynamically, new triggers go to the END of the global array, breaking refresh cascade order. `refreshPriority` forces correct order regardless of creation time.
+- **iOS address-bar vertical resizes** → filtered globally by `ScrollTrigger.config({ ignoreMobileResize: true })` in Layout.astro. No custom width-only guard needed.
 
-Pinned sections MUST have a non-debounced resize listener that updates pin-spacer and section `width`/`maxWidth` to `innerWidth + 'px'`.
-
-Fluid resize principle: CSS fluid units (`clamp()`, `vw`, `%`) for real-time layout. GSAP function-based values + `invalidateOnRefresh: true` for animation values recalculated on auto-refresh.
+Fluid resize principle: CSS fluid units (`clamp()`, `vw`, `%`) for real-time layout. GSAP function-based values + `invalidateOnRefresh: true` for animation values recalculated on auto-refresh. Always read `document.documentElement.clientWidth/clientHeight`, never `innerWidth/innerHeight` (see "Use clientWidth" rule above).
 
 ## Build
 

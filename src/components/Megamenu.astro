@@ -296,8 +296,8 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
     // ═══ CIRCLE ORIGIN (center of whichever hamburger was clicked) ═══
     function getOrigin() {
       const rect = activeOpenBtn.getBoundingClientRect();
-      const x = ((rect.left + rect.width / 2) / window.innerWidth) * 100;
-      const y = ((rect.top + rect.height / 2) / window.innerHeight) * 100;
+      const x = ((rect.left + rect.width / 2) / document.documentElement.clientWidth) * 100;
+      const y = ((rect.top + rect.height / 2) / document.documentElement.clientHeight) * 100;
       return `${x.toFixed(1)}% ${y.toFixed(1)}%`;
     }
 

@@ -220,7 +220,7 @@
     function setup(ctx: gsap.Context) {
       idleTweens = [];
 
-      const isDesktop = window.innerWidth >= 768;
+      const isDesktop = document.documentElement.clientWidth >= 768;
 
       const kicker = section.querySelector('.missione__kicker') as HTMLElement;
       const titleEl = section.querySelector('.missione__title') as HTMLElement;
@@ -233,7 +233,7 @@
 
       // ── Dynamic ticker fill ──
       // Calculate spans needed for max visible width within this breakpoint
-      const maxVisibleWidth = window.innerWidth;
+      const maxVisibleWidth = document.documentElement.clientWidth;
       function fillTicker(ticker: HTMLElement) {
         const firstSpan = ticker.querySelector('.missione__ticker-text') as HTMLElement;
         if (!firstSpan) return;
@@ -255,7 +255,7 @@
         const sectionLeft = section.getBoundingClientRect().left;
         const padLeft = parseFloat(getComputedStyle(section).paddingLeft);
         tickerWrap.style.marginLeft = -(sectionLeft + padLeft) + 'px';
-        tickerWrap.style.width = innerWidth + 'px';
+        tickerWrap.style.width = document.documentElement.clientWidth + 'px';
 
         const imgRect = imageWrap.getBoundingClientRect();
         const wrapRect = tickerWrap.getBoundingClientRect();

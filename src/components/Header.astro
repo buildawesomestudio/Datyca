@@ -281,7 +281,7 @@ const navItems: NavItem[] = [
     const FIT_GAP = 80;
 
     function checkNavFit() {
-      const fits = (logoEl.offsetWidth + cachedNavWidth + FIT_GAP) <= innerWidth;
+      const fits = (logoEl.offsetWidth + cachedNavWidth + FIT_GAP) <= document.documentElement.clientWidth;
       if (fits) {
         nav.style.display = 'flex';
         hamburger.style.display = 'none';

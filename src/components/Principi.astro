@@ -193,20 +193,6 @@ import Principio01Anim from './Principio01Anim.astro';
 
     let principiTl: gsap.core.Timeline | null = null;
 
-    // Lightweight resize: pin-spacer width + invalidate (desktop only, guards handle mobile)
-    window.addEventListener('resize', () => {
-      const spacer = section.parentElement;
-      if (spacer?.classList.contains('pin-spacer')) {
-        const w = innerWidth + 'px';
-        spacer.style.width = spacer.style.maxWidth = w;
-        section.style.width = section.style.maxWidth = w;
-      }
-      if (principiTl) {
-        principiTl.invalidate();
-        principiTl.progress(principiTl.progress());
-      }
-    });
-
     function setupPrincipi() {
       const states = section.querySelectorAll<HTMLElement>('.tp-state');
 
@@ -230,6 +216,7 @@ import Principio01Anim from './Principio01Anim.astro';
           scrub: 0.5,
           anticipatePin: 1,
           invalidateOnRefresh: true,
+          refreshPriority: 900,
           snap: {
             snapTo: 'labels',
             duration: { min: 0.2, max: 0.6 },
