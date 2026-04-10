@@ -101,6 +101,17 @@
     // State that survives breakpoint crossing
     let hasSwapped = false;
 
+    // ── Shared: compute content-top of the first element inside <main>
+    //    Used as fallback on pages without hero-anim (sub-pages).
+    //    Returns the document-y where the first visible content actually starts,
+    //    so the swap can coincide with that content physically pushing the header.
+    function firstContentTopY(): number | null {
+      const firstEl = document.querySelector('main > *:first-child') as HTMLElement | null;
+      if (!firstEl) return null;
+      const pt = parseFloat(getComputedStyle(firstEl).paddingTop) || 0;
+      return firstEl.offsetTop + pt;
+    }
+
     // Desktop: full header swap (both headers slide)
     function setupHeaderSwap() {
       gsap.set(compact, { visibility: 'visible' });
@@ -112,11 +123,17 @@
           id: 'header-swap',
           start: () => {
             const heroST = ScrollTrigger.getById('hero-anim');
-            return heroST ? heroST.end : innerHeight;
+            if (heroST) return heroST.end;
+            // Sub-page: swap starts when first content top reaches header bottom
+            const y = firstContentTopY();
+            return y == null ? 0 : Math.max(0, y - headerH);
           },
           end: () => {
             const heroST = ScrollTrigger.getById('hero-anim');
-            return (heroST ? heroST.end : innerHeight) + headerH;
+            if (heroST) return heroST.end + headerH;
+            // Sub-page: swap ends when first content top reaches viewport top
+            const y = firstContentTopY();
+            return y == null ? headerH : Math.max(headerH, y);
           },
           scrub: 0.5,
           invalidateOnRefresh: true,
@@ -149,12 +166,16 @@
           start: () => {
             const videoFrame = document.getElementById('hero-video-frame');
             if (videoFrame) return videoFrame.offsetHeight - headerH;
-            return innerHeight;
+            // Sub-page: swap starts when first content top reaches header bottom
+            const y = firstContentTopY();
+            return y == null ? 0 : Math.max(0, y - headerH);
           },
           end: () => {
             const videoFrame = document.getElementById('hero-video-frame');
             if (videoFrame) return videoFrame.offsetHeight;
-            return innerHeight + headerH;
+            // Sub-page: swap ends when first content top reaches viewport top
+            const y = firstContentTopY();
+            return y == null ? headerH : Math.max(headerH, y);
           },
           scrub: 0.5,
           invalidateOnRefresh: true,

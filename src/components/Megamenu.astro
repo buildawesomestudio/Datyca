@@ -16,9 +16,9 @@ const leftColumn: (NavGroup | { label: string; href: string })[] = [
     label: 'Chi siamo',
     href: '/chi-siamo',
     children: [
-      { label: 'Perché Datyca', href: '/chi-siamo/perche-datyca' },
-      { label: 'Missione', href: '/chi-siamo/missione' },
-      { label: 'Principi', href: '/chi-siamo/principi' },
+      { label: 'Perché Datyca', href: '/#why-datyca' },
+      { label: 'Missione', href: '/#missione' },
+      { label: 'Principi', href: '/#principi' },
       { label: 'Metodo', href: '/chi-siamo/metodo' },
     ],
   },
@@ -63,7 +63,7 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
       <img src="/images/logo-full_dark.svg" alt="Datyca - Legal Design Lab" width="220" height="68" />
     </a>
     <button id="megamenu-close" class="megamenu-close" aria-label="Chiudi menu">
-      <svg width="30" height="30" aria-hidden="true" fill="currentColor"><use href="#icon-close" /></svg>
+      <svg width="31" height="31" aria-hidden="true" fill="currentColor"><use href="#icon-close" /></svg>
     </button>
   </div>
 
@@ -283,7 +283,6 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
     const openBtns = [openBtn1, openBtn2].filter(Boolean) as HTMLElement[];
     if (!megamenu || openBtns.length === 0 || !closeBtn) return;
 
-    const smoother = (window as any).__smoother;
     const root = getComputedStyle(document.documentElement);
     const colorPurple = root.getPropertyValue('--color-purple-500').trim();
     const colorRed = root.getPropertyValue('--color-red').trim();
@@ -315,7 +314,8 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
         const origin = getOrigin();
         gsap.set(megamenu, { clipPath: `circle(0% at ${origin})` });
         megamenu.style.pointerEvents = 'auto';
-        if (smoother) smoother.paused(true);
+        // Lock page scroll while megamenu is open
+        document.documentElement.style.overflow = 'hidden';
 
         tween = gsap.to(megamenu, {
           clipPath: `circle(150% at ${origin})`,
@@ -338,7 +338,7 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
         ease: 'power3.inOut',
         onComplete: () => {
           megamenu.style.pointerEvents = 'none';
-          if (smoother) smoother.paused(false);
+          document.documentElement.style.overflow = '';
         },
       });
     }

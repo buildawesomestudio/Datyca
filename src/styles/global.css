@@ -114,30 +114,31 @@
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-sans);
   overflow-x: hidden;
   overscroll-behavior: none;
+  /* Smooth in-page anchor jumps (same-page #hash clicks) */
+  scroll-behavior: smooth;
+  /* No explicit background — body's background propagates to the canvas
+     (the area shown during rubber-band / beyond body's box). */
 }
 
 body {
-  min-height: 100vh;
+  /* 100dvh follows the iOS dynamic address bar so body never exceeds the
+     real visible viewport, eliminating the dark gap that 100vh causes
+     when the address bar is expanded. */
+  min-height: 100dvh;
+  /* White matches the Contatti footer. Propagates to the canvas so the
+     iOS bottom rubber-band reveals white (not dark). Top rubber-band is
+     blocked by overscroll-behavior: none on modern iOS. */
+  background-color: var(--color-white-snow);
+}
+
+main {
+  /* The whole content area is dark by default (matches Hero, breadcrumb area,
+     and all page sections). Contatti overrides back to white within its own box. */
   background-color: var(--color-bg);
-}
-
-#smooth-wrapper {
-  overflow: hidden;
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-}
-
-#smooth-content {
-  overflow: visible;
-  width: 100%;
 }
 
 .pin-spacer {

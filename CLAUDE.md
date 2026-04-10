@@ -4,6 +4,10 @@
 
 **All animations MUST use GSAP.** No CSS `animation`/`@keyframes`/`transition`, no Web Animations API, no `requestAnimationFrame` for visuals.
 
+## Default: no ScrollSmoother
+
+Do NOT add ScrollSmoother unless explicitly requested. Native scroll + `ScrollTrigger.normalizeScroll(true)` covers iOS pin stability. ScrollSmoother is rarely essential, breaks with Astro ClientRouter (body caching), and is often added out of habit. Only use it when the user asks for "smooth/silky scrolling" as a specific UX requirement.
+
 ## Init Queue
 
 Components push init functions into the global queue. Layout.astro drains it synchronously — no yielding.
@@ -30,7 +34,7 @@ Every ScrollTrigger MUST have a unique `id` string for debugging.
 
 ## iOS Mobile (critical)
 
-- `normalizeScroll: true` is required — without it, pins jitter on iOS (WebKit bug #181954, unfixed since 2017)
+- iOS pin stability: `ScrollTrigger.normalizeScroll(true)` (static method — ScrollSmoother plugin NOT required). Enable **conditionally per page**: only when the page has pinned ScrollTriggers. On pin-less pages it intercepts scroll events with no benefit, making scroll feel slower. WebKit bug #181954, unfixed since 2017.
 - Never `scrub: true` — always numeric (`scrub: 0.5` to `scrub: 1`)
 - Never `e.preventDefault()` on touch — all touch listeners: `{ passive: true }`
 - No `backdrop-filter: blur()` on mobile — desktop only via `@media (min-width: 768px)`

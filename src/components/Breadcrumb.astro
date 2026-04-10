@@ -1,0 +1,103 @@
+---
+interface Item {
+  label: string;
+  href?: string;
+}
+
+interface Props {
+  items: Item[];
+}
+
+const { items } = Astro.props;
+---
+
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <ol class="breadcrumb__list">
+    {items.map((item, i) => {
+      const isLast = i === items.length - 1;
+      let el;
+      if (isLast) {
+        el = <span class="breadcrumb__current" aria-current="page">{item.label}</span>;
+      } else if (item.href) {
+        el = <a href={item.href} class="breadcrumb__link">{item.label}</a>;
+      } else {
+        el = <span class="breadcrumb__disabled">{item.label}</span>;
+      }
+      return (
+        <li class="breadcrumb__item">
+          {el}
+          {!isLast && (
+            <svg class="breadcrumb__sep" width="8" height="12" viewBox="0 0 8 12" aria-hidden="true">
+              <path d="M1 1L6 6L1 11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          )}
+        </li>
+      );
+    })}
+  </ol>
+</nav>
+
+<style>
+  /* Left-aligned with header logo by construction: same horizontal padding
+     as .header-inner (var(--section-padding-x) matches header's 40px/20px). */
+  .breadcrumb {
+    padding: calc(120px + 40px) var(--section-padding-x) 0;
+  }
+
+  .breadcrumb__list {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .breadcrumb__item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .breadcrumb__link {
+    color: var(--color-grey-400);
+    text-decoration: none;
+    transition: color 0.2s var(--ease-signature);
+  }
+
+  .breadcrumb__link:hover {
+    color: var(--color-white-almost);
+  }
+
+  .breadcrumb__disabled {
+    color: var(--color-grey-400);
+    cursor: default;
+  }
+
+  .breadcrumb__current {
+    color: var(--color-purple-500);
+  }
+
+  .breadcrumb__sep {
+    color: var(--color-grey-400);
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 767px) {
+    .breadcrumb {
+      padding: calc(80px + 24px) var(--section-padding-x) 0;
+    }
+
+    .breadcrumb__item {
+      font-size: 12px;
+      gap: 10px;
+    }
+  }
+</style>
