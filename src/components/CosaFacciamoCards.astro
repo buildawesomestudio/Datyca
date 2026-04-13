@@ -1,0 +1,637 @@
+---
+import Section from './Section.astro';
+import SectionHeader from './SectionHeader.astro';
+
+interface CardItem {
+  title: string;
+  body: string;
+}
+
+interface Props {
+  items: CardItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<Section id="cosa-facciamo-cards" class="cfc">
+  <div class="cfc__inner">
+    <SectionHeader title="Cosa facciamo" titleClass="text-section-title" />
+
+    <div class="cfc__stack" id="cfc-stack">
+      {items.map((item, i) => (
+        <article class="cfc__card" data-index={i}>
+          <div class="cfc__card-head">
+            <h3 class="cfc__title" set:html={item.title.replace(/\n/g, '<br>')} />
+            <svg class="cfc__chevron" width="14" height="14" aria-hidden="true"><use href="#icon-chevron-down" /></svg>
+          </div>
+          <p class="text-body cfc__body">{item.body}</p>
+        </article>
+      ))}
+    </div>
+
+    <a href="#contatti" class="cfc__cta text-cta" data-cfc-cta>
+      <span>Contattaci</span>
+      <svg width="24" height="24" aria-hidden="true"><use href="#icon-arrow-forward" /></svg>
+    </a>
+  </div>
+</Section>
+
+<style>
+  /* ── Outer flex centering wrapper ──
+     Scoped class inside the component (not :global) so Astro's scoping
+     always matches. Section__inner still provides max-width + padding;
+     this inner wrap centers section-header + stack + CTA horizontally. */
+  .cfc__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .cfc__inner :global(.section-header) {
+    width: 100%;
+  }
+
+  /* ── Stack (desktop) ── */
+  .cfc__stack {
+    --cfc-compact-h: 100px;
+    --cfc-expanded-h: 280px;
+
+    position: relative;
+    width: 100%;
+    max-width: 1123px;
+    margin-top: clamp(50px, 6vw, 80px);
+    /* Container query context: body text uses cqi units relative to the
+       stack (constant width), not the card (animated width) — zero reflow. */
+    container-type: inline-size;
+    /* Height set via JS at runtime based on N cards */
+  }
+
+  .cfc__card {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    box-sizing: border-box;
+    padding: 0 40px;
+    border: 2px solid var(--color-purple-500);
+    background: var(--color-bg);
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    gap: 40px;
+    /* Inactive default: title vertically centered in the compact area */
+    align-items: center;
+  }
+
+  /* Active card: top-aligned layout so title + body sit in the upper area,
+     with vertical padding for breathing room inside the expanded height. */
+  .cfc__card--active {
+    padding: 32px 40px;
+    align-items: flex-start;
+  }
+
+  .cfc__title,
+  .cfc__body {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .cfc__body {
+    /* Width relative to the STACK via container query unit (cqi), not the
+       card. The stack has constant width, so the body column is always the
+       same size — text never reflows during card width animations. */
+    flex: none;
+    width: calc(50cqi - 60px);
+  }
+
+  .cfc__title {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    /* Fixed "reference" size on desktop — the title always renders at this
+       size (= the active visual size), and GSAP uses transform: scale() to
+       visually shrink it for inactive cards. This keeps the bounding box
+       and text layout 100% stable across tween frames (zero reflow, zero
+       flicker). Mobile overrides below. */
+    font-size: clamp(26px, 2.1vw, 32px);
+    line-height: 1.2;
+    color: var(--color-red);
+    margin: 0;
+    /* Prevent any auto-wrap during width changes; the forced <br>s in
+       specific titles still produce 2 rows. */
+    white-space: nowrap;
+    /* Scale shrinks toward the vertical middle of the bounding box,
+       keeping the visual content centered in the compact card. */
+    transform-origin: left center;
+    /* will-change hints the compositor; scale is animated via GSAP. */
+    will-change: transform;
+  }
+
+  .cfc__body {
+    color: var(--color-white-almost);
+    margin: 0;
+  }
+
+  /* ── CTA ── Centered by parent (.cfc__inner has align-items: center) ── */
+  .cfc__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: clamp(50px, 6vw, 80px);
+    padding: 16px 24px;
+    background: var(--color-purple-500);
+    color: var(--color-white-almost);
+    text-decoration: none;
+    align-self: center;
+  }
+
+  /* ── Chevron (mobile accordion indicator) ── */
+  .cfc__chevron {
+    display: none;
+    color: var(--color-red);
+    flex-shrink: 0;
+  }
+
+  /* ── FOUC gate ──
+     Only text-level elements start hidden; cards themselves stay visible so
+     the blue border is always rendered and only titles fade in opacity-wise. */
+  .cfc__inner :global(.section-header__title),
+  .cfc__title,
+  .cfc__body,
+  .cfc__cta {
+    visibility: hidden;
+  }
+
+  /* ── Mobile / Tablet (<1024px) ── */
+  @media (max-width: 1023px) {
+    .cfc__stack {
+      --cfc-compact-h: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-width: 640px;
+      margin-top: clamp(40px, 8vw, 60px);
+    }
+
+    .cfc__card {
+      position: static;
+      left: auto;
+      top: auto;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 24px;
+      cursor: pointer;
+    }
+
+    .cfc__card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .cfc__chevron {
+      display: block;
+    }
+
+    .cfc__title {
+      font-size: 20px;
+      white-space: normal; /* allow natural wrap (desktop uses nowrap for scale trick) */
+      transform: none;
+      will-change: auto;
+    }
+
+    .cfc__body {
+      flex: 1 1 auto; /* reset desktop cqi fixed width back to natural flex */
+      width: auto;
+    }
+
+    .cfc__cta {
+      margin-top: clamp(40px, 6vw, 60px);
+    }
+  }
+</style>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  function initCosaFacciamoCards() {
+    const section = document.getElementById('cosa-facciamo-cards');
+    if (!section) return;
+
+    const stack = document.getElementById('cfc-stack');
+    if (!stack) return;
+
+    const cards = Array.from(stack.querySelectorAll<HTMLElement>('.cfc__card'));
+    const N = cards.length;
+    if (N === 0) return;
+
+    const titles = cards.map(c => c.querySelector<HTMLElement>('.cfc__title')!);
+    const bodies = cards.map(c => c.querySelector<HTMLElement>('.cfc__body')!);
+    const chevrons = cards.map(c => c.querySelector<SVGElement>('.cfc__chevron')!);
+    const titleEl = section.querySelector('.section-header__title') as HTMLElement | null;
+    const ctaEl = section.querySelector('.cfc__cta') as HTMLElement;
+
+    // ── State (outside matchMedia — survives breakpoint crossings) ──
+    let hasRevealed = false;
+    let currentIdx = -1;
+
+    // ── Helpers ──────────────────────────────────────────────────
+    /**
+     * Read compact/expanded heights from CSS vars on the stack element.
+     * Using CSS vars keeps the values in sync with media queries and
+     * makes responsive tuning straightforward.
+     */
+    function readHeights() {
+      const cs = getComputedStyle(stack!);
+      const compact = parseFloat(cs.getPropertyValue('--cfc-compact-h')) || 100;
+      const expanded = parseFloat(cs.getPropertyValue('--cfc-expanded-h')) || 280;
+      return { compact, expanded };
+    }
+
+    // Overlap between consecutive cards to collapse adjacent 2px borders
+    // into a single shared 2px line (the bottom border of card i sits
+    // exactly on top of the top border of card i+1).
+    const BORDER_OVERLAP = 2;
+
+    /**
+     * Title visual scale for inactive cards.
+     * CSS sets font-size to the ACTIVE size (~32px at wide viewports); for
+     * inactive cards we visually shrink via transform: scale(0.6), so the
+     * effective visual size is ~19px. Because scale is GPU-composited and
+     * the text bounding box never changes, there's zero reflow during the
+     * active/inactive transition — no flicker, no wrap-flicker, perfectly
+     * smooth.
+     */
+    const TITLE_SCALE_INACTIVE = 0.6;
+
+    /**
+     * Desktop card state per active index.
+     *   d=0  → 100% width, expanded height, title opacity 1, body visible
+     *   d=1  → 89% width,  compact height,  title opacity 0.4, body hidden
+     *   d>=2 → 79% width,  compact height,  title opacity 0.4, body hidden
+     * Card opacity stays at 1 so the purple border is always fully rendered;
+     * only the red title text fades (active=1, all inactives=0.4 flat).
+     * Top offset is cumulative: cards after the active card slide down
+     * by (expanded - compact) so the total stack height stays constant.
+     * Each card after the first is pulled up by i * BORDER_OVERLAP so
+     * consecutive borders collapse into a single visual line.
+     */
+    function desktopState(activeIndex: number) {
+      const { compact, expanded } = readHeights();
+      return cards.map((_, i) => {
+        const d = Math.abs(i - activeIndex);
+        const isActive = d === 0;
+        const y = i * compact
+          + (i > activeIndex ? (expanded - compact) : 0)
+          - i * BORDER_OVERLAP;
+        const widthPct = d === 0 ? 100 : d === 1 ? 89 : 79;
+        const titleOpacity = isActive ? 1 : 0.4;
+        const height = isActive ? expanded : compact;
+        return { y, widthPct, titleOpacity, height, isActive };
+      });
+    }
+
+    function updateActiveDesktop(activeIndex: number, animate = true) {
+      const states = desktopState(activeIndex);
+      states.forEach((s, i) => {
+        // Class toggle drives layout (align-items, padding) via CSS.
+        // GSAP animates all numeric properties — including the title scale
+        // which is the trick for perfectly smooth title resizing (no reflow).
+        cards[i].classList.toggle('cfc__card--active', s.isActive);
+
+        gsap.to(cards[i], {
+          y: s.y,
+          width: `${s.widthPct}%`,
+          height: s.height,
+          duration: animate ? 0.5 : 0,
+          ease: 'power2.inOut',
+          overwrite: 'auto',
+        });
+        gsap.to(titles[i], {
+          autoAlpha: s.titleOpacity,
+          scale: s.isActive ? 1 : TITLE_SCALE_INACTIVE,
+          duration: animate ? 0.5 : 0,
+          ease: 'power2.inOut',
+          overwrite: 'auto',
+        });
+        // Body: hide INSTANTLY when leaving active (prevents visible text
+        // reflow while the card width tweens), fade in WITH DELAY when
+        // becoming active (width has mostly settled after 0.3s).
+        // CRITICAL: overwrite: true on ALL body tweens — gsap.set() does
+        // NOT kill pending delayed tweens. Without overwrite:true, fast
+        // scrolling leaves orphan delayed fade-ins that re-show bodies
+        // of previously-active cards.
+        if (s.isActive) {
+          gsap.to(bodies[i], {
+            autoAlpha: 1,
+            duration: animate ? 0.35 : 0,
+            ease: 'power2.out',
+            overwrite: true,
+          });
+        } else {
+          gsap.to(bodies[i], {
+            autoAlpha: 0,
+            duration: 0,
+            overwrite: true,
+          });
+        }
+      });
+    }
+
+    /**
+     * Total stack height when exactly one card is expanded:
+     *   (N-1) * compact + expanded - (N-1) * BORDER_OVERLAP
+     * This is invariant of the active index, so the pin-spacer doesn't jump.
+     */
+    function stackHeight() {
+      const { compact, expanded } = readHeights();
+      return (N - 1) * compact + expanded - (N - 1) * BORDER_OVERLAP;
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // DESKTOP SETUP — pinned stack + continuous scrub + snap
+    // ════════════════════════════════════════════════════════════
+    function setupDesktop() {
+      gsap.set([stack!, ...cards, ...titles, ...bodies, ...chevrons], { clearProps: 'all' });
+
+      stack!.style.height = stackHeight() + 'px';
+
+      cards.forEach((card) => {
+        gsap.set(card, {
+          position: 'absolute',
+          top: 0,
+          left: '50%',
+          xPercent: -50,
+          autoAlpha: 1,
+        });
+      });
+
+      // Set initial visual state (card 0 active)
+      const initState = desktopState(0);
+      initState.forEach((s, i) => {
+        cards[i].classList.toggle('cfc__card--active', s.isActive);
+        gsap.set(cards[i], { y: s.y, width: `${s.widthPct}%`, height: s.height });
+        gsap.set(titles[i], { autoAlpha: s.titleOpacity, scale: s.isActive ? 1 : TITLE_SCALE_INACTIVE });
+        gsap.set(bodies[i], { autoAlpha: s.isActive ? 1 : 0 });
+      });
+      currentIdx = 0;
+
+      // ── Build scrub timeline: N-1 segments, each duration 1 ──
+      const tl = gsap.timeline();
+
+      for (let seg = 0; seg < N - 1; seg++) {
+        const from = desktopState(seg);
+        const to = desktopState(seg + 1);
+        const isFirst = seg === 0;
+
+        for (let i = 0; i < N; i++) {
+          const f = from[i];
+          const t = to[i];
+
+          tl.fromTo(cards[i],
+            { y: f.y, width: `${f.widthPct}%`, height: f.height },
+            { y: t.y, width: `${t.widthPct}%`, height: t.height, duration: 1, ease: 'none', immediateRender: isFirst },
+            seg
+          );
+
+          tl.fromTo(titles[i],
+            { autoAlpha: f.titleOpacity, scale: f.isActive ? 1 : TITLE_SCALE_INACTIVE },
+            { autoAlpha: t.titleOpacity, scale: t.isActive ? 1 : TITLE_SCALE_INACTIVE, duration: 1, ease: 'none', immediateRender: isFirst },
+            seg
+          );
+
+          const bodyFrom = f.isActive ? 1 : 0;
+          const bodyTo = t.isActive ? 1 : 0;
+          if (bodyTo === 0 && bodyFrom === 1) {
+            tl.fromTo(bodies[i],
+              { autoAlpha: 1 },
+              { autoAlpha: 0, duration: 0.4, ease: 'none', immediateRender: isFirst },
+              seg
+            );
+          } else if (bodyTo === 1 && bodyFrom === 0) {
+            tl.fromTo(bodies[i],
+              { autoAlpha: 0 },
+              { autoAlpha: 1, duration: 0.4, ease: 'none', immediateRender: isFirst },
+              seg + 0.6
+            );
+          }
+        }
+      }
+
+      // ── Entrance reveal ──
+      if (!hasRevealed) {
+        if (titleEl) gsap.set(titleEl, { autoAlpha: 0, y: 20 });
+        gsap.set(cards, { y: (i: number) => 20 + i * 4 });
+        gsap.set(cards, { autoAlpha: 0 });
+        // Hide titles only — bodies are owned by the scrub timeline
+        // (their autoAlpha is set by immediateRender on the first fromTo
+        // segment). Cards are at autoAlpha: 0 so bodies are visually hidden
+        // anyway during entrance; hiding them here would conflict with scrub.
+        gsap.set(titles, { autoAlpha: 0 });
+        gsap.set(ctaEl, { autoAlpha: 0, y: 20 });
+
+        const revealTl = gsap.timeline({ paused: true });
+
+        if (titleEl) {
+          revealTl.to(titleEl, {
+            autoAlpha: 1, y: 0,
+            duration: 0.6, ease: 'power2.out',
+          }, 0);
+        }
+
+        revealTl.to(cards, {
+          autoAlpha: 1,
+          duration: 0.6, stagger: 0.08,
+          ease: 'power2.out',
+        }, 0.2);
+
+        revealTl.add(() => {
+          // Restore card layout positions (y, width, height) and title states
+          // after the entrance fade-in. Do NOT touch bodies — the scrub
+          // timeline owns body autoAlpha and will set it correctly based on
+          // scroll progress. Writing bodies here causes a race condition
+          // when the user scrolls fast during reveal.
+          const state = desktopState(0);
+          state.forEach((s, i) => {
+            gsap.set(cards[i], { y: s.y, width: `${s.widthPct}%`, height: s.height });
+            gsap.set(titles[i], { autoAlpha: s.titleOpacity, scale: s.isActive ? 1 : TITLE_SCALE_INACTIVE });
+          });
+        }, 0.4);
+
+        revealTl.to(ctaEl, {
+          autoAlpha: 1, y: 0,
+          duration: 0.5, ease: 'power2.out',
+        }, 0.8);
+
+        ScrollTrigger.create({
+          id: 'cfc-reveal',
+          trigger: section!,
+          start: 'top 75%',
+          once: true,
+          onEnter: () => {
+            hasRevealed = true;
+            revealTl.play();
+          },
+        });
+      } else {
+        if (titleEl) gsap.set(titleEl, { autoAlpha: 1, y: 0 });
+        gsap.set(cards, { autoAlpha: 1, y: 0 });
+        gsap.set(ctaEl, { autoAlpha: 1, y: 0 });
+      }
+
+      // ── Pinned ScrollTrigger with scrub + snap ──
+      ScrollTrigger.create({
+        id: 'cfc-pin',
+        trigger: stack!,
+        start: 'center center',
+        end: () => '+=' + (document.documentElement.clientHeight * N),
+        pin: stack!,
+        pinSpacing: true,
+        anticipatePin: 1,
+        scrub: 0.5,
+        snap: {
+          snapTo: 1 / (N - 1),
+          duration: { min: 0.15, max: 0.4 },
+          delay: 0,
+          ease: 'power2.inOut',
+        },
+        animation: tl,
+        invalidateOnRefresh: true,
+        refreshPriority: 500,
+        onUpdate: (self) => {
+          const segProgress = self.progress * (N - 1);
+          const newIdx = gsap.utils.clamp(0, N - 1, Math.round(segProgress));
+          if (newIdx !== currentIdx) {
+            cards[currentIdx].classList.remove('cfc__card--active');
+            cards[newIdx].classList.add('cfc__card--active');
+            currentIdx = newIdx;
+          }
+        },
+        onRefresh: (self) => {
+          stack!.style.height = stackHeight() + 'px';
+          const t = self.getTween();
+          if (t) t.progress(self.progress);
+        },
+      });
+
+      return () => {
+        stack!.style.height = '';
+      };
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // MOBILE SETUP — accordion, tap to toggle
+    // ════════════════════════════════════════════════════════════
+    function setupMobile() {
+      // Clear any leftover transforms from desktop callback
+      gsap.set([stack!, ...cards, ...titles, ...bodies, ...chevrons], { clearProps: 'all' });
+      stack!.style.height = '';
+      // Remove desktop active class so mobile starts clean
+      cards.forEach(c => c.classList.remove('cfc__card--active'));
+
+      let mobileActive = 0;
+
+      // Titles are always fully visible on mobile (no distance-based opacity)
+      gsap.set(titles, { autoAlpha: 1 });
+
+      // Initial state: first card open (chevron rotated), rest closed
+      bodies.forEach((body, i) => {
+        if (i === 0) {
+          gsap.set(body, { autoAlpha: 1, height: 'auto' });
+          gsap.set(chevrons[i], { rotation: 180 });
+        } else {
+          gsap.set(body, { autoAlpha: 0, height: 0, marginTop: 0 });
+          gsap.set(chevrons[i], { rotation: 0 });
+        }
+      });
+
+      // ── Entrance reveal ──
+      if (!hasRevealed) {
+        if (titleEl) gsap.set(titleEl, { autoAlpha: 0, y: 20 });
+        gsap.set(cards, { autoAlpha: 0, y: 20 });
+        gsap.set(ctaEl, { autoAlpha: 0, y: 20 });
+
+        const revealTl = gsap.timeline({ paused: true });
+        if (titleEl) {
+          revealTl.to(titleEl, {
+            autoAlpha: 1, y: 0,
+            duration: 0.6, ease: 'power2.out',
+          }, 0);
+        }
+        revealTl.to(cards, {
+          autoAlpha: 1, y: 0,
+          duration: 0.5, stagger: 0.08,
+          ease: 'power2.out',
+        }, 0.2);
+        revealTl.to(ctaEl, {
+          autoAlpha: 1, y: 0,
+          duration: 0.5, ease: 'power2.out',
+        }, 0.7);
+
+        ScrollTrigger.create({
+          id: 'cfc-reveal-mobile',
+          trigger: section!,
+          start: 'top 80%',
+          once: true,
+          onEnter: () => {
+            hasRevealed = true;
+            revealTl.play();
+          },
+        });
+      } else {
+        if (titleEl) gsap.set(titleEl, { autoAlpha: 1, y: 0 });
+        gsap.set(cards, { autoAlpha: 1, y: 0 });
+        gsap.set(ctaEl, { autoAlpha: 1, y: 0 });
+      }
+
+      // ── Accordion click handlers ──
+      const ac = new AbortController();
+      cards.forEach((card, i) => {
+        card.setAttribute('role', 'button');
+        card.setAttribute('tabindex', '0');
+        card.setAttribute('aria-expanded', i === 0 ? 'true' : 'false');
+
+        const toggle = () => {
+          if (mobileActive === i) return;
+          // Close previous
+          const prevBody = bodies[mobileActive];
+          const prevCard = cards[mobileActive];
+          gsap.to(prevBody, {
+            autoAlpha: 0, height: 0,
+            duration: 0.4, ease: 'power2.inOut', overwrite: 'auto',
+          });
+          gsap.to(chevrons[mobileActive], { rotation: 0, duration: 0.3, overwrite: true });
+          prevCard.setAttribute('aria-expanded', 'false');
+          // Open new
+          gsap.to(bodies[i], {
+            autoAlpha: 1, height: 'auto',
+            duration: 0.4, ease: 'power2.inOut', overwrite: 'auto',
+          });
+          gsap.to(chevrons[i], { rotation: 180, duration: 0.3, overwrite: true });
+          card.setAttribute('aria-expanded', 'true');
+          mobileActive = i;
+        };
+
+        card.addEventListener('click', toggle, { signal: ac.signal });
+        card.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggle();
+          }
+        }, { signal: ac.signal });
+      });
+
+      return () => { ac.abort(); };
+    }
+
+    const mm = gsap.matchMedia();
+    mm.add('(min-width: 1024px)', setupDesktop);
+    mm.add('(max-width: 1023px)', setupMobile);
+  }
+
+  ((window as any).__initQueue ??= []).push(initCosaFacciamoCards);
+</script>

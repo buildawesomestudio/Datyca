@@ -122,13 +122,18 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
 
 <style>
   #megamenu {
-    position: fixed;
-    inset: 0;
+    /* absolute (not fixed) — Safari clips fixed elements to the inner viewport,
+       so they can't extend behind the translucent bottom toolbar. */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
     z-index: 200;
     background: var(--color-white-snow);
     clip-path: circle(0% at 95% 3%);
     pointer-events: none;
     overflow-y: auto;
+    overscroll-behavior: none;
     scrollbar-width: none;
   }
 
@@ -309,18 +314,24 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
         isOpen = true;
         if (tween) tween.kill();
 
+        const origin = getOrigin();
+
+        megamenu.style.top = window.scrollY + 'px';
+        megamenu.style.height = (window.outerHeight || document.documentElement.clientHeight) + 'px';
         megamenu.scrollTop = 0;
 
-        const origin = getOrigin();
         gsap.set(megamenu, { clipPath: `circle(0% at ${origin})` });
+        megamenu.style.display = '';
         megamenu.style.pointerEvents = 'auto';
-        // Lock page scroll while megamenu is open
         document.documentElement.style.overflow = 'hidden';
 
         tween = gsap.to(megamenu, {
           clipPath: `circle(150% at ${origin})`,
           duration: 1,
           ease: 'power3.inOut',
+          onComplete: () => {
+            megamenu.style.clipPath = 'none';
+          },
         });
       }, { signal });
     });
@@ -332,12 +343,14 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
       if (tween) tween.kill();
 
       const origin = getOrigin();
+      gsap.set(megamenu, { clipPath: `circle(150% at ${origin})` });
       tween = gsap.to(megamenu, {
         clipPath: `circle(0% at ${origin})`,
         duration: 0.8,
         ease: 'power3.inOut',
         onComplete: () => {
           megamenu.style.pointerEvents = 'none';
+          megamenu.style.display = 'none';
           document.documentElement.style.overflow = '';
         },
       });
@@ -351,6 +364,7 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
 
     // ═══ INITIAL STATES ═══
     gsap.set('.megamenu-arrow', { autoAlpha: 0, x: -8 });
+    megamenu.style.display = 'none';
 
     // ═══ LINK HOVER ═══
     megamenu.querySelectorAll<HTMLElement>('.megamenu-link').forEach((link) => {

@@ -137,6 +137,7 @@ body {
      white Contatti footer will reveal dark (not white). Trade-off accepted
      for now — see PLAN/cookbook if a future fix is needed. */
   background-color: var(--color-bg);
+  overflow-x: hidden;
 }
 
 main {

@@ -1,0 +1,291 @@
+---
+interface Service {
+  slug: string;
+  title: string;
+  description: string;
+  href: string;
+}
+
+interface Props {
+  services: Service[];
+  current: string;
+}
+
+const { services, current } = Astro.props;
+
+const related = services.filter(s => s.slug !== current);
+const isMulti = related.length > 1;
+---
+
+<section id="servizi-correlati" class="sc">
+  <div class="sc__inner">
+    <h2 class="text-h2 sc__title">Scopri gli altri nostri servizi</h2>
+
+    <div class:list={['sc__list', { 'sc__list--multi': isMulti }]}>
+      {related.map((s, i) => (
+        <a href={s.href} class:list={['sc__card', { 'sc__card--first': isMulti && i === 0, 'sc__card--last': isMulti && i === related.length - 1 }]} data-sc-card>
+          <svg class="sc__card-arrow sc__card-arrow--back" width="32" height="32" aria-hidden="true">
+            <use href="#icon-arrow-forward" />
+          </svg>
+          <div class="sc__card-content">
+            <h3 class="sc__card-title">{s.title}</h3>
+            <p class="text-body sc__card-desc">{s.description}</p>
+          </div>
+          <svg class="sc__card-arrow sc__card-arrow--fwd" width="32" height="32" aria-hidden="true">
+            <use href="#icon-arrow-forward" />
+          </svg>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Identical gradient approach to CtaImpatto (#cta-impatto):
+     section is full-width for edge-to-edge gradient, inner has max-width. */
+  /* Same gradient approach as CtaImpatto, with stops shifted down so the
+     intense magenta/blue sit below the visible area — only the subtle
+     navy→dark transition shows, matching the Figma where the gradient
+     origin extends past the clip boundary. */
+  .sc {
+    position: relative;
+    background: radial-gradient(
+      ellipse 80% 120% at -5% 110%,
+      var(--color-red) 0%,
+      var(--color-blue-deep-800) 30%,
+      var(--color-black-almost-900) 55%
+    );
+  }
+
+  .sc__inner {
+    max-width: 1440px;
+    margin-inline: auto;
+    padding: clamp(60px, 8vw, 120px) 40px clamp(60px, 8vw, 120px);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(32px, 4vw, 48px);
+  }
+
+  .sc__title {
+    color: var(--color-white-almost);
+    font-weight: 400;
+  }
+
+  .sc__list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .sc__list--multi {
+    flex-direction: row;
+    gap: 0;
+  }
+
+  .sc__list--multi .sc__card {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  /* Collapse shared border between adjacent cards */
+  .sc__list--multi .sc__card + .sc__card {
+    margin-left: -1px;
+  }
+
+  /* ── Card ── */
+  .sc__card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: clamp(24px, 3vw, 40px);
+    padding: clamp(32px, 4vw, 48px);
+    border: 1px solid var(--color-purple-500);
+    background: transparent;
+    color: var(--color-white-almost);
+    text-decoration: none;
+  }
+
+  .sc__card-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .sc__card-title {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: clamp(28px, 3vw, 40px);
+    line-height: 1.2;
+    color: var(--color-purple-600);
+    margin: 0;
+  }
+
+  .sc__card-desc {
+    color: var(--color-white-almost);
+    margin: 0;
+  }
+
+  .sc__card-arrow {
+    color: var(--color-purple-500);
+    flex-shrink: 0;
+  }
+
+  .sc__card-arrow--back {
+    transform: scaleX(-1);
+  }
+
+  /* ── Arrow visibility (single-card default): hide back, show fwd ── */
+  .sc__card-arrow--back {
+    display: none;
+  }
+
+  /* ── Arrow visibility (multi-card desktop):
+       first card  → show back (←), hide fwd
+       last card   → hide back, show fwd (→)
+       middle card → show fwd only (fallback) ── */
+  .sc__list--multi .sc__card--first .sc__card-arrow--back {
+    display: block;
+  }
+  .sc__list--multi .sc__card--first .sc__card-arrow--fwd {
+    display: none;
+  }
+
+  /* ── FOUC gate ── */
+  .sc__title,
+  .sc__card {
+    visibility: hidden;
+  }
+
+  @media (max-width: 767px) {
+    .sc__inner {
+      padding: 60px var(--section-padding-x) 60px;
+    }
+
+    .sc__list--multi {
+      flex-direction: column;
+    }
+
+    .sc__card {
+      padding: 24px;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    /* Mobile: always content + forward arrow, no back arrow */
+    .sc__card-arrow--back {
+      display: none !important;
+    }
+    .sc__card-arrow--fwd {
+      display: block !important;
+    }
+
+    .sc__card-title {
+      font-size: 24px;
+    }
+
+    .sc__card-arrow {
+      margin-top: 6px;
+    }
+  }
+</style>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import { SplitText } from 'gsap/SplitText';
+
+  function initServiziCorrelati() {
+    const section = document.getElementById('servizi-correlati');
+    if (!section) return;
+
+    let hasRevealed = false;
+
+    function setup() {
+      const titleEl = section!.querySelector('.sc__title') as HTMLElement;
+      const cards = section!.querySelectorAll<HTMLElement>('.sc__card');
+      const ac = new AbortController();
+
+      if (hasRevealed) {
+        gsap.set(titleEl, { autoAlpha: 1, y: 0 });
+        gsap.set(cards, { autoAlpha: 1, y: 0 });
+      } else {
+        gsap.set(cards, { autoAlpha: 0, y: 20 });
+
+        const wordSplit = SplitText.create(titleEl, { type: 'words', aria: 'none' });
+        gsap.set(wordSplit.words, { autoAlpha: 0, y: 20 });
+        gsap.set(titleEl, { autoAlpha: 1 });
+
+        const revealTl = gsap.timeline({ paused: true });
+
+        revealTl.to(wordSplit.words, {
+          autoAlpha: 1, y: 0,
+          duration: 0.6, stagger: 0.1,
+          ease: 'power2.out',
+        }, 0);
+
+        revealTl.to(cards, {
+          autoAlpha: 1, y: 0,
+          duration: 0.6, stagger: 0.12,
+          ease: 'power2.out',
+        }, 0.35);
+
+        revealTl.eventCallback('onComplete', () => {
+          wordSplit.revert();
+        });
+
+        ScrollTrigger.create({
+          id: 'sc-reveal',
+          trigger: section!,
+          start: 'top 80%',
+          once: true,
+          onEnter: () => {
+            hasRevealed = true;
+            revealTl.play();
+          },
+        });
+      }
+
+      // Hover: move arrow, brighten border (desktop pointer only)
+      if (!window.matchMedia('(pointer: fine)').matches) {
+        return () => { ac.abort(); };
+      }
+
+      cards.forEach(card => {
+        const isFirst = card.classList.contains('sc__card--first');
+        const arrow = card.querySelector(isFirst ? '.sc__card-arrow--back' : '.sc__card-arrow--fwd') as SVGElement;
+        // Back arrow moves left (negative x), forward arrow moves right
+        const hoverX = isFirst ? -8 : 8;
+
+        card.addEventListener('mouseenter', () => {
+          gsap.to(card, {
+            borderColor: '#6666FF',
+            duration: 0.3, overwrite: 'auto',
+          });
+          gsap.to(arrow, {
+            x: hoverX, duration: 0.3, ease: 'power2.out', overwrite: 'auto',
+          });
+        }, { signal: ac.signal });
+
+        card.addEventListener('mouseleave', () => {
+          gsap.to(card, {
+            borderColor: '#4545F7',
+            duration: 0.3, overwrite: 'auto',
+          });
+          gsap.to(arrow, {
+            x: 0, duration: 0.3, ease: 'power2.out', overwrite: 'auto',
+          });
+        }, { signal: ac.signal });
+      });
+
+      return () => { ac.abort(); };
+    }
+
+    const mm = gsap.matchMedia();
+    mm.add('(min-width: 768px)', setup);
+    mm.add('(max-width: 767px)', setup);
+  }
+
+  ((window as any).__initQueue ??= []).push(initServiziCorrelati);
+</script>

@@ -1,0 +1,90 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import ServiceIntro from '../../components/ServiceIntro.astro';
+import CosaFacciamoCards from '../../components/CosaFacciamoCards.astro';
+import ServiziCorrelati from '../../components/ServiziCorrelati.astro';
+import Contatti from '../../components/Contatti.astro';
+
+const aiGovernanceServices = [
+  {
+    slug: 'responsible-ai',
+    title: 'Responsible AI',
+    description: 'Sistemi di intelligenza artificiale affidabili',
+    href: '/ai-governance/responsible-ai',
+  },
+  {
+    slug: 'trustworthy-ai',
+    title: 'Trustworthy AI',
+    description: 'Sistemi di intelligenza artificiale affidabili, trasparenti e centrati sull\u2019uomo',
+    href: '/ai-governance/trustworthy-ai',
+  },
+];
+
+const cosaFacciamoItems = [
+  {
+    title: 'Policy e regole di utilizzo dell\u2019IA',
+    body: 'Definiamo policy chiare per l\u2019uso dei sistemi di intelligenza artificiale, coerenti con il contesto organizzativo, le finalit\u00e0 aziendali e i processi coinvolti. Integriamo i principi di privacy e sicurezza by design per assicurare coerenza, controllo e responsabilit\u00e0 lungo tutto il ciclo di utilizzo.',
+  },
+  {
+    title: 'Ruoli, responsabilit\u00e0 e\nprocessi decisionali',
+    body: 'Strutturiamo ruoli, responsabilit\u00e0 e flussi decisionali nel ciclo di vita dei sistemi di IA, assicurando accountability, tracciabilit\u00e0 delle decisioni e livelli di controllo proporzionati al rischio.',
+  },
+  {
+    title: 'Trasparenza e\nspiegabilit\u00e0',
+    body: 'Progettiamo misure e strumenti per rendere i sistemi di IA comprensibili, tracciabili e verificabili. Predisponiamo documentazione e informative chiare per utenti e stakeholder, rafforzando la fiducia e la legittimazione delle decisioni automatizzate.',
+  },
+  {
+    title: 'AI Literacy e accompagnamento\nal cambiamento',
+    body: 'Affianchiamo le persone con percorsi di formazione e sensibilizzazione sull\u2019uso dell\u2019IA e sui rischi correlati, favorendo un\u2019adozione consapevole e sostenibile dei sistemi all\u2019interno dell\u2019organizzazione.',
+  },
+  {
+    title: 'Valutazioni di impatto e\ngestione del rischio',
+    body: 'Conduciamo valutazioni di impatto su sistemi, dati personali e diritti fondamentali, integrando i principali standard di settore per identificare, mitigare e governare i rischi connessi all\u2019uso dell\u2019IA.',
+  },
+  {
+    title: 'Governance della supply chain',
+    body: 'Supportiamo la selezione e la gestione dei fornitori di soluzioni di IA, definendo requisiti di sicurezza, trasparenza e responsabilit\u00e0 e integrandoli nei rapporti contrattuali e nei processi di controllo.',
+  },
+];
+---
+
+<Layout
+  title="Responsible AI — Datyca"
+  description="Governance dell'IA e conformità normativa: progettiamo sistemi di gestione dell'intelligenza artificiale integrati nella governance aziendale."
+>
+  <main>
+    <Breadcrumb
+      items={[
+        { label: 'Home', href: '/' },
+        { label: 'AI Governance' },
+        { label: 'Responsible AI' },
+      ]}
+    />
+    <div class="rai-page__dark">
+      <ServiceIntro
+        title="Responsible AI"
+        subtitle="Governance e conformità normativa"
+        bodyHtml={[
+          'Progettiamo e implementiamo sistemi di gestione dell&rsquo;intelligenza artificiale pienamente <strong>integrati nella governance aziendale</strong>, coerenti con le normative e i principali standard nazionali, europei e internazionali di settore.',
+          'L&rsquo;approccio Responsible AI consente di governare l&rsquo;adozione dei sistemi IA all&rsquo;interno dell&rsquo;organizzazione, assicurando che ogni processo, ruolo e decisione sia <strong>tracciabile, conforme e allineato ai valori aziendali.</strong>',
+        ]}
+        obiettivoText="Adottare l\u2019intelligenza artificiale con la certezza che ogni processo, ruolo e decisione sia sotto controllo \u2014 e che la conformit\u00e0 normativa diventi un vantaggio competitivo, non un freno."
+      />
+      <CosaFacciamoCards items={cosaFacciamoItems} />
+      <ServiziCorrelati services={aiGovernanceServices} current="responsible-ai" />
+    </div>
+    <Contatti />
+  </main>
+</Layout>
+
+<style>
+  /* ── Dark-wrap gradient (Figma "Frame 12") ──
+     A large 123.34deg gradient flipped on Y (matrix -1) that paints a
+     magenta glow in the bottom-left area of the whole dark portion of
+     the page (everything above the white Contatti block). Sits behind
+     the sections via z-index: -1 + isolation on the wrap. */
+  .rai-page__dark {
+    position: relative;
+  }
+</style>

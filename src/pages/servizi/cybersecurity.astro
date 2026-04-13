@@ -1,0 +1,91 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import ServiceIntro from '../../components/ServiceIntro.astro';
+import CosaFacciamoCards from '../../components/CosaFacciamoCards.astro';
+import ServiziCorrelati from '../../components/ServiziCorrelati.astro';
+import Contatti from '../../components/Contatti.astro';
+
+const serviziServices = [
+  {
+    slug: 'data-protection',
+    title: 'Data Protection',
+    description: 'Sistemi di intelligenza artificiale affidabili, trasparenti e centrati sull\u2019uomo',
+    href: '/servizi/data-protection',
+  },
+  {
+    slug: 'legal-desk',
+    title: 'Legal Desk',
+    description: 'Sistemi di intelligenza artificiale affidabili, trasparenti e centrati sull\u2019uomo',
+    href: '/servizi/legal-desk',
+  },
+  {
+    slug: 'cybersecurity',
+    title: 'Cybersecurity',
+    description: 'Sistemi di intelligenza artificiale affidabili, trasparenti e centrati sull\u2019uomo',
+    href: '/servizi/cybersecurity',
+  },
+];
+
+const cosaFacciamoItems = [
+  {
+    title: 'Adeguamento NIS2 e\nconformità normativa',
+    body: 'Supportiamo le organizzazioni nella piena attuazione degli obblighi previsti dal Decreto NIS e dalle Determinazioni ACN: gap analysis, action plan, progettazione e implementazione delle misure di sicurezza e di gestione degli incidenti richieste per i soggetti essenziali e importanti.',
+  },
+  {
+    title: 'CISO as a Service',
+    body: 'Assumiamo le funzioni di Chief Information Security Officer in outsourcing, affiancando il vertice e le funzioni interne nella definizione, implementazione e miglioramento continuo della strategia di cybersicurezza, dalla pianificazione alla misurazione delle performance.',
+  },
+  {
+    title: 'SGSI e certificazione ISO\n27001',
+    body: 'Progettiamo, implementiamo e manteniamo Sistemi di Gestione della Sicurezza delle Informazioni conformi alla norma ISO/IEC 27001. Conduciamo audit, gap analysis e verifiche di conformità per garantire coerenza tra il sistema documentale e le misure effettivamente adottate.',
+  },
+  {
+    title: 'Governance della supply\nchain ICT',
+    body: 'Definiamo criteri di selezione e valutazione dei fornitori, requisiti contrattuali di sicurezza e continuità operativa, e audit periodici sulle terze parti coinvolte nella catena di approvvigionamento ICT.',
+  },
+  {
+    title: 'Gestione degli incidenti\ne resilienza',
+    body: 'Strutturiamo piani di risposta agli incidenti, coordiniamo le attività di rilevazione e contenimento e supportiamo le notifiche alle Autorità competenti. Affianchiamo il Punto di contatto ACN e il Referente CSIRT nella gestione operativa degli adempimenti.',
+  },
+  {
+    title: 'Policy, formazione e cultura\ndella sicurezza',
+    body: 'Redigiamo e aggiorniamo policy, procedure e regolamenti interni. Progettiamo percorsi di formazione e sensibilizzazione personalizzati per ruoli e funzioni aziendali, con attenzione specifica agli obblighi di formazione dei vertici previsti dalla normativa NIS2.',
+  },
+];
+---
+
+<Layout
+  title="Cybersecurity — Datyca"
+  description="Progettiamo e implementiamo sistemi di gestione della sicurezza delle informazioni pienamente integrati nella governance aziendale."
+>
+  <main>
+    <Breadcrumb
+      items={[
+        { label: 'Home', href: '/' },
+        { label: 'Servizi' },
+        { label: 'Cybersecurity' },
+      ]}
+    />
+    <div class="cs-page__dark">
+      <ServiceIntro
+        title="Cybersecurity"
+        subtitle="Sicurezza delle informazioni e resilienza operativa"
+        bodyHtml={[
+          'Progettiamo e implementiamo sistemi di gestione della sicurezza delle informazioni pienamente integrati nella governance aziendale, coerenti con il quadro normativo nazionale ed europeo e con i principali standard internazionali di settore.',
+          'L&rsquo;approccio combina prevenzione, resilienza e conformità per <strong>presidiare la sicurezza informatica in modo sistematico</strong>, assicurando che ogni processo, ruolo e decisione sia tracciabile, conforme e allineato agli obiettivi strategici dell&rsquo;organizzazione.',
+        ]}
+        obiettivoText="Garantire la continuità operativa dell'organizzazione e la protezione dei suoi asset digitali, costruendo un sistema di sicurezza che evolve insieme alle minacce e al quadro normativo."
+      />
+      <CosaFacciamoCards items={cosaFacciamoItems} />
+      <ServiziCorrelati services={serviziServices} current="cybersecurity" />
+    </div>
+    <Contatti />
+  </main>
+</Layout>
+
+<style>
+  .cs-page__dark {
+    position: relative;
+  }
+</style>

@@ -1,0 +1,213 @@
+---
+interface Props {
+  title: string;
+  subtitle: string;
+  bodyHtml: string[];
+  obiettivoText: string;
+}
+
+const { title, subtitle, bodyHtml, obiettivoText } = Astro.props;
+---
+
+<section class="service-intro si">
+  <div class="si__inner">
+    <h1 class="text-hero si__title">{title}</h1>
+    <p class="text-h2 si__subtitle">{subtitle}</p>
+
+    <div class="si__body-wrap">
+      {bodyHtml.map(html => (
+        <p class="text-body si__body" set:html={html} />
+      ))}
+    </div>
+
+    <div class="si__obiettivo">
+      <div class="si__obiettivo-head">
+        <svg class="si__obiettivo-icon" width="24" height="24" aria-hidden="true">
+          <use href="#icon-obiettivo" />
+        </svg>
+        <h2 class="si__obiettivo-title">Obiettivo</h2>
+      </div>
+      <p class="text-body si__obiettivo-body">{obiettivoText}</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .si {
+    --_pad-x: clamp(40px, 10.9vw, 157px);
+    position: relative;
+    max-width: 1440px;
+    margin-inline: auto;
+    padding: clamp(40px, 6vw, 80px) var(--_pad-x) var(--section-padding-y);
+  }
+
+  .si__inner {
+    display: flex;
+    flex-direction: column;
+    max-width: 660px;
+  }
+
+  .si__title {
+    color: var(--color-purple-600);
+    margin-bottom: 16px;
+  }
+
+  .si__subtitle {
+    color: var(--color-purple-600);
+    font-weight: 400;
+    margin-bottom: clamp(40px, 5vw, 64px);
+  }
+
+  .si__body-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(20px, 2vw, 28px);
+    margin-bottom: clamp(40px, 5vw, 64px);
+  }
+
+  .si__body {
+    color: var(--color-white-almost);
+  }
+
+  .si__body :global(strong) {
+    font-weight: 600;
+  }
+
+  /* ── Obiettivo box ── */
+  .si__obiettivo {
+    border: 1px solid var(--color-purple-500);
+    padding: clamp(24px, 3vw, 32px);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .si__obiettivo-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .si__obiettivo-icon {
+    color: var(--color-white-almost);
+    flex-shrink: 0;
+  }
+
+  .si__obiettivo-title {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 1.2;
+    color: var(--color-white-almost);
+    margin: 0;
+  }
+
+  .si__obiettivo-body {
+    color: var(--color-white-almost);
+  }
+
+  /* ── FOUC gate ── */
+  .si__title,
+  .si__subtitle,
+  .si__body,
+  .si__obiettivo {
+    visibility: hidden;
+  }
+
+  @media (max-width: 767px) {
+    .si {
+      padding: 40px var(--section-padding-x) var(--section-padding-y);
+    }
+
+    .si__inner {
+      max-width: none;
+    }
+
+    .si__subtitle {
+      margin-bottom: 40px;
+    }
+
+    .si__body-wrap {
+      margin-bottom: 40px;
+    }
+  }
+</style>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import { SplitText } from 'gsap/SplitText';
+
+  function initServiceIntro() {
+    const section = document.querySelector('.service-intro') as HTMLElement;
+    if (!section) return;
+
+    let hasRevealed = false;
+
+    function setup() {
+      const titleEl = section.querySelector('.si__title') as HTMLElement;
+      const subtitleEl = section.querySelector('.si__subtitle') as HTMLElement;
+      const bodyEls = section.querySelectorAll<HTMLElement>('.si__body');
+      const obiettivoEl = section.querySelector('.si__obiettivo') as HTMLElement;
+
+      if (hasRevealed) {
+        gsap.set(titleEl, { autoAlpha: 1, y: 0 });
+        gsap.set(subtitleEl, { autoAlpha: 1, y: 0 });
+        gsap.set(bodyEls, { autoAlpha: 1, y: 0 });
+        gsap.set(obiettivoEl, { autoAlpha: 1, y: 0 });
+        return;
+      }
+
+      gsap.set([subtitleEl, ...Array.from(bodyEls), obiettivoEl], { autoAlpha: 0, y: 20 });
+
+      const wordSplit = SplitText.create(titleEl, { type: 'words', aria: 'none' });
+      gsap.set(wordSplit.words, { autoAlpha: 0, y: 20 });
+      gsap.set(titleEl, { autoAlpha: 1 });
+
+      const revealTl = gsap.timeline({ paused: true });
+
+      revealTl.to(wordSplit.words, {
+        autoAlpha: 1, y: 0,
+        duration: 0.7, stagger: 0.12,
+        ease: 'power2.out',
+      }, 0);
+
+      revealTl.to(subtitleEl, {
+        autoAlpha: 1, y: 0,
+        duration: 0.6, ease: 'power2.out',
+      }, 0.3);
+
+      revealTl.to(bodyEls, {
+        autoAlpha: 1, y: 0,
+        duration: 0.6, stagger: 0.12,
+        ease: 'power2.out',
+      }, 0.45);
+
+      revealTl.to(obiettivoEl, {
+        autoAlpha: 1, y: 0,
+        duration: 0.7, ease: 'power2.out',
+      }, 0.7);
+
+      revealTl.eventCallback('onComplete', () => {
+        wordSplit.revert();
+      });
+
+      ScrollTrigger.create({
+        id: 'service-intro-reveal',
+        trigger: section,
+        start: 'top 75%',
+        once: true,
+        onEnter: () => {
+          hasRevealed = true;
+          revealTl.play();
+        },
+      });
+    }
+
+    const mm = gsap.matchMedia();
+    mm.add('(min-width: 768px)', setup);
+    mm.add('(max-width: 767px)', setup);
+  }
+
+  ((window as any).__initQueue ??= []).push(initServiceIntro);
+</script>

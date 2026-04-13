@@ -1,0 +1,85 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import ServiceIntro from '../../components/ServiceIntro.astro';
+import CosaFacciamoCards from '../../components/CosaFacciamoCards.astro';
+import ServiziCorrelati from '../../components/ServiziCorrelati.astro';
+import Contatti from '../../components/Contatti.astro';
+
+const aiGovernanceServices = [
+  {
+    slug: 'responsible-ai',
+    title: 'Responsible AI',
+    description: 'Sistemi di intelligenza artificiale affidabili',
+    href: '/ai-governance/responsible-ai',
+  },
+  {
+    slug: 'trustworthy-ai',
+    title: 'Trustworthy AI',
+    description: 'Sistemi di intelligenza artificiale affidabili, trasparenti e centrati sull\u2019uomo',
+    href: '/ai-governance/trustworthy-ai',
+  },
+];
+
+const cosaFacciamoItems = [
+  {
+    title: 'Bias auditing (pre-rilascio e\npost-market)',
+    body: 'Verifichiamo la qualit\u00e0 e la rappresentativit\u00e0 dei dati e dei modelli per individuare bias e comportamenti indesiderati. Supportiamo la mitigazione dei rischi e il monitoraggio continuo delle performance, garantendo affidabilit\u00e0 e controllo anche in fase di utilizzo.',
+  },
+  {
+    title: 'Trustworthy interaction',
+    body: 'Studiamo target, contesto e casi d\u2019uso per progettare interazioni uomo\u2013macchina trasparenti e comprensibili. Integriamo spiegazioni, feedback e meccanismi di controllo che permettono agli utenti di comprendere e utilizzare il sistema in modo consapevole.',
+  },
+  {
+    title: 'Ethics & UX by Design',
+    body: 'Analizziamo e progettiamo interfacce che integrano principi etici, trasparenza e usabilit\u00e0. Validiamo le esperienze attraverso test di qualit\u00e0, usabilit\u00e0 e fiducia, assicurando interazioni inclusive, responsabili e coerenti con le aspettative degli utenti.',
+  },
+  {
+    title: 'RAG/LLM engineering',
+    body: 'Valutiamo la coerenza e l\u2019affidabilit\u00e0 degli output dei sistemi di IA generativa e interveniamo sull\u2019architettura e sui flussi conversazionali per ridurre errori, allucinazioni e comportamenti indesiderati, migliorando la qualit\u00e0 dell\u2019esperienza complessiva.',
+  },
+  {
+    title: 'Safe AI (Traditional AI &\nGenAI)',
+    body: 'Testiamo i modelli per verificarne accuratezza, robustezza e resistenza a usi impropri o input ostili. Definiamo misure di controllo e protezione per garantire un funzionamento sicuro e conforme lungo tutto il ciclo di vita del sistema.',
+  },
+  {
+    title: 'Privacy-Enhancing\nTechnologies (PETs)',
+    body: 'Applichiamo tecnologie e approcci avanzati per ridurre l\u2019esposizione dei dati e proteggere la riservatezza. Progettiamo sistemi che consentono un uso dell\u2019IA trasparente e rispettoso dei diritti, rafforzando la fiducia di utenti e stakeholder.',
+  },
+];
+---
+
+<Layout
+  title="Trustworthy AI \u2014 Datyca"
+  description="Progettiamo e validiamo sistemi di IA affidabili, trasparenti e centrati sull\u2019uomo, capaci di generare output accurati, spiegabili e sicuri."
+>
+  <main>
+    <Breadcrumb
+      items={[
+        { label: 'Home', href: '/' },
+        { label: 'AI Governance' },
+        { label: 'Trustworthy AI' },
+      ]}
+    />
+    <div class="rai-page__dark">
+      <ServiceIntro
+        title="Trustworthy AI"
+        subtitle="Modelli e interazioni uomo-macchina"
+        bodyHtml={[
+          'Progettiamo e validiamo sistemi di intelligenza artificiale (back-end e interfacce) <strong>affidabili, trasparenti e centrati sull&rsquo;uomo</strong>, capaci di generare <strong>output accurati, spiegabili e sicuri</strong>.',
+          'L&rsquo;approccio Trustworthy AI integra principi etici, requisiti tecnici e criteri di usabilit\u00e0 per garantire che ogni modello e interazione umano-macchina sia <strong>equa, comprensibile e coerente</strong> con il contesto d&rsquo;uso.',
+        ]}
+        obiettivoText="Esperienze di utilizzo dei sistemi di IA comprensibili, trasparenti e sicure per il target di riferimento."
+      />
+      <CosaFacciamoCards items={cosaFacciamoItems} />
+      <ServiziCorrelati services={aiGovernanceServices} current="trustworthy-ai" />
+    </div>
+    <Contatti />
+  </main>
+</Layout>
+
+<style>
+  .rai-page__dark {
+    position: relative;
+  }
+</style>

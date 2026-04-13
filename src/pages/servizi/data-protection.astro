@@ -1,0 +1,91 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import ServiceIntro from '../../components/ServiceIntro.astro';
+import CosaFacciamoCards from '../../components/CosaFacciamoCards.astro';
+import ServiziCorrelati from '../../components/ServiziCorrelati.astro';
+import Contatti from '../../components/Contatti.astro';
+
+const serviziServices = [
+  {
+    slug: 'data-protection',
+    title: 'Data Protection',
+    description: 'Sistemi di intelligenza artificiale affidabili, trasparenti e centrati sull\u2019uomo',
+    href: '/servizi/data-protection',
+  },
+  {
+    slug: 'legal-design',
+    title: 'Legal Design',
+    description: 'Sistemi di intelligenza artificiale affidabili, trasparenti e centrati sull\u2019uomo',
+    href: '/servizi/legal-design',
+  },
+  {
+    slug: 'cybersecurity',
+    title: 'Cybersecurity',
+    description: 'Sistemi di intelligenza artificiale affidabili, trasparenti e centrati sull\u2019uomo',
+    href: '/servizi/cybersecurity',
+  },
+];
+
+const cosaFacciamoItems = [
+  {
+    title: 'Assessment e mappatura\ndei trattamenti',
+    body: 'Analizziamo i processi operativi, i flussi di dati e le misure di sicurezza esistenti per costruire una fotografia accurata del livello di conformità dell\u2019organizzazione. Ogni assessment si conclude con un report strutturato che orienta le scelte successive.',
+  },
+  {
+    title: 'Adeguamento normativo\ne documentale',
+    body: 'Progettiamo e realizziamo gli adempimenti necessari, calibrati sulle specificità di settore: informative, consensi, accordi di contitolarità, contratti con i responsabili del trattamento e ogni ulteriore documento richiesto dalla normativa applicabile.',
+  },
+  {
+    title: 'Privacy by design e\nvalutazioni di impatto',
+    body: 'Integriamo la protezione dei dati nella progettazione di nuove iniziative, attività e applicazioni. Conduciamo valutazioni di impatto (DPIA) per identificare e mitigare i rischi prima che si concretizzino.',
+  },
+  {
+    title: 'Data Protection Officer',
+    body: 'Offriamo un servizio di DPO esterno strutturato e proattivo, con un team di legali e specialisti di data security che si interfaccia con le funzioni aziendali per garantire il rispetto della normativa nell\u2019operatività quotidiana, gestire le relazioni con l\u2019Autorità Garante e assicurare la manutenzione continua del sistema di compliance.',
+  },
+  {
+    title: 'Gestione delle violazioni e\nrapporti con l\u2019Autorità',
+    body: 'Supportiamo l\u2019organizzazione nella gestione dei data breach, dalla rilevazione alla notifica, e nelle interazioni con l\u2019Autorità Garante, inclusa l\u2019assistenza in caso di accertamenti ispettivi.',
+  },
+  {
+    title: 'Formazione e\nsensibilizzazione',
+    body: 'Progettiamo percorsi di formazione personalizzati per funzioni e ruoli aziendali, affinché la protezione dei dati diventi parte integrante della cultura organizzativa.',
+  },
+];
+---
+
+<Layout
+  title="Data Protection — Datyca"
+  description="Assistiamo le organizzazioni nella costruzione e nel mantenimento di un sistema di protezione dei dati personali conforme, efficace e integrato nei processi di business."
+>
+  <main>
+    <Breadcrumb
+      items={[
+        { label: 'Home', href: '/' },
+        { label: 'Servizi' },
+        { label: 'Data Protection' },
+      ]}
+    />
+    <div class="dp-page__dark">
+      <ServiceIntro
+        title="Data Protection"
+        subtitle="Protezione dei dati personali"
+        bodyHtml={[
+          'Assistiamo le organizzazioni nella costruzione e nel mantenimento di un <strong>sistema di protezione dei dati personali conforme, efficace e integrato</strong> nei processi di business.',
+          'Il nostro approccio coniuga competenze legali e tecnico-informatiche per garantire soluzioni che siano non solo normativamente conformi, ma anche <strong>operativamente praticabili</strong> e coerenti con le specificità di settore.',
+        ]}
+        obiettivoText="Proteggere il patrimonio informativo dell'organizzazione e, al tempo stesso, valorizzarlo: estrarre valore dai dati nel pieno rispetto dei diritti e della normativa applicabile."
+      />
+      <CosaFacciamoCards items={cosaFacciamoItems} />
+      <ServiziCorrelati services={serviziServices} current="data-protection" />
+    </div>
+    <Contatti />
+  </main>
+</Layout>
+
+<style>
+  .dp-page__dark {
+    position: relative;
+  }
+</style>

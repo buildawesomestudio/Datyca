@@ -89,11 +89,12 @@ const { title = 'Datyca', description = '' } = Astro.props;
         });
         requestAnimationFrame(() => {
           ScrollTrigger.refresh();
-          // iOS pin stability (WebKit #181954) — only needed on pages that
-          // actually have pinned ScrollTriggers. On pin-less sub-pages we keep
-          // native scroll for a snappier feel.
+          // iOS pin stability (WebKit #181954) — only needed on TOUCH devices
+          // with pinned ScrollTriggers. On desktop, normalizeScroll replaces
+          // native mouse-wheel scroll with a synthetic one that feels sluggish.
+          // ScrollTrigger.isTouch: 0 = no touch, 1 = touch only, 2 = hybrid.
           const hasPins = ScrollTrigger.getAll().some(st => !!st.pin);
-          ScrollTrigger.normalizeScroll(hasPins);
+          ScrollTrigger.normalizeScroll(hasPins && ScrollTrigger.isTouch !== 0);
           // After pin-spacers are finalized, honor any #hash in the URL
           scrollToHash();
         });
