@@ -1,0 +1,69 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import ImpactIntro from '../../components/ImpactIntro.astro';
+import PromoCards from '../../components/PromoCards.astro';
+import Contatti from '../../components/Contatti.astro';
+---
+
+<Layout
+  title="TAIG Lab — Datyca"
+  description="Il Centro Studi promosso da DATYCA dedicato alla ricerca applicata sulla fiducia nei sistemi di intelligenza artificiale."
+>
+  <main>
+    <Breadcrumb
+      items={[
+        { label: 'Home', href: '/' },
+        { label: 'Il nostro impatto' },
+        { label: 'TAIG Lab' },
+      ]}
+    />
+    <div class="taig-page__dark">
+      <ImpactIntro
+        title="TAIG Lab"
+        subtitle="Il Centro Studi per la ricerca applicata sulla Technical AI Governance"
+        bodyHtml={[
+          'TAIG Lab è il Centro Studi promosso da DATYCA dedicato alla ricerca applicata sulla fiducia nei sistemi di intelligenza artificiale. Nasce per trasformare principi, norme e standard in strumenti operativi, capaci di <strong>rendere la governance dell\'IA concreta, verificabile e applicabile</strong> nei diversi contesti organizzativi e di business.',
+          'Il Lab sviluppa studi indipendenti, analisi tecniche, linee guida pratiche e materiali operativi, collaborando con enti pubblici, Università, imprese e organizzazioni della società civile per <strong>diffondere conoscenza</strong> e costruire modelli di adozione dell\'IA fondati su criteri tecnici, giuridici e umani.',
+          'I risultati della ricerca alimentano direttamente i servizi di consulenza e i percorsi di formazione di DATYCA.',
+        ]}
+        ctaText="SCOPRI TAIG LAB"
+        ctaHref="https://taiglab.com"
+      />
+      <section class="taig-promo">
+        <div class="taig-promo__inner">
+          <PromoCards />
+        </div>
+      </section>
+    </div>
+    <Contatti />
+  </main>
+</Layout>
+
+<style>
+  .taig-page__dark {
+    position: relative;
+  }
+
+  .taig-promo {
+    position: relative;
+    background: radial-gradient(
+      ellipse 80% 120% at -5% 110%,
+      var(--color-red) 0%,
+      var(--color-blue-deep-800) 30%,
+      var(--color-black-almost-900) 55%
+    );
+  }
+
+  .taig-promo__inner {
+    max-width: 1440px;
+    margin-inline: auto;
+    padding: clamp(60px, 8vw, 120px) 40px clamp(60px, 8vw, 120px);
+  }
+
+  @media (max-width: 767px) {
+    .taig-promo__inner {
+      padding: 60px var(--section-padding-x) 60px;
+    }
+  }
+</style>

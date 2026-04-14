@@ -1,5 +1,5 @@
 ---
-import Principio01Anim from './Principio01Anim.astro';
+// Lottie animations loaded at runtime via lottie-web (SVG renderer)
 ---
 
 <section id="principi">
@@ -12,7 +12,7 @@ import Principio01Anim from './Principio01Anim.astro';
     <div class="tp-states">
       <div class="tp-state" data-state="0">
         <div class="tp-placeholder">
-          <Principio01Anim />
+          <div class="tp-lottie" aria-hidden="true"></div>
         </div>
         <h3 class="text-hero tp-state__title">
           Facilitiamo il <em>cambiamento</em>
@@ -22,7 +22,7 @@ import Principio01Anim from './Principio01Anim.astro';
 
       <div class="tp-state" data-state="1">
         <div class="tp-placeholder">
-          <span class="text-regular" style="opacity: 0.3;">Animazione 2</span>
+          <div class="tp-lottie" aria-hidden="true"></div>
         </div>
         <h3 class="text-hero tp-state__title">
           Semplifichiamo la <em>complessità</em>
@@ -32,7 +32,7 @@ import Principio01Anim from './Principio01Anim.astro';
 
       <div class="tp-state" data-state="2">
         <div class="tp-placeholder">
-          <span class="text-regular" style="opacity: 0.3;">Animazione 3</span>
+          <div class="tp-lottie" aria-hidden="true"></div>
         </div>
         <h3 class="text-hero tp-state__title">
           Progettiamo la <em>fiducia</em>
@@ -42,7 +42,7 @@ import Principio01Anim from './Principio01Anim.astro';
 
       <div class="tp-state" data-state="3">
         <div class="tp-placeholder">
-          <span class="text-regular" style="opacity: 0.3;">Animazione 4</span>
+          <div class="tp-lottie" aria-hidden="true"></div>
         </div>
         <h3 class="text-hero tp-state__title">
           Mescoliamo <em>competenze</em>
@@ -108,18 +108,9 @@ import Principio01Anim from './Principio01Anim.astro';
     justify-content: center;
   }
 
-  .tp-placeholder :global(svg) {
+  .tp-lottie {
     width: 100%;
     height: 100%;
-    overflow: hidden;
-  }
-
-  /* Placeholder style for states still without animation */
-  .tp-placeholder:not(:has(svg)) {
-    width: 500px;
-    max-width: 100%;
-    height: 140px;
-    border: 2px dashed var(--color-grey-300);
   }
 
   .tp-state__title {
@@ -161,12 +152,7 @@ import Principio01Anim from './Principio01Anim.astro';
     }
 
     .tp-placeholder {
-      width: clamp(120px, 30vw, 200px);
-    }
-
-    .tp-placeholder:not(:has(svg)) {
-      width: auto;
-      height: auto;
+      width: clamp(160px, 45vw, 260px);
     }
 
     .tp-state__title,
@@ -185,28 +171,63 @@ import Principio01Anim from './Principio01Anim.astro';
 <script>
   import gsap from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import lottie from 'lottie-web';
 
+  const ANIM_PATHS = [
+    '/animations/principio-1.json',
+    '/animations/principio-2.json',
+    '/animations/principio-3.json',
+    '/animations/principio-4.json',
+  ];
 
   function initPrincipi() {
     const section = document.getElementById('principi');
     if (!section) return;
 
-    let principiTl: gsap.core.Timeline | null = null;
+    const containers = Array.from(section.querySelectorAll<HTMLElement>('.tp-lottie'));
+    let anims: ReturnType<typeof lottie.loadAnimation>[] = [];
 
-    function setupPrincipi() {
+    /** Create ALL 4 lotties at once — identical pattern to the working test page */
+    function createAll() {
+      destroyAll();
+      containers.forEach((container, i) => {
+        anims.push(lottie.loadAnimation({
+          container,
+          renderer: 'svg',
+          loop: true,
+          autoplay: true,
+          path: ANIM_PATHS[i],
+          rendererSettings: {
+            hideOnTransparent: false,
+          },
+        }));
+      });
+    }
+
+    function destroyAll() {
+      anims.forEach(a => a.destroy());
+      anims = [];
+    }
+
+    const mm = gsap.matchMedia();
+
+    /* ═══ DESKTOP: pinned scrub with state transitions ═══ */
+    mm.add('(min-width: 768px)', () => {
       const states = section.querySelectorAll<HTMLElement>('.tp-state');
 
-      // Initial: first visible, rest hidden
+      // 1. Create ALL lotties BEFORE hiding — containers are fully visible at this point
+      createAll();
+
+      // 2. THEN hide states 1-3
       gsap.set(states[0], { autoAlpha: 1 });
       gsap.set(Array.from(states).slice(1), { autoAlpha: 0, yPercent: 8 });
 
-      // Set initial state for stagger children
       states.forEach(state => {
         const children = state.querySelectorAll<HTMLElement>('.tp-placeholder, .tp-state__title, .tp-state__desc');
         gsap.set(children, { y: 0 });
       });
 
-      const tl = principiTl = gsap.timeline({
+      const tl = gsap.timeline({
         scrollTrigger: {
           id: 'principi-anim',
           trigger: section,
@@ -230,7 +251,6 @@ import Principio01Anim from './Principio01Anim.astro';
         },
       });
 
-      // Label for first state
       tl.addLabel('state0', 0);
 
       states.forEach((state, i) => {
@@ -254,7 +274,7 @@ import Principio01Anim from './Principio01Anim.astro';
             hidePos,
           );
 
-          // Phase 2: Next state — container fades in (tighter gap after exit)
+          // Phase 2: Next state — container fades in
           tl.fromTo(states[i + 1],
             { autoAlpha: 0 },
             { autoAlpha: 1, ease: 'none', duration: 0.1 },
@@ -272,7 +292,6 @@ import Principio01Anim from './Principio01Anim.astro';
             );
           });
 
-          // Label at the resting point
           tl.addLabel(`state${i + 1}`, i + 1);
         }
       });
@@ -280,59 +299,66 @@ import Principio01Anim from './Principio01Anim.astro';
       // Final dwell so last state has hold time
       tl.to({}, { duration: 0.5 });
 
-      // Per-state SMIL SVG pause management
-      const animSvgs = section.querySelectorAll<SVGSVGElement>('.tp-anim-svg');
-      let activeAnim = -1;
-      let sectionVisible = false;
-
-      function setActiveAnim(idx: number) {
-        if (idx === activeAnim) return;
-        if (activeAnim >= 0 && animSvgs[activeAnim]) animSvgs[activeAnim].pauseAnimations();
-        activeAnim = idx;
-        if (sectionVisible && animSvgs[idx]) animSvgs[idx].unpauseAnimations();
-      }
-
-      function pauseAll() {
-        sectionVisible = false;
-        animSvgs.forEach(s => s.pauseAnimations());
-      }
-
-      // Track state changes via timeline time (labels at integer positions)
+      // Force re-render when each state becomes visible.
+      // Browser skips SVG rasterization for visibility:hidden containers.
+      // Without this, animations show stale frame 0 when the container
+      // becomes visible via GSAP autoAlpha transition.
+      let activeAnim = 0;
       tl.eventCallback('onUpdate', () => {
-        setActiveAnim(Math.min(Math.round(tl.time()), states.length - 1));
+        const idx = Math.min(Math.round(tl.time()), states.length - 1);
+        if (idx !== activeAnim) {
+          activeAnim = idx;
+          const a = anims[idx];
+          if (a && a.isLoaded) {
+            // Force SVG re-paint from the current frame
+            a.goToAndStop(a.currentFrame, true);
+            a.play();
+          }
+        }
       });
 
-      // Section visibility gate — pause all when off-screen
+      // Section visibility gate — pause ALL when off-screen
       const visTrigger = ScrollTrigger.create({
         id: 'principi-anim-visibility',
         trigger: section,
         start: 'top bottom',
         end: 'bottom top',
-        onEnter: () => { sectionVisible = true; if (animSvgs[activeAnim]) animSvgs[activeAnim].unpauseAnimations(); },
-        onLeave: pauseAll,
-        onEnterBack: () => { sectionVisible = true; if (animSvgs[activeAnim]) animSvgs[activeAnim].unpauseAnimations(); },
-        onLeaveBack: pauseAll,
+        onEnter: () => anims.forEach(a => a.play()),
+        onLeave: () => anims.forEach(a => a.pause()),
+        onEnterBack: () => {
+          anims.forEach(a => {
+            if (a.isLoaded) { a.goToAndStop(a.currentFrame, true); a.play(); }
+          });
+        },
+        onLeaveBack: () => anims.forEach(a => a.pause()),
       });
 
-      // Activate state 0 initially
-      setActiveAnim(0);
-
-      // Cleanup: kill visibility trigger, pause all SVGs (matchMedia revert handles the rest)
       return () => {
-        principiTl = null;
         visTrigger.kill();
-        pauseAll();
-        activeAnim = -1;
+        destroyAll();
       };
-    }
+    });
 
-    const mm = gsap.matchMedia();
-    mm.add('(min-width: 768px)', setupPrincipi);
+    /* ═══ MOBILE: no pin, all visible in flow ═══ */
     mm.add('(max-width: 767px)', () => {
-      // Mobile: unpause SVG animations (paused by default in Principio01Anim)
-      const animSvgs = section.querySelectorAll<SVGSVGElement>('.tp-anim-svg');
-      animSvgs.forEach(s => s.unpauseAnimations());
-      return () => { animSvgs.forEach(s => s.pauseAnimations()); };
+      createAll();
+
+      // Section visibility gate — pause all when section is off-screen
+      const visTrigger = ScrollTrigger.create({
+        id: 'principi-mob-visibility',
+        trigger: section,
+        start: 'top bottom',
+        end: 'bottom top',
+        onEnter: () => anims.forEach(a => a.play()),
+        onLeave: () => anims.forEach(a => a.pause()),
+        onEnterBack: () => anims.forEach(a => a.play()),
+        onLeaveBack: () => anims.forEach(a => a.pause()),
+      });
+
+      return () => {
+        visTrigger.kill();
+        destroyAll();
+      };
     });
   }
 

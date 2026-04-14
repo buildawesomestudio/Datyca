@@ -275,13 +275,13 @@ const cards = [
         const ctaArrow = cta.querySelector('svg') as SVGElement;
 
         cta.addEventListener('mouseenter', () => {
-          gsap.to(cta, { borderColor: colorPurple600, color: colorPurple600, duration: 0.25, overwrite: true });
-          if (ctaArrow) gsap.to(ctaArrow, { x: 5, duration: 0.3, ease: 'power2.out', overwrite: true });
+          gsap.to(cta, { borderColor: colorPurple600, color: colorPurple600, duration: 0.25, overwrite: 'auto' });
+          if (ctaArrow) gsap.to(ctaArrow, { x: 5, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
         }, { signal: ac.signal });
 
         cta.addEventListener('mouseleave', () => {
-          gsap.to(cta, { borderColor: colorText, color: colorText, duration: 0.25, overwrite: true });
-          if (ctaArrow) gsap.to(ctaArrow, { x: 0, duration: 0.3, ease: 'power2.out', overwrite: true });
+          gsap.to(cta, { borderColor: colorText, color: colorText, duration: 0.25, overwrite: 'auto' });
+          if (ctaArrow) gsap.to(ctaArrow, { x: 0, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
         }, { signal: ac.signal });
       }
 

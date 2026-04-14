@@ -28,7 +28,7 @@ const leftColumn: (NavGroup | { label: string; href: string })[] = [
     children: [
       { label: 'TAIG Lab', href: '/il-nostro-impatto/taig-lab' },
       { label: 'AI Learn Hub', href: '/il-nostro-impatto/ai-learn-hub' },
-      { label: 'Centro Studi', href: '/il-nostro-impatto/centro-studi' },
+      { label: 'Per la PA', href: '/il-nostro-impatto/per-la-pa' },
     ],
   },
 ];
@@ -53,7 +53,7 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
     ],
   },
   { label: 'Risorse', href: '/risorse' },
-  { label: 'Contatti', href: '/contatti' },
+  { label: 'Contatti', href: '#contatti' },
 ];
 ---
 
@@ -122,23 +122,15 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
 
 <style>
   #megamenu {
-    /* absolute (not fixed) — Safari clips fixed elements to the inner viewport,
-       so they can't extend behind the translucent bottom toolbar. */
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
+    position: fixed;
+    inset: 0;
     z-index: 200;
+    display: flex;
+    flex-direction: column;
     background: var(--color-white-snow);
     clip-path: circle(0% at 95% 3%);
     pointer-events: none;
-    overflow-y: auto;
-    overscroll-behavior: none;
-    scrollbar-width: none;
-  }
-
-  #megamenu::-webkit-scrollbar {
-    display: none;
+    overflow: hidden;
   }
 
   .megamenu-header {
@@ -175,7 +167,15 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 0 60px;
-    padding: 0 40px 80px;
+    padding: 0 40px 20px;
+    flex: 1;
+    overflow-y: auto;
+    overscroll-behavior: none;
+    scrollbar-width: none;
+  }
+
+  .megamenu-columns::-webkit-scrollbar {
+    display: none;
   }
 
   .megamenu-group {
@@ -235,10 +235,6 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
 
   @media (max-width: 767px) {
     .megamenu-header {
-      position: sticky;
-      top: 0;
-      z-index: 1;
-      background: var(--color-white-snow);
       height: 80px;
       padding: 0 20px;
     }
@@ -279,6 +275,7 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
 
 <script>
   import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
   function initMegamenu() {
     const megamenu = document.getElementById('megamenu');
@@ -316,9 +313,9 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
 
         const origin = getOrigin();
 
-        megamenu.style.top = window.scrollY + 'px';
-        megamenu.style.height = (window.outerHeight || document.documentElement.clientHeight) + 'px';
-        megamenu.scrollTop = 0;
+        ScrollTrigger.normalizeScroll(false);
+        const columns = megamenu.querySelector('.megamenu-columns') as HTMLElement;
+        if (columns) columns.scrollTop = 0;
 
         gsap.set(megamenu, { clipPath: `circle(0% at ${origin})` });
         megamenu.style.display = '';
@@ -336,11 +333,28 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
       }, { signal });
     });
 
+    // ═══ RESTORE normalizeScroll (mirrors Layout.astro logic) ═══
+    function restoreNormalizeScroll() {
+      const hasPins = ScrollTrigger.getAll().some(st => !!st.pin);
+      const hasSnap = ScrollTrigger.getAll().some(st => !!(st as any).snap);
+      if (hasPins) {
+        ScrollTrigger.normalizeScroll(
+          ScrollTrigger.isTouch !== 0
+            ? true
+            : hasSnap ? { momentum: 0.3 } : false
+        );
+      }
+    }
+
     // ═══ CLOSE ═══
     function close() {
       if (!isOpen) return;
       isOpen = false;
       if (tween) tween.kill();
+
+      // Unlock scroll immediately — waiting for onComplete blocks scroll on
+      // same-page hash navigation (e.g. /#principi while already on /).
+      document.documentElement.style.overflow = '';
 
       const origin = getOrigin();
       gsap.set(megamenu, { clipPath: `circle(150% at ${origin})` });
@@ -351,12 +365,21 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
         onComplete: () => {
           megamenu.style.pointerEvents = 'none';
           megamenu.style.display = 'none';
-          document.documentElement.style.overflow = '';
+          restoreNormalizeScroll();
         },
       });
     }
 
     closeBtn.addEventListener('click', close, { signal });
+
+    // Close menu when any link is clicked (critical for same-page hash links
+    // like /#principi — Astro ClientRouter doesn't fire astro:before-swap for
+    // same-page hashes, so the cleanupPage safety net never runs).
+    megamenu.querySelectorAll<HTMLAnchorElement>('a[href]').forEach((link) => {
+      link.addEventListener('click', () => {
+        close();
+      }, { signal });
+    });
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && isOpen) close();

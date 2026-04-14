@@ -1,22 +1,6 @@
 ---
 import Section from './Section.astro';
-
-const promoCards = [
-  {
-    title: 'Il tuo sistema di IA è conforme?',
-    description: 'Rispondi al questionario e ricevi un report personalizzato con il profilo di rischio e gli adempimenti del tuo sistema di intelligenza artificiale.',
-    cta: 'SCOPRILO SUBITO',
-    href: '#conformita',
-    iconType: 'arrow' as const,
-  },
-  {
-    title: 'Governare l\'IA in 10 step',
-    description: 'Una guida pratica per orientare la tua organizzazione nell\'adozione responsabile e conforme dell\'intelligenza artificiale.',
-    cta: 'SCARICA LA GUIDA',
-    href: '/docs/DATYCA_Guida_AI_Governance_10_Step.pdf',
-    iconType: 'download' as const,
-  },
-];
+import PromoCards from './PromoCards.astro';
 
 const impattoCards = [
   {
@@ -35,86 +19,13 @@ const impattoCards = [
     title: 'Per la PA',
     description: 'Le nostre competenze al servizio della trasformazione digitale della Pubblica Amministrazione.',
     cta: 'SCOPRI I SERVIZI PER LA PA',
-    href: '#servizi-pa',
+    href: '/il-nostro-impatto/per-la-pa',
   },
 ];
-
-const layerPaths = {
-  bottom: 'M0.915592 91.4244C0.258242 91.0508 0.258242 90.4347 0.909973 90.0584L58.9365 56.4994C59.5911 56.1203 60.6614 56.1203 61.3159 56.4938L119.087 89.59C119.741 89.9664 119.741 90.5797 119.087 90.956L61.0237 124.3C60.3692 124.677 59.2961 124.679 58.6415 124.306L0.915592 91.4244Z',
-  middle: 'M0.915592 64.355C0.258242 63.9815 0.258242 63.3654 0.909973 62.989L58.9365 29.4301C59.5911 29.0509 60.6614 29.0509 61.3159 29.4245L119.087 62.5207C119.741 62.897 119.741 63.5103 119.087 63.8867L61.0237 97.231C60.3692 97.6073 59.2961 97.6101 58.6415 97.2366L0.915592 64.355Z',
-  top: 'M0.915592 35.6275C0.258242 35.2539 0.258242 34.6378 0.909973 34.2615L58.9365 0.702532C59.5911 0.323398 60.6614 0.323398 61.3159 0.696956L119.087 33.7931C119.741 34.1695 119.741 34.7828 119.087 35.1591L61.0237 68.5034C60.3692 68.8798 59.2961 68.8826 58.6415 68.509L0.915592 35.6275Z',
-};
 ---
 
 <Section id="cta-impatto" class="cta-impatto">
-  <!-- ── Promo cards ── -->
-  <div class="promo-grid">
-    {promoCards.map((card, i) => (
-      <div class="promo-card" data-promo-card>
-        <div class="promo-card__gradient" data-promo-gradient aria-hidden="true"></div>
-        <svg class="promo-icon" data-promo-icon viewBox="0 0 120 125" width="120" height="125" fill="none" aria-hidden="true">
-          <defs>
-            <linearGradient id={`grad-bot-${i}`} x1="0" y1="0.5" x2="1" y2="0.5" gradientUnits="objectBoundingBox">
-              <stop stop-color="#F21763"/>
-              <stop offset="0.12" stop-color="#EC1867"/>
-              <stop offset="0.28" stop-color="#DC1C75"/>
-              <stop offset="0.46" stop-color="#C1238C"/>
-              <stop offset="0.65" stop-color="#9C2DAC"/>
-              <stop offset="0.85" stop-color="#6D3AD4"/>
-              <stop offset="1" stop-color="#4545F7"/>
-            </linearGradient>
-            <linearGradient id={`grad-mid-${i}`} x1="0" y1="0.5" x2="1" y2="0.5" gradientUnits="objectBoundingBox">
-              <stop stop-color="#F21763"/>
-              <stop offset="0.13" stop-color="#F21668"/>
-              <stop offset="0.3" stop-color="#F31378"/>
-              <stop offset="0.49" stop-color="#F60F93"/>
-              <stop offset="0.69" stop-color="#F90AB8"/>
-              <stop offset="0.91" stop-color="#FD03E7"/>
-              <stop offset="1" stop-color="#FF00FF"/>
-            </linearGradient>
-            <linearGradient id={`grad-top-${i}`} x1="0" y1="0.5" x2="1" y2="0.5" gradientUnits="objectBoundingBox">
-              <stop stop-color="#F21763"/>
-              <stop offset="0.1" stop-color="#F12068"/>
-              <stop offset="0.27" stop-color="#EF3978"/>
-              <stop offset="0.48" stop-color="#EB6191"/>
-              <stop offset="0.73" stop-color="#E69AB4"/>
-              <stop offset="1" stop-color="#E1E1E1"/>
-            </linearGradient>
-          </defs>
-
-          <g data-icon-layer="bottom">
-            <path d={layerPaths.bottom} fill="#0D0826" data-solid />
-            <path d={layerPaths.bottom} fill={`url(#grad-bot-${i})`} data-grad />
-            <path d={layerPaths.bottom} fill="none" stroke="#4545F7" stroke-width="2" stroke-linejoin="round" />
-          </g>
-
-          <g data-icon-layer="middle">
-            <path d={layerPaths.middle} fill="#0D0826" data-solid />
-            <path d={layerPaths.middle} fill={`url(#grad-mid-${i})`} data-grad />
-            <path d={layerPaths.middle} fill="none" stroke="#4545F7" stroke-width="2" stroke-linejoin="round" />
-          </g>
-
-          <g data-icon-layer="top">
-            <path d={layerPaths.top} fill="#0D0826" data-solid />
-            <path d={layerPaths.top} fill={`url(#grad-top-${i})`} data-grad />
-            <path d={layerPaths.top} fill="none" stroke="#4545F7" stroke-width="2" stroke-linejoin="round" />
-          </g>
-        </svg>
-
-        <div class="promo-card__content">
-          <h3 class="text-serif-md">{card.title}</h3>
-          <p class="text-body">{card.description}</p>
-        </div>
-
-        <a href={card.href} class="text-cta promo-card__cta" data-cta-btn {...(card.iconType === 'download' ? { download: '' } : {})}>
-          <span>{card.cta}</span>
-          <svg width="18" height="18" aria-hidden="true">
-            <use href={card.iconType === 'download' ? '#icon-diagonal-down-thick' : '#icon-arrow-forward'} />
-          </svg>
-        </a>
-      </div>
-    ))}
-  </div>
+  <PromoCards />
 
   <!-- ── Il nostro impatto ── -->
   <h2 class="text-h2 impatto-title">Il nostro impatto</h2>
@@ -124,7 +35,7 @@ const layerPaths = {
       <div class="impatto-card" data-impatto-card>
         <h3 class="impatto-card__title">{card.title}</h3>
         <p class="text-body impatto-card__body">{card.description}</p>
-        <a href={card.href} class="text-cta impatto-card__cta" data-cta-btn>
+        <a href={card.href} class="text-cta impatto-card__cta" data-impatto-cta>
           <span>{card.cta}</span>
           <svg width="18" height="18" aria-hidden="true"><use href="#icon-arrow-forward" /></svg>
         </a>
@@ -148,65 +59,6 @@ const layerPaths = {
 
   :global(#cta-impatto .section__inner) {
     padding-bottom: clamp(160px, 15.3vw, 220px);
-  }
-
-  /* ── Promo grid ── */
-  .promo-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 40px;
-  }
-
-  .promo-card {
-    position: relative;
-    padding: 40px;
-    display: flex;
-    flex-direction: column;
-    gap: 40px;
-    border: 2px solid var(--grid-border-color);
-  }
-
-  .promo-card__gradient {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background:
-      linear-gradient(
-        60.13deg,
-        rgba(13, 8, 38, 0.5) 0%,
-        rgba(0, 8, 87, 0.5) 47.36%,
-        rgba(69, 69, 247, 0.5) 80.92%,
-        rgba(255, 0, 255, 0.5) 101.84%,
-        rgba(242, 23, 99, 0.5) 111.29%
-      ),
-      #0D0826;
-  }
-
-  .promo-icon {
-    position: relative;
-    width: 120px;
-    height: 125px;
-    flex-shrink: 0;
-  }
-
-  .promo-card__content {
-    position: relative;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .promo-card__cta {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    padding: 16px 24px;
-    border: 1px solid var(--color-text);
-    color: var(--color-text);
-    text-decoration: none;
-    align-self: flex-start;
   }
 
   /* ── Impatto ── */
@@ -263,18 +115,8 @@ const layerPaths = {
     margin-top: auto;
   }
 
-
-
   /* ── Mobile ── */
   @media (max-width: 767px) {
-    .promo-grid {
-      grid-template-columns: 1fr;
-      gap: 24px;
-    }
-    .promo-card {
-      padding: 24px;
-      gap: 24px;
-    }
     .impatto-title {
       margin-top: 80px;
     }
@@ -292,7 +134,6 @@ const layerPaths = {
     .impatto-card:first-child {
       border-top: 2px solid var(--grid-border-color);
     }
-    .promo-card__cta,
     .impatto-card__cta {
       align-self: stretch;
       justify-content: space-between;
@@ -316,30 +157,19 @@ const layerPaths = {
       const colorPurple600 = root.getPropertyValue('--color-purple-600').trim();
       const colorText = root.getPropertyValue('--color-text').trim();
 
-      const promoCards = section.querySelectorAll<HTMLElement>('[data-promo-card]');
       const impattoCards = section.querySelectorAll<HTMLElement>('[data-impatto-card]');
       const sectionTitle = section.querySelector('.impatto-title') as HTMLElement;
-      const allCtaBtns = section.querySelectorAll<HTMLElement>('[data-cta-btn]');
+      const impattoCtaBtns = section.querySelectorAll<HTMLElement>('[data-impatto-cta]');
 
       const ac = new AbortController();
 
       if (hasRevealed) {
-        gsap.set(promoCards, { autoAlpha: 1, y: 0 });
         if (sectionTitle) gsap.set(sectionTitle, { autoAlpha: 1 });
         gsap.set(impattoCards, { autoAlpha: 1, y: 0 });
       } else {
-        // Initial hidden states
-        gsap.set(promoCards, { autoAlpha: 0, y: 30 });
         gsap.set(impattoCards, { autoAlpha: 0, y: 30 });
 
         const revealTl = gsap.timeline({ paused: true });
-
-        // Promo cards stagger
-        revealTl.to(promoCards, {
-          autoAlpha: 1, y: 0,
-          duration: 0.7, stagger: 0.15,
-          ease: 'power2.out',
-        }, 0);
 
         // Section title — SplitText words
         if (sectionTitle) {
@@ -350,7 +180,7 @@ const layerPaths = {
             autoAlpha: 1, y: 0,
             duration: 0.7, stagger: 0.1,
             ease: 'power2.out',
-          }, 0.4);
+          }, 0);
 
           revealTl.eventCallback('onComplete', () => {
             titleSplit.revert();
@@ -362,11 +192,11 @@ const layerPaths = {
           autoAlpha: 1, y: 0,
           duration: 0.7, stagger: 0.16,
           ease: 'power2.out',
-        }, 0.8);
+        }, 0.4);
 
         ScrollTrigger.create({
           id: 'cta-impatto-reveal',
-          trigger: section,
+          trigger: sectionTitle || section,
           start: 'top 75%',
           once: true,
           onEnter: () => {
@@ -376,64 +206,18 @@ const layerPaths = {
         });
       }
 
-      // ── Promo card hover (desktop only) ──
-      const colorPurple500 = root.getPropertyValue('--color-purple-500').trim();
-      const colorPink = root.getPropertyValue('--color-pink').trim();
-
-      if (window.matchMedia('(pointer: fine)').matches) {
-        promoCards.forEach(card => {
-          const gradientOverlay = card.querySelector('[data-promo-gradient]') as HTMLElement;
-          const icon = card.querySelector('[data-promo-icon]') as SVGElement;
-          const title = card.querySelector('.text-serif-md') as HTMLElement;
-
-          // Initial states
-          if (gradientOverlay) gsap.set(gradientOverlay, { autoAlpha: 0 });
-          if (icon) gsap.set(icon.querySelectorAll('[data-grad]'), { opacity: 0 });
-
-          const grads = icon?.querySelectorAll('[data-grad]');
-          const solids = icon?.querySelectorAll('[data-solid]');
-          const bottomLayer = icon?.querySelector('[data-icon-layer="bottom"]');
-          const topLayer = icon?.querySelector('[data-icon-layer="top"]');
-
-          card.addEventListener('mouseenter', () => {
-            // Gradient background
-            if (gradientOverlay) gsap.to(gradientOverlay, { autoAlpha: 1, duration: 0.4, ease: 'power2.out', overwrite: true });
-            // Border
-            gsap.to(card, { borderColor: colorPurple600, duration: 0.4, ease: 'power2.out', overwrite: true });
-            // Title color
-            if (title) gsap.to(title, { color: colorPink, duration: 0.4, ease: 'power2.out', overwrite: true });
-            // Icon layers
-            if (grads) gsap.to(grads, { opacity: 1, duration: 0.4, stagger: 0.05, ease: 'power2.out', overwrite: true });
-            if (solids) gsap.to(solids, { opacity: 0, duration: 0.4, stagger: 0.05, ease: 'power2.out', overwrite: true });
-            if (topLayer) gsap.to(topLayer, { y: 10, duration: 0.4, ease: 'power2.out', overwrite: true });
-            if (bottomLayer) gsap.to(bottomLayer, { y: -10, duration: 0.4, ease: 'power2.out', overwrite: true });
-          }, { signal: ac.signal });
-
-          card.addEventListener('mouseleave', () => {
-            if (gradientOverlay) gsap.to(gradientOverlay, { autoAlpha: 0, duration: 0.4, ease: 'power2.out', overwrite: true });
-            gsap.to(card, { borderColor: '#1D185B', duration: 0.4, ease: 'power2.out', overwrite: true });
-            if (title) gsap.to(title, { color: colorText, duration: 0.4, ease: 'power2.out', overwrite: true });
-            if (grads) gsap.to(grads, { opacity: 0, duration: 0.4, ease: 'power2.out', overwrite: true });
-            if (solids) gsap.to(solids, { opacity: 1, duration: 0.4, ease: 'power2.out', overwrite: true });
-            if (topLayer) gsap.to(topLayer, { y: 0, duration: 0.4, ease: 'power2.out', overwrite: true });
-            if (bottomLayer) gsap.to(bottomLayer, { y: 0, duration: 0.4, ease: 'power2.out', overwrite: true });
-          }, { signal: ac.signal });
-        });
-      }
-
       // ── CTA button hover ──
-      allCtaBtns.forEach(cta => {
+      impattoCtaBtns.forEach(cta => {
         const arrow = cta.querySelector('svg') as SVGElement;
-        const isDownload = cta.hasAttribute('download');
 
         cta.addEventListener('mouseenter', () => {
-          gsap.to(cta, { borderColor: colorPurple600, color: colorPurple600, duration: 0.25, overwrite: true });
-          if (arrow && !isDownload) gsap.to(arrow, { x: 5, duration: 0.3, ease: 'power2.out', overwrite: true });
+          gsap.to(cta, { borderColor: colorPurple600, color: colorPurple600, duration: 0.25, overwrite: 'auto' });
+          if (arrow) gsap.to(arrow, { x: 5, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
         }, { signal: ac.signal });
 
         cta.addEventListener('mouseleave', () => {
-          gsap.to(cta, { borderColor: colorText, color: colorText, duration: 0.25, overwrite: true });
-          if (arrow && !isDownload) gsap.to(arrow, { x: 0, duration: 0.3, ease: 'power2.out', overwrite: true });
+          gsap.to(cta, { borderColor: colorText, color: colorText, duration: 0.25, overwrite: 'auto' });
+          if (arrow) gsap.to(arrow, { x: 0, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
         }, { signal: ac.signal });
       });
 

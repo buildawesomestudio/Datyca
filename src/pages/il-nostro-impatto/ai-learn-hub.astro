@@ -1,0 +1,156 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import ImpactIntro from '../../components/ImpactIntro.astro';
+import CosaFacciamoCards from '../../components/CosaFacciamoCards.astro';
+import PromoCards from '../../components/PromoCards.astro';
+import Contatti from '../../components/Contatti.astro';
+
+const cosaFacciamoItems = [
+  {
+    title: 'Apprendimento che resta',
+    body: 'Moduli brevi e progressivi, quiz di verifica, scenari decisionali e meccaniche di gamification che favoriscono l\u2019assimilazione reale dei concetti e mantengono alta l\u2019attenzione lungo tutto il percorso.',
+  },
+  {
+    title: 'Competenze verificabili',
+    body: 'Badge digitali e certificati numerati attestano le competenze acquisite al completamento dei percorsi. Un valore concreto per il professionista e per l\u2019organizzazione.',
+  },
+  {
+    title: 'Tracciabilità completa',
+    body: 'Dashboard dedicate per l\u2019azienda: piena visibilità su frequenze, verifiche superate e certificazioni ottenute. Documentazione strutturata a supporto degli obblighi di compliance.',
+  },
+  {
+    title: 'Contenuti operativi',
+    body: 'Ogni modulo parte da situazioni reali e fornisce strumenti immediatamente applicabili: checklist, template, matrici di rischio, bozze di policy. I partecipanti escono dal corso con deliverable pronti per l\u2019uso.',
+  },
+  {
+    title: 'Progettato da chi fa\ngovernance sul campo',
+    body: 'I contenuti nascono dall\u2019esperienza diretta di DATYCA nella consulenza in AI Governance. Ogni scenario, ogni raccomandazione riflette problemi reali incontrati nelle organizzazioni clienti.',
+  },
+  {
+    title: 'Aggiornamento continuo',
+    body: 'La piattaforma evolve con il quadro normativo e tecnologico. Nuovi moduli — per settore, per ruolo, per ambito di compliance — vengono rilasciati progressivamente per accompagnare le organizzazioni nel tempo.',
+  },
+];
+---
+
+<Layout
+  title="AI Learn Hub — Datyca"
+  description="La prima piattaforma italiana di AI Literacy per le organizzazioni. Competenze per l'era dell'intelligenza artificiale."
+>
+  <main>
+    <Breadcrumb
+      items={[
+        { label: 'Home', href: '/' },
+        { label: 'Il nostro impatto' },
+        { label: 'AI Learn Hub' },
+      ]}
+    />
+    <div class="alh-page__dark">
+      <ImpactIntro
+        title="AI Learn Hub"
+        subtitle="Competenze per l'era dell'intelligenza artificiale"
+        bodyHtml={[
+          'L\u2019adozione dell\u2019intelligenza artificiale nelle organizzazioni non può prescindere dalla preparazione e dalla consapevolezza delle persone che la utilizzano. AI Learn Hub è la prima piattaforma italiana interamente dedicata all\u2019AI Literacy: un ambiente di apprendimento progettato per <strong>rendere ogni persona consapevole di ciò che usa, dei rischi che comporta e delle regole che lo governano.</strong>',
+          'I percorsi sono sviluppati da <strong>professionisti certificati</strong> in AI Governance con <strong>esperienza diretta</strong> nella consulenza a organizzazioni pubbliche e private. Non teoria astratta, ma concetti, strumenti e scenari concreti tratti dalla realtà operativa delle aziende.',
+        ]}
+        imageSrc="/images/ai_learn.webp"
+        imageAlt="AI Learn Hub"
+      />
+      <CosaFacciamoCards items={cosaFacciamoItems} hideCta />
+      <div class="alh-cta-wrap">
+        <a href="https://ailearnhub.it" class="text-cta alh-cta" target="_blank" rel="noopener noreferrer">
+          <span>SCOPRI I NOSTRI PERCORSI</span>
+          <svg width="18" height="18" aria-hidden="true"><use href="#icon-arrow-forward" /></svg>
+        </a>
+      </div>
+      <section class="alh-promo">
+        <div class="alh-promo__inner">
+          <PromoCards />
+        </div>
+      </section>
+    </div>
+    <Contatti />
+  </main>
+</Layout>
+
+<style>
+  .alh-page__dark {
+    position: relative;
+  }
+
+  /* ── CTA between cards and promo ── */
+  .alh-cta-wrap {
+    display: flex;
+    justify-content: center;
+    padding: clamp(60px, 8vw, 120px) 0;
+  }
+
+  .alh-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 32px;
+    background: var(--color-purple-500);
+    color: var(--color-white-almost);
+    text-decoration: none;
+  }
+
+  /* ── Promo section ── */
+  .alh-promo {
+    position: relative;
+    background: radial-gradient(
+      ellipse 80% 120% at -5% 110%,
+      var(--color-red) 0%,
+      var(--color-blue-deep-800) 30%,
+      var(--color-black-almost-900) 55%
+    );
+  }
+
+  .alh-promo__inner {
+    max-width: 1440px;
+    margin-inline: auto;
+    padding: clamp(60px, 8vw, 120px) 40px clamp(60px, 8vw, 120px);
+  }
+
+  @media (max-width: 767px) {
+    .alh-cta-wrap {
+      padding: 60px var(--section-padding-x);
+    }
+
+    .alh-cta {
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .alh-promo__inner {
+      padding: 60px var(--section-padding-x) 60px;
+    }
+  }
+</style>
+
+<script>
+  import gsap from 'gsap';
+
+  function initAlhCta() {
+    const cta = document.querySelector('.alh-cta') as HTMLElement;
+    if (!cta || !window.matchMedia('(pointer: fine)').matches) return;
+
+    const root = getComputedStyle(document.documentElement);
+    const colorPurple500 = root.getPropertyValue('--color-purple-500').trim();
+    const colorPurple600 = root.getPropertyValue('--color-purple-600').trim();
+    const arrow = cta.querySelector('svg') as SVGElement;
+
+    cta.addEventListener('mouseenter', () => {
+      gsap.to(cta, { backgroundColor: colorPurple600, duration: 0.25, overwrite: true });
+      if (arrow) gsap.to(arrow, { x: 5, duration: 0.3, ease: 'power2.out', overwrite: true });
+    });
+
+    cta.addEventListener('mouseleave', () => {
+      gsap.to(cta, { backgroundColor: colorPurple500, duration: 0.25, overwrite: true });
+      if (arrow) gsap.to(arrow, { x: 0, duration: 0.3, ease: 'power2.out', overwrite: true });
+    });
+  }
+
+  ((window as any).__initQueue ??= []).push(initAlhCta);
+</script>

@@ -1,0 +1,214 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import ImpactIntro from '../components/ImpactIntro.astro';
+import Contatti from '../components/Contatti.astro';
+---
+
+<Layout
+  title="Risorse — Datyca"
+  description="Risorse, guide e strumenti per l'adozione responsabile dell'intelligenza artificiale."
+>
+  <main>
+    <Breadcrumb
+      items={[
+        { label: 'Home', href: '/' },
+        { label: 'Risorse' },
+      ]}
+    />
+    <div class="ris-page__dark">
+      <ImpactIntro
+        title="Risorse"
+        subtitle="Lorem ipsum dolor sit amet"
+        bodyHtml={[
+          'Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et massa mi. Aliquam in hendrerit urna. Pellentesque sit amet sapien fringilla.',
+        ]}
+        hideVisual={true}
+      />
+      <section class="ris-cards">
+        <div class="ris-cards__inner">
+          <a href="/docs/DATYCA_Guida_AI_Governance_10_Step.pdf" class="ris-card" download>
+            <div class="ris-card__image">
+              <span class="ris-card__placeholder">IMG</span>
+            </div>
+            <div class="ris-card__content">
+              <h2 class="ris-card__title">Governare l'IA in 10 step</h2>
+              <p class="text-body ris-card__desc">Una guida pratica per orientare la tua organizzazione nell'adozione responsabile e conforme dell'intelligenza artificiale.</p>
+              <span class="text-cta ris-card__cta">
+                <span>SCARICA LA GUIDA</span>
+                <svg width="18" height="18" aria-hidden="true"><use href="#icon-diagonal-down-thick" /></svg>
+              </span>
+            </div>
+          </a>
+        </div>
+      </section>
+      <div class="ris-gradient" aria-hidden="true"></div>
+    </div>
+    <Contatti />
+  </main>
+</Layout>
+
+<style>
+  .ris-page__dark {
+    position: relative;
+  }
+
+  /* Reduce gap between intro and card */
+  .ris-page__dark :global(.ii__content) {
+    margin-bottom: clamp(32px, 4vw, 40px);
+  }
+
+  /* ── Resource cards section ── */
+  .ris-cards__inner {
+    max-width: 1440px;
+    margin-inline: auto;
+    padding: 0 clamp(40px, 10.9vw, 157px);
+  }
+
+  .ris-card {
+    display: flex;
+    align-items: center;
+    gap: clamp(24px, 3vw, 40px);
+    padding: clamp(24px, 3vw, 40px);
+    border: 1px solid var(--color-purple-500);
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .ris-card__image {
+    flex-shrink: 0;
+    width: clamp(100px, 10vw, 150px);
+    height: clamp(100px, 10vw, 150px);
+    border-radius: 50%;
+    background: var(--color-blue-deep-800);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ris-card__placeholder {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    color: var(--color-grey-400);
+  }
+
+  .ris-card__content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .ris-card__title {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: clamp(24px, 2.5vw, 30px);
+    line-height: 1.3;
+    color: var(--color-white-almost);
+    letter-spacing: -0.02em;
+  }
+
+  .ris-card__desc {
+    color: var(--color-white-almost);
+  }
+
+  .ris-card__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 24px;
+    border: 1px solid var(--color-text);
+    color: var(--color-text);
+    align-self: flex-start;
+  }
+
+  /* ── Gradient area ── */
+  .ris-gradient {
+    min-height: clamp(300px, 40vw, 600px);
+    background: radial-gradient(
+      ellipse 80% 120% at -5% 110%,
+      var(--color-red) 0%,
+      var(--color-blue-deep-800) 30%,
+      var(--color-black-almost-900) 55%
+    );
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 767px) {
+    .ris-cards__inner {
+      padding: 0 var(--section-padding-x);
+    }
+
+    .ris-card {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .ris-card__cta {
+      align-self: stretch;
+      justify-content: space-between;
+    }
+  }
+</style>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  function initRisorse() {
+    const card = document.querySelector('.ris-card') as HTMLElement;
+    if (!card) return;
+
+    let hasRevealed = false;
+
+    function setup() {
+      const root = getComputedStyle(document.documentElement);
+      const colorPurple600 = root.getPropertyValue('--color-purple-600').trim();
+      const colorPurple500 = root.getPropertyValue('--color-purple-500').trim();
+      const colorText = root.getPropertyValue('--color-text').trim();
+
+      const ac = new AbortController();
+
+      if (hasRevealed) {
+        gsap.set(card, { autoAlpha: 1, y: 0 });
+      } else {
+        gsap.set(card, { autoAlpha: 0, y: 30 });
+
+        const revealTl = gsap.timeline({ paused: true });
+        revealTl.to(card, {
+          autoAlpha: 1, y: 0,
+          duration: 0.7, ease: 'power2.out',
+        });
+
+        ScrollTrigger.create({
+          id: 'risorse-card-reveal',
+          trigger: card,
+          start: 'top 95%',
+          once: true,
+          onEnter: () => {
+            hasRevealed = true;
+            revealTl.play();
+          },
+        });
+      }
+
+      /* ── Card hover (desktop) ── */
+      if (window.matchMedia('(pointer: fine)').matches) {
+        card.addEventListener('mouseenter', () => {
+          gsap.to(card, { borderColor: colorPurple600, duration: 0.3, overwrite: 'auto' });
+        }, { signal: ac.signal });
+
+        card.addEventListener('mouseleave', () => {
+          gsap.to(card, { borderColor: colorPurple500, duration: 0.3, overwrite: 'auto' });
+        }, { signal: ac.signal });
+      }
+
+      return () => { ac.abort(); };
+    }
+
+    const mm = gsap.matchMedia();
+    mm.add('(min-width: 768px)', setup);
+    mm.add('(max-width: 767px)', setup);
+  }
+
+  ((window as any).__initQueue ??= []).push(initRisorse);
+</script>

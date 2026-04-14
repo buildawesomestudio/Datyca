@@ -117,7 +117,7 @@ html {
   color: var(--color-text);
   font-family: var(--font-sans);
   overflow-x: hidden;
-  overscroll-behavior: none;
+  overscroll-behavior-y: none;
   /* Smooth in-page anchor jumps (same-page #hash clicks) */
   scroll-behavior: smooth;
   /* No explicit background — body's background propagates to the canvas

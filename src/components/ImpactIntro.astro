@@ -1,0 +1,303 @@
+---
+interface Props {
+  title: string;
+  subtitle: string;
+  bodyHtml: string[];
+  ctaText?: string;
+  ctaHref?: string;
+  imageSrc?: string;
+  imageAlt?: string;
+  hideVisual?: boolean;
+}
+
+const { title, subtitle, bodyHtml, ctaText, ctaHref, imageSrc, imageAlt, hideVisual } = Astro.props;
+---
+
+<section class="impact-intro ii">
+  <div class="ii__inner">
+    <h1 class="text-h1 ii__title">{title}</h1>
+    <p class="text-h2 ii__subtitle">{subtitle}</p>
+
+    <div class="ii__content">
+      <div class="ii__body-wrap">
+        {bodyHtml.map(html => (
+          <p class="text-body ii__body" set:html={html} />
+        ))}
+      </div>
+      {Astro.slots.has('visual') ? (
+        <div class="ii__visual"><slot name="visual" /></div>
+      ) : !hideVisual && (
+        imageSrc ? (
+          <img class="ii__image" src={imageSrc} alt={imageAlt || ''} loading="eager" />
+        ) : (
+          <div class="ii__logo">
+            <span class="ii__logo-text">logo {title}</span>
+          </div>
+        )
+      )}
+    </div>
+
+    {ctaText && ctaHref && (
+      <div class="ii__cta-wrap">
+        <a href={ctaHref} class="text-cta ii__cta" target="_blank" rel="noopener noreferrer">
+          <span>{ctaText}</span>
+          <svg width="18" height="18" aria-hidden="true"><use href="#icon-arrow-forward" /></svg>
+        </a>
+      </div>
+    )}
+  </div>
+</section>
+
+<style>
+  .ii {
+    --_pad-x: clamp(40px, 10.9vw, 157px);
+    position: relative;
+    max-width: 1440px;
+    margin-inline: auto;
+    padding: clamp(40px, 6vw, 80px) var(--_pad-x) var(--section-padding-y);
+  }
+
+  .ii__inner {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ii__title {
+    color: var(--color-purple-600);
+    margin-bottom: 16px;
+    max-width: 660px;
+  }
+
+  .ii__subtitle {
+    color: var(--color-purple-600);
+    font-weight: 400;
+    margin-bottom: clamp(40px, 5vw, 64px);
+    max-width: 660px;
+  }
+
+  /* ── Two-column content ── */
+  .ii__content {
+    display: grid;
+    grid-template-columns: minmax(0, 660px) 1fr;
+    gap: clamp(40px, 5vw, 80px);
+    align-items: start;
+    margin-bottom: clamp(60px, 7vw, 100px);
+  }
+
+  .ii__body-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(20px, 2vw, 28px);
+  }
+
+  .ii__body {
+    color: var(--color-white-almost);
+  }
+
+  .ii__body :global(strong) {
+    font-weight: 600;
+  }
+
+  /* ── Visual (right column) ── */
+  .ii__logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    border: 1px solid var(--grid-border-color);
+    background: var(--color-black-almost-900);
+  }
+
+  .ii__logo-text {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    color: var(--color-text);
+    opacity: 0.4;
+  }
+
+  .ii__image {
+    width: 100%;
+    height: 100%;
+    min-height: 300px;
+    object-fit: cover;
+  }
+
+  .ii__visual {
+    position: relative;
+    overflow: visible;
+    min-height: 300px;
+  }
+
+  /* ── CTA ── */
+  .ii__cta-wrap {
+    display: flex;
+    justify-content: center;
+  }
+
+  .ii__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 32px;
+    background: var(--color-purple-500);
+    color: var(--color-white-almost);
+    text-decoration: none;
+  }
+
+  /* ── FOUC gate ── */
+  .ii__title,
+  .ii__subtitle,
+  .ii__body,
+  .ii__logo,
+  .ii__image,
+  .ii__visual,
+  .ii__cta-wrap {
+    visibility: hidden;
+  }
+
+  @media (max-width: 767px) {
+    .ii {
+      padding: 40px var(--section-padding-x) var(--section-padding-y);
+    }
+
+    .ii__subtitle {
+      margin-bottom: 40px;
+    }
+
+    .ii__content {
+      grid-template-columns: 1fr;
+      gap: 40px;
+      margin-bottom: 60px;
+    }
+
+    .ii__body-wrap {
+      order: 1;
+    }
+
+    .ii__logo {
+      order: 2;
+      min-height: 200px;
+    }
+
+    .ii__image {
+      order: 2;
+      min-height: 200px;
+    }
+  }
+</style>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import { SplitText } from 'gsap/SplitText';
+
+  function initImpactIntro() {
+    const section = document.querySelector('.impact-intro') as HTMLElement;
+    if (!section) return;
+
+    let hasRevealed = false;
+
+    function setup() {
+      const titleEl = section.querySelector('.ii__title') as HTMLElement;
+      const subtitleEl = section.querySelector('.ii__subtitle') as HTMLElement;
+      const bodyEls = section.querySelectorAll<HTMLElement>('.ii__body');
+      const visualEl = (section.querySelector('.ii__logo') || section.querySelector('.ii__image') || section.querySelector('.ii__visual')) as HTMLElement;
+      const ctaWrap = section.querySelector('.ii__cta-wrap') as HTMLElement | null;
+      const ctaEl = section.querySelector('.ii__cta') as HTMLElement | null;
+
+      const ac = new AbortController();
+
+      if (hasRevealed) {
+        gsap.set(titleEl, { autoAlpha: 1, y: 0 });
+        gsap.set(subtitleEl, { autoAlpha: 1, y: 0 });
+        gsap.set(bodyEls, { autoAlpha: 1, y: 0 });
+        if (visualEl) gsap.set(visualEl, { autoAlpha: 1, y: 0 });
+        if (ctaWrap) gsap.set(ctaWrap, { autoAlpha: 1, y: 0 });
+        return () => { ac.abort(); };
+      }
+
+      const hiddenEls: HTMLElement[] = [subtitleEl, ...Array.from(bodyEls)];
+      if (visualEl) hiddenEls.push(visualEl);
+      if (ctaWrap) hiddenEls.push(ctaWrap);
+      gsap.set(hiddenEls, { autoAlpha: 0, y: 20 });
+
+      const wordSplit = SplitText.create(titleEl, { type: 'words', aria: 'none' });
+      gsap.set(wordSplit.words, { autoAlpha: 0, y: 20 });
+      gsap.set(titleEl, { autoAlpha: 1 });
+
+      const revealTl = gsap.timeline({ paused: true });
+
+      revealTl.to(wordSplit.words, {
+        autoAlpha: 1, y: 0,
+        duration: 0.7, stagger: 0.12,
+        ease: 'power2.out',
+      }, 0);
+
+      revealTl.to(subtitleEl, {
+        autoAlpha: 1, y: 0,
+        duration: 0.6, ease: 'power2.out',
+      }, 0.3);
+
+      revealTl.to(bodyEls, {
+        autoAlpha: 1, y: 0,
+        duration: 0.6, stagger: 0.12,
+        ease: 'power2.out',
+      }, 0.45);
+
+      if (visualEl) {
+        revealTl.to(visualEl, {
+          autoAlpha: 1, y: 0,
+          duration: 0.7, ease: 'power2.out',
+        }, 0.5);
+      }
+
+      if (ctaWrap) {
+        revealTl.to(ctaWrap, {
+          autoAlpha: 1, y: 0,
+          duration: 0.6, ease: 'power2.out',
+        }, 0.8);
+      }
+
+      revealTl.eventCallback('onComplete', () => {
+        wordSplit.revert();
+      });
+
+      ScrollTrigger.create({
+        id: 'impact-intro-reveal',
+        trigger: section,
+        start: 'top 75%',
+        once: true,
+        onEnter: () => {
+          hasRevealed = true;
+          revealTl.play();
+        },
+      });
+
+      /* ── CTA hover ── */
+      if (ctaEl && window.matchMedia('(pointer: fine)').matches) {
+        const root = getComputedStyle(document.documentElement);
+        const colorPurple500 = root.getPropertyValue('--color-purple-500').trim();
+        const colorPurple600 = root.getPropertyValue('--color-purple-600').trim();
+        const arrow = ctaEl.querySelector('svg') as SVGElement;
+
+        ctaEl.addEventListener('mouseenter', () => {
+          gsap.to(ctaEl, { backgroundColor: colorPurple600, duration: 0.25, overwrite: true });
+          if (arrow) gsap.to(arrow, { x: 5, duration: 0.3, ease: 'power2.out', overwrite: true });
+        }, { signal: ac.signal });
+
+        ctaEl.addEventListener('mouseleave', () => {
+          gsap.to(ctaEl, { backgroundColor: colorPurple500, duration: 0.25, overwrite: true });
+          if (arrow) gsap.to(arrow, { x: 0, duration: 0.3, ease: 'power2.out', overwrite: true });
+        }, { signal: ac.signal });
+      }
+
+      return () => { ac.abort(); };
+    }
+
+    const mm = gsap.matchMedia();
+    mm.add('(min-width: 768px)', setup);
+    mm.add('(max-width: 767px)', setup);
+  }
+
+  ((window as any).__initQueue ??= []).push(initImpactIntro);
+</script>

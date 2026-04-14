@@ -6,11 +6,11 @@ const sedi = [
 ];
 
 const footerLinksLeft = [
-  { label: 'Chi siamo', href: '#' },
-  { label: 'AI Governance', href: '#' },
-  { label: 'Servizi', href: '#' },
-  { label: 'Il nostro impatto', href: '#' },
-  { label: 'Risorse', href: '#' },
+  { label: 'Chi siamo', href: '/#missione' },
+  { label: 'AI Governance', href: '/#ai-governance' },
+  { label: 'Servizi', href: '/#cosa-facciamo' },
+  { label: 'Il nostro impatto', href: '/#cta-impatto' },
+  { label: 'Risorse', href: '/risorse' },
 ];
 
 const footerLinksRight = [
@@ -121,13 +121,15 @@ const footerLinksRight = [
       </div>
 
       <div class="contatti__bottom">
-        <img
-          src="/images/logo-full_dark.svg"
-          alt="Datyca - Legal Design Lab"
-          class="contatti__logo"
-          width="193"
-          height="60"
-        />
+        <a href="/" class="contatti__logo-link">
+          <img
+            src="/images/logo-full_dark.svg"
+            alt="Datyca - Legal Design Lab"
+            class="contatti__logo"
+            width="193"
+            height="60"
+          />
+        </a>
         <p class="contatti__copyright">
           &copy; 2026 DATYCA Legal Design Lab S.r.l. &mdash; P.IVA 06954020829
         </p>

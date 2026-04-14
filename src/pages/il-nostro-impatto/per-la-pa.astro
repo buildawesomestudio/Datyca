@@ -1,0 +1,293 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import ImpactIntro from '../../components/ImpactIntro.astro';
+import CosaFacciamoCards from '../../components/CosaFacciamoCards.astro';
+import PromoCards from '../../components/PromoCards.astro';
+import Contatti from '../../components/Contatti.astro';
+
+const cosaFacciamoItems = [
+  {
+    title: 'AI Governance',
+    body: 'Nella PA l\u2019adozione dell\u2019intelligenza artificiale deve garantire trasparenza verso i cittadini, controllo umano sulle decisioni amministrative e coerenza con la Strategia Italiana per l\u2019IA e gli indirizzi AgID. Supportiamo le amministrazioni nella costruzione di un modello di governance prima dell\u2019adozione dei sistemi, strutturando ruoli, processi e strumenti di valutazione proporzionati alla dimensione e alla complessità dell\u2019ente.',
+  },
+  {
+    title: 'Cybersecurity e NIS2',
+    body: 'Per i soggetti essenziali e importanti, la sicurezza informatica è un obbligo regolato da scadenze, interlocuzioni istituzionali e livelli di responsabilità specifici. Affianchiamo le strutture interne \u2014 dall\u2019Ufficio IT al Punto di contatto ACN, dal RTD al Referente CSIRT \u2014 nella gestione operativa degli adempimenti, nel dialogo con le Autorità e nel mantenimento nel tempo del sistema di gestione della sicurezza.',
+  },
+  {
+    title: 'Data Protection',
+    body: 'La protezione dei dati nella PA vive una tensione strutturale tra trasparenza e riservatezza, tra digitalizzazione dei servizi e tutela dei diritti dei cittadini. Gestiamo questa complessità lavorando sulle basi giuridiche dei trattamenti, sui processi di pubblicazione, sulla revisione dei procedimenti impattati dalla transizione digitale e sul presidio continuativo del ruolo di DPO.',
+  },
+  {
+    title: 'Transizione digitale',
+    body: 'Affianchiamo il RTD nella pianificazione e attuazione dei percorsi di digitalizzazione, integrando i requisiti di sicurezza, interoperabilità e accessibilità sin dalla fase progettuale. L\u2019obiettivo è che la conformità normativa sia parte del progetto, non un vincolo scoperto a valle.',
+  },
+];
+---
+
+<Layout
+  title="Per la PA — Datyca"
+  description="Le nostre competenze al servizio della trasformazione digitale della Pubblica Amministrazione. Governance digitale e conformità per il settore pubblico."
+>
+  <main>
+    <Breadcrumb
+      items={[
+        { label: 'Home', href: '/' },
+        { label: 'Il nostro impatto' },
+        { label: 'Per la PA' },
+      ]}
+    />
+    <div class="pa-page__dark">
+      <div class="pa-hero-area">
+        <ImpactIntro
+          title="Per la PA"
+          subtitle="Governance digitale e conformità per il settore pubblico"
+          bodyHtml={[
+            'La trasformazione digitale nella PA è un percorso che non ha equivalenti nel settore privato. Ogni scelta \u2014 adottare un sistema di intelligenza artificiale, digitalizzare un procedimento, innalzare i livelli di sicurezza informatica \u2014 si muove all\u2019interno di vincoli istituzionali, procedurali e normativi che richiedono una conoscenza profonda delle dinamiche del settore pubblico.',
+            '<strong>Lavoriamo al fianco delle amministrazioni pubbliche da anni:</strong> conosciamo la complessità dei procedimenti, i rapporti con le Autorità di riferimento, le esigenze di trasparenza e le responsabilità specifiche di chi gestisce dati e servizi per i cittadini. Questa esperienza diretta ci consente di proporre <strong>soluzioni che funzionano dentro la realtà organizzativa della PA</strong>, non nonostante essa.',
+          ]}
+        >
+          <img slot="visual" class="pa-deco-right" src="/images/circle_and_square.webp" alt="" aria-hidden="true" />
+        </ImpactIntro>
+
+        <section class="pa-visione">
+          <img class="pa-bg-squares" src="/images/squares.webp" alt="" aria-hidden="true" />
+          <div class="pa-visione__inner">
+            <h2 class="text-h2 pa-visione__title">La nostra visione</h2>
+            <p class="text-body pa-visione__body">Le amministrazioni che affrontano la transizione digitale in modo strutturato <strong>non subiscono l'innovazione: la governano</strong>. Questo significa ripensare i modelli organizzativi e procedimentali dell'ente in modo sistemico, integrando sicurezza, protezione dei dati e governance dell'intelligenza artificiale come componenti native del cambiamento — non come adempimenti a posteriori.</p>
+          </div>
+        </section>
+      </div>
+
+      <CosaFacciamoCards
+        items={cosaFacciamoItems}
+        sectionTitle="Le nostre competenze per il settore pubblico"
+      />
+
+      <section class="pa-promo">
+        <div class="pa-promo__inner">
+          <PromoCards />
+        </div>
+      </section>
+    </div>
+    <Contatti />
+  </main>
+</Layout>
+
+<style>
+  .pa-page__dark {
+    position: relative;
+  }
+
+  /* ── Decorative hero area ── */
+  .pa-hero-area {
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ── Right column: circle + square image ── */
+  .pa-deco-right {
+    width: 150%;
+    max-width: none;
+    height: auto;
+  }
+
+  /* ── Circle + square: keep proportions on resize ── */
+  .pa-hero-area :global(.ii__visual) {
+    aspect-ratio: 3 / 4;
+  }
+
+  .pa-hero-area :global(.impact-intro) {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── 3 diagonal squares behind text ── */
+  .pa-visione {
+    position: relative;
+    overflow: visible;
+  }
+
+  .pa-bg-squares {
+    position: absolute;
+    width: min(444px, 32vw);
+    visibility: hidden;
+    bottom: calc(100% + 30px);
+    left: calc(clamp(40px, 10.9vw, 157px) + 216px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .pa-visione__inner {
+    position: relative;
+    z-index: 1;
+  }
+
+  @media (max-width: 767px) {
+    .pa-bg-squares,
+    .pa-deco-right {
+      display: none;
+    }
+  }
+
+  /* ── La nostra visione ── */
+  .pa-visione {
+    max-width: 1440px;
+    margin-inline: auto;
+    padding: 0 clamp(40px, 10.9vw, 157px) var(--section-padding-y);
+  }
+
+  .pa-visione__inner {
+    max-width: 660px;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(20px, 2vw, 28px);
+  }
+
+  .pa-visione__title {
+    color: var(--color-white-almost);
+    font-weight: 400;
+  }
+
+  .pa-visione__body {
+    color: var(--color-white-almost);
+  }
+
+  .pa-visione__body :global(strong) {
+    font-weight: 600;
+  }
+
+  /* ── FOUC gate ── */
+  .pa-visione__title,
+  .pa-visione__body {
+    visibility: hidden;
+  }
+
+  /* ── Promo section ── */
+  .pa-promo {
+    position: relative;
+    background: radial-gradient(
+      ellipse 80% 120% at -5% 110%,
+      var(--color-red) 0%,
+      var(--color-blue-deep-800) 30%,
+      var(--color-black-almost-900) 55%
+    );
+  }
+
+  .pa-promo__inner {
+    max-width: 1440px;
+    margin-inline: auto;
+    padding: clamp(60px, 8vw, 120px) 40px clamp(60px, 8vw, 120px);
+  }
+
+  @media (max-width: 767px) {
+    .pa-visione {
+      padding: 0 var(--section-padding-x) var(--section-padding-y);
+    }
+
+    .pa-visione__inner {
+      max-width: none;
+    }
+
+    .pa-promo__inner {
+      padding: 60px var(--section-padding-x) 60px;
+    }
+  }
+</style>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import { SplitText } from 'gsap/SplitText';
+
+  function initPaVisione() {
+    const section = document.querySelector('.pa-visione') as HTMLElement;
+    if (!section) return;
+
+    let hasRevealed = false;
+
+    function setup() {
+      const titleEl = section.querySelector('.pa-visione__title') as HTMLElement;
+      const bodyEl = section.querySelector('.pa-visione__body') as HTMLElement;
+      if (hasRevealed) {
+        gsap.set(titleEl, { autoAlpha: 1, y: 0 });
+        gsap.set(bodyEl, { autoAlpha: 1, y: 0 });
+        return;
+      }
+
+      gsap.set(bodyEl, { autoAlpha: 0, y: 20 });
+
+      const wordSplit = SplitText.create(titleEl, { type: 'words', aria: 'none' });
+      gsap.set(wordSplit.words, { autoAlpha: 0, y: 20 });
+      gsap.set(titleEl, { autoAlpha: 1 });
+
+      const revealTl = gsap.timeline({ paused: true });
+
+      revealTl.to(wordSplit.words, {
+        autoAlpha: 1, y: 0,
+        duration: 0.6, stagger: 0.1,
+        ease: 'power2.out',
+      }, 0);
+
+      revealTl.to(bodyEl, {
+        autoAlpha: 1, y: 0,
+        duration: 0.6, ease: 'power2.out',
+      }, 0.3);
+
+      revealTl.eventCallback('onComplete', () => {
+        wordSplit.revert();
+      });
+
+      ScrollTrigger.create({
+        id: 'pa-visione-reveal',
+        trigger: section,
+        start: 'top 80%',
+        once: true,
+        onEnter: () => {
+          hasRevealed = true;
+          revealTl.play();
+        },
+      });
+    }
+
+    const mm = gsap.matchMedia();
+    mm.add('(min-width: 768px)', setup);
+    mm.add('(max-width: 767px)', setup);
+  }
+
+  function initPaBgSquares() {
+    const squaresEl = document.querySelector('.pa-bg-squares') as HTMLElement;
+    const introSection = document.querySelector('.impact-intro') as HTMLElement;
+    if (!squaresEl || !introSection) return;
+
+    let hasRevealed = false;
+
+    function setup() {
+      if (hasRevealed) {
+        gsap.set(squaresEl, { autoAlpha: 1 });
+        return;
+      }
+
+      gsap.set(squaresEl, { autoAlpha: 0 });
+
+      ScrollTrigger.create({
+        id: 'pa-squares-reveal',
+        trigger: introSection,
+        start: 'top 75%',
+        once: true,
+        onEnter: () => {
+          hasRevealed = true;
+          gsap.to(squaresEl, { autoAlpha: 1, duration: 0.8, ease: 'power2.out' });
+        },
+      });
+    }
+
+    const mm = gsap.matchMedia();
+    mm.add('(min-width: 768px)', setup);
+    mm.add('(max-width: 767px)', setup);
+  }
+
+  ((window as any).__initQueue ??= []).push(initPaVisione);
+  ((window as any).__initQueue ??= []).push(initPaBgSquares);
+</script>

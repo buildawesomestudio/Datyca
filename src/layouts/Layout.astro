@@ -89,12 +89,23 @@ const { title = 'Datyca', description = '' } = Astro.props;
         });
         requestAnimationFrame(() => {
           ScrollTrigger.refresh();
-          // iOS pin stability (WebKit #181954) — only needed on TOUCH devices
-          // with pinned ScrollTriggers. On desktop, normalizeScroll replaces
-          // native mouse-wheel scroll with a synthetic one that feels sluggish.
-          // ScrollTrigger.isTouch: 0 = no touch, 1 = touch only, 2 = hybrid.
+          // Pin stability: normalizeScroll intercepts native scroll and
+          // replaces it with JS-driven scroll. On touch devices this fixes
+          // WebKit #181954 pin jitter. On desktop it tames macOS trackpad
+          // momentum so snap activates faster (momentum: 0.3 = ~300ms
+          // deceleration vs ~1500ms native).
           const hasPins = ScrollTrigger.getAll().some(st => !!st.pin);
-          ScrollTrigger.normalizeScroll(hasPins && ScrollTrigger.isTouch !== 0);
+          const hasSnap = ScrollTrigger.getAll().some(st => !!(st as any).snap);
+          if (hasPins) {
+            ScrollTrigger.normalizeScroll(
+              ScrollTrigger.isTouch !== 0
+                ? true                          // touch: full normalizeScroll
+                : hasSnap ? { momentum: 0.3 }   // desktop + snap: short momentum
+                : false                          // desktop no snap: native scroll
+            );
+          } else {
+            ScrollTrigger.normalizeScroll(false);
+          }
           // After pin-spacers are finalized, honor any #hash in the URL
           scrollToHash();
         });
@@ -120,7 +131,22 @@ const { title = 'Datyca', description = '' } = Astro.props;
       try { target = document.querySelector(hash); } catch { /* invalid selector */ }
       if (!target) return;
       target.scrollIntoView({ behavior: 'auto', block: 'start' });
+      // Clean the hash from the URL — anchors are navigation aids, not permanent state
+      history.replaceState(null, '', window.location.pathname + window.location.search);
     }
+
+    // For same-page anchor clicks (smooth scroll via CSS), clean the hash once scroll settles
+    document.addEventListener('click', (e) => {
+      const link = (e.target as HTMLElement).closest('a[href*="#"]') as HTMLAnchorElement | null;
+      if (!link) return;
+      const url = new URL(link.href, window.location.origin);
+      // Only same-page anchors
+      if (url.pathname !== window.location.pathname || !url.hash) return;
+      // Wait for smooth scroll to finish, then strip hash
+      setTimeout(() => {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+      }, 800);
+    });
 
     document.addEventListener('astro:page-load', initPage);
     document.addEventListener('astro:before-swap', cleanupPage);
