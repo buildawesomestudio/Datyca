@@ -41,6 +41,12 @@ const footerLinksRight = [
 
       <!-- Right: Form -->
       <form class="contatti__form" novalidate>
+        <!-- Honeypot — hidden from humans, bots fill it -->
+        <div class="contatti__hp" aria-hidden="true">
+          <label for="contatti-website">Website</label>
+          <input type="text" id="contatti-website" name="website" tabindex="-1" autocomplete="off" />
+        </div>
+
         <div class="contatti__field">
           <label for="contatti-nome" class="sr-only">Nome</label>
           <input
@@ -49,6 +55,7 @@ const footerLinksRight = [
             name="nome"
             class="contatti__input"
             placeholder="Nome*"
+            maxlength="100"
           />
           <span class="contatti__error"></span>
         </div>
@@ -91,16 +98,26 @@ const footerLinksRight = [
             id="contatti-messaggio"
             name="messaggio"
             class="contatti__input contatti__textarea"
-            placeholder="Messaggio*"
+            placeholder="Messaggio* (min. 10 caratteri)"
             rows="5"
+            maxlength="2000"
           ></textarea>
           <span class="contatti__error"></span>
         </div>
 
-        <button type="submit" class="contatti__submit text-cta" data-contatti-submit>
-          <span>INVIA</span>
-          <svg width="24" height="24" aria-hidden="true"><use href="#icon-arrow-forward" /></svg>
-        </button>
+        <!-- Turnstile widget container -->
+        <div id="contatti-turnstile" class="contatti__turnstile"></div>
+
+        <div class="contatti__submit-row">
+          <button type="submit" class="contatti__submit text-cta" data-contatti-submit>
+            <span data-contatti-submit-label>INVIA</span>
+            <svg class="contatti__submit-arrow" width="24" height="24" aria-hidden="true"><use href="#icon-arrow-forward" /></svg>
+            <svg class="contatti__submit-spinner" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2.5" fill="none" stroke-dasharray="50 20" stroke-linecap="round" />
+            </svg>
+          </button>
+          <p class="contatti__form-status" data-contatti-status></p>
+        </div>
       </form>
     </div>
 
@@ -290,10 +307,73 @@ const footerLinksRight = [
     color: var(--color-white-almost);
     border: none;
     padding: 18px 20px 18px 25px;
-    align-self: flex-end;
-    margin-top: 20px;
     cursor: pointer;
     border-radius: 0;
+  }
+
+  .contatti__submit:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  /* ── Honeypot (invisible to humans) ── */
+  .contatti__hp {
+    position: absolute;
+    left: -9999px;
+    height: 0;
+    overflow: hidden;
+  }
+
+  /* ── Turnstile ── */
+  .contatti__turnstile {
+    align-self: flex-end;
+    margin-top: 12px;
+    min-height: 0;
+  }
+
+  /* ── Submit row ── */
+  .contatti__submit-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    align-self: flex-end;
+    margin-top: 20px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  /* ── Spinner ── */
+  .contatti__submit-spinner {
+    display: none;
+  }
+
+  .contatti__submit--sending .contatti__submit-arrow {
+    display: none;
+  }
+
+  .contatti__submit--sending .contatti__submit-spinner {
+    display: block;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* ── Form status message ── */
+  .contatti__form-status {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 20px;
+    margin: 0;
+  }
+
+  .contatti__form-status--success {
+    color: #16a34a;
+  }
+
+  .contatti__form-status--error {
+    color: var(--color-red);
   }
 
   /* ── Errors ── */
@@ -403,7 +483,7 @@ const footerLinksRight = [
     .contatti__textarea {
       min-height: 150px;
     }
-    .contatti__submit {
+    .contatti__submit-row {
       align-self: flex-end;
     }
     .contatti__separator {
@@ -552,7 +632,7 @@ const footerLinksRight = [
       }
 
       // ── Hover: Submit button ──
-      const submitArrow = submitBtn.querySelector('svg') as SVGElement;
+      const submitArrow = submitBtn.querySelector('.contatti__submit-arrow') as SVGElement;
 
       submitBtn.addEventListener('mouseenter', () => {
         gsap.to(submitBtn, {
@@ -608,12 +688,43 @@ const footerLinksRight = [
         }, { signal: ac.signal });
       });
 
+      // ── Turnstile lazy-load ──
+      const TURNSTILE_SITE_KEY = '0x4AAAAAAC97pyXgUgHeiHAx';
+      let turnstileLoaded = false;
+      let turnstileWidgetId: string | null = null;
+
+      function loadTurnstile() {
+        if (turnstileLoaded) return;
+        turnstileLoaded = true;
+        const script = document.createElement('script');
+        script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad';
+        script.async = true;
+        (window as any).onTurnstileLoad = () => {
+          const container = document.getElementById('contatti-turnstile');
+          if (container && (window as any).turnstile) {
+            turnstileWidgetId = (window as any).turnstile.render(container, {
+              sitekey: TURNSTILE_SITE_KEY,
+              appearance: 'interaction-only',
+              theme: 'light',
+            });
+          }
+        };
+        document.head.appendChild(script);
+      }
+
+      // Load Turnstile on first interaction with any form field
+      const firstInteraction = () => {
+        loadTurnstile();
+        form.removeEventListener('focusin', firstInteraction);
+      };
+      form.addEventListener('focusin', firstInteraction, { signal: ac.signal });
+
       // ── Form validation ──
       const validationRules: Record<string, { test: (v: string) => boolean; message: string }> = {
-        nome:      { test: (v) => v.trim().length > 0,                    message: 'Inserisci il tuo nome' },
+        nome:      { test: (v) => v.trim().length >= 2,                   message: 'Inserisci il tuo nome (min. 2 caratteri)' },
         email:     { test: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),  message: 'Inserisci un\'email valida' },
         oggetto:   { test: (v) => v.length > 0,                           message: 'Seleziona un oggetto' },
-        messaggio: { test: (v) => v.trim().length > 0,                    message: 'Inserisci un messaggio' },
+        messaggio: { test: (v) => v.trim().length >= 10,                  message: 'Inserisci un messaggio (min. 10 caratteri)' },
       };
 
       function showError(fieldEl: HTMLElement, input: HTMLElement, message: string) {
@@ -648,9 +759,36 @@ const footerLinksRight = [
         }, { signal: ac.signal });
       });
 
-      // Submit handler
-      form.addEventListener('submit', (e) => {
+      // ── Submit state helpers ──
+      const submitLabel = submitBtn.querySelector('[data-contatti-submit-label]') as HTMLElement;
+      const statusEl = section.querySelector('[data-contatti-status]') as HTMLElement;
+      let isSubmitting = false;
+
+      function setSubmitting(sending: boolean) {
+        isSubmitting = sending;
+        submitBtn.classList.toggle('contatti__submit--sending', sending);
+        (submitBtn as HTMLButtonElement).disabled = sending;
+        if (submitLabel) submitLabel.textContent = sending ? 'INVIO IN CORSO...' : 'INVIA';
+      }
+
+      function showStatus(message: string, type: 'success' | 'error') {
+        if (!statusEl) return;
+        statusEl.textContent = message;
+        statusEl.className = 'contatti__form-status contatti__form-status--' + type;
+        gsap.fromTo(statusEl, { autoAlpha: 0, y: 5 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: 'power2.out' });
+      }
+
+      function clearStatus() {
+        if (!statusEl) return;
+        gsap.to(statusEl, { autoAlpha: 0, duration: 0.2, onComplete: () => { statusEl.textContent = ''; } });
+      }
+
+      // ── Submit handler ──
+      form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (isSubmitting) return;
+
+        clearStatus();
         let valid = true;
 
         for (const [name, rule] of Object.entries(validationRules)) {
@@ -668,8 +806,77 @@ const footerLinksRight = [
           }
         }
 
-        if (valid) {
-          console.log('[Contatti] Form submitted', Object.fromEntries(new FormData(form)));
+        if (!valid) {
+          // Shake the submit button
+          gsap.to(submitBtn, {
+            x: [-8, 8, -6, 6, -3, 3, 0],
+            duration: 0.5,
+            ease: 'power2.out',
+          });
+          return;
+        }
+
+        // Get Turnstile token
+        let turnstileToken = '';
+        if ((window as any).turnstile && turnstileWidgetId != null) {
+          turnstileToken = (window as any).turnstile.getResponse(turnstileWidgetId) || '';
+        }
+
+        setSubmitting(true);
+
+        try {
+          const formData = Object.fromEntries(new FormData(form));
+          formData['cf-turnstile-response'] = turnstileToken;
+
+          const res = await fetch('/contact.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData),
+          });
+
+          const result = await res.json();
+
+          if (res.ok) {
+            showStatus('Messaggio inviato con successo!', 'success');
+            form.reset();
+            // Reset Turnstile for potential re-submission
+            if ((window as any).turnstile && turnstileWidgetId != null) {
+              (window as any).turnstile.reset(turnstileWidgetId);
+            }
+            // Animate success on button
+            gsap.to(submitBtn, {
+              backgroundColor: '#16a34a',
+              duration: 0.3,
+              onComplete: () => {
+                if (submitLabel) submitLabel.textContent = 'INVIATO!';
+                gsap.to(submitBtn, {
+                  backgroundColor: '#4545F7',
+                  duration: 0.3,
+                  delay: 2,
+                  onComplete: () => {
+                    if (submitLabel) submitLabel.textContent = 'INVIA';
+                  },
+                });
+              },
+            });
+          } else {
+            const msg = result.message || 'Errore nell\'invio. Riprova.';
+            showStatus(msg, 'error');
+
+            // Show server-side field errors if present
+            if (result.errors) {
+              for (const [fieldName, errorMsg] of Object.entries(result.errors)) {
+                const input = form.querySelector<HTMLElement>(`[name="${fieldName}"]`);
+                if (!input) continue;
+                const fieldEl = input.closest('.contatti__field') as HTMLElement;
+                if (fieldEl) showError(fieldEl, input, errorMsg as string);
+              }
+            }
+          }
+        } catch {
+          showStatus('Errore di connessione. Controlla la tua rete e riprova.', 'error');
+        } finally {
+          setSubmitting(false);
         }
       }, { signal: ac.signal });
 
