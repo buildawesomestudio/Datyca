@@ -235,10 +235,14 @@ const footerLinksRight = [
     color: var(--color-black-almost-900);
   }
 
-  /* Collapse adjacent borders — margin on containers, not inputs */
+  /* Collapse adjacent borders — margin on row, no top border inside */
   .contatti__row {
     display: flex;
     margin-top: -2px;
+  }
+
+  .contatti__row .contatti__input {
+    border-top: none;
   }
 
   .contatti__field--half {
