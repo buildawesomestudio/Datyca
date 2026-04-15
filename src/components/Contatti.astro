@@ -47,64 +47,62 @@ const footerLinksRight = [
           <input type="text" id="contatti-website" name="website" tabindex="-1" autocomplete="off" />
         </div>
 
-        <div class="contatti__fields">
-          <div class="contatti__field">
-            <label for="contatti-nome" class="sr-only">Nome</label>
+        <div class="contatti__field">
+          <label for="contatti-nome" class="sr-only">Nome</label>
+          <input
+            type="text"
+            id="contatti-nome"
+            name="nome"
+            class="contatti__input"
+            placeholder="Nome*"
+            maxlength="100"
+          />
+          <span class="contatti__error"></span>
+        </div>
+
+        <div class="contatti__row">
+          <div class="contatti__field contatti__field--half">
+            <label for="contatti-email" class="sr-only">Email</label>
             <input
-              type="text"
-              id="contatti-nome"
-              name="nome"
+              type="email"
+              id="contatti-email"
+              name="email"
               class="contatti__input"
-              placeholder="Nome*"
-              maxlength="100"
+              placeholder="Email*"
             />
             <span class="contatti__error"></span>
           </div>
-
-          <div class="contatti__row">
-            <div class="contatti__field contatti__field--half">
-              <label for="contatti-email" class="sr-only">Email</label>
-              <input
-                type="email"
-                id="contatti-email"
-                name="email"
-                class="contatti__input"
-                placeholder="Email*"
-              />
-              <span class="contatti__error"></span>
+          <div class="contatti__field contatti__field--half">
+            <label for="contatti-oggetto" class="sr-only">Oggetto</label>
+            <div class="contatti__select-wrap">
+              <select
+                id="contatti-oggetto"
+                name="oggetto"
+                class="contatti__input contatti__select"
+              >
+                <option value="" disabled selected>Oggetto*</option>
+                <option value="info">Informazioni generali</option>
+                <option value="collaborazione">Collaborazione</option>
+                <option value="consulenza">Consulenza</option>
+                <option value="altro">Altro</option>
+              </select>
+              <svg class="contatti__select-icon" width="12" height="12" aria-hidden="true"><use href="#icon-chevron-down" /></svg>
             </div>
-            <div class="contatti__field contatti__field--half">
-              <label for="contatti-oggetto" class="sr-only">Oggetto</label>
-              <div class="contatti__select-wrap">
-                <select
-                  id="contatti-oggetto"
-                  name="oggetto"
-                  class="contatti__input contatti__select"
-                >
-                  <option value="" disabled selected>Oggetto*</option>
-                  <option value="info">Informazioni generali</option>
-                  <option value="collaborazione">Collaborazione</option>
-                  <option value="consulenza">Consulenza</option>
-                  <option value="altro">Altro</option>
-                </select>
-                <svg class="contatti__select-icon" width="12" height="12" aria-hidden="true"><use href="#icon-chevron-down" /></svg>
-              </div>
-              <span class="contatti__error"></span>
-            </div>
-          </div>
-
-          <div class="contatti__field">
-            <label for="contatti-messaggio" class="sr-only">Messaggio</label>
-            <textarea
-              id="contatti-messaggio"
-              name="messaggio"
-              class="contatti__input contatti__textarea"
-              placeholder="Messaggio* (min. 10 caratteri)"
-              rows="5"
-              maxlength="2000"
-            ></textarea>
             <span class="contatti__error"></span>
           </div>
+        </div>
+
+        <div class="contatti__field">
+          <label for="contatti-messaggio" class="sr-only">Messaggio</label>
+          <textarea
+            id="contatti-messaggio"
+            name="messaggio"
+            class="contatti__input contatti__textarea"
+            placeholder="Messaggio* (min. 10 caratteri)"
+            rows="5"
+            maxlength="2000"
+          ></textarea>
+          <span class="contatti__error"></span>
         </div>
 
         <!-- Turnstile widget container -->
@@ -218,15 +216,9 @@ const footerLinksRight = [
     flex-direction: column;
   }
 
-  /* ── Fields wrapper — single outer border ── */
-  .contatti__fields {
-    border: 2px solid var(--color-black-almost-900);
-  }
-
   .contatti__input {
     width: 100%;
-    border: none;
-    border-bottom: 2px solid var(--color-black-almost-900);
+    border: 2px solid var(--color-black-almost-900);
     padding: 21px 20px 21px 25px;
     font-family: var(--font-sans);
     font-weight: 400;
@@ -243,23 +235,29 @@ const footerLinksRight = [
     color: var(--color-black-almost-900);
   }
 
-  /* Last field in the wrapper — no bottom border (wrapper provides it) */
-  .contatti__fields > :last-child .contatti__input {
-    border-bottom: none;
-  }
-
-  /* Row: two fields side by side */
+  /* Collapse adjacent borders */
   .contatti__row {
     display: flex;
+  }
+
+  .contatti__row .contatti__input {
+    margin-top: -2px;
   }
 
   .contatti__field--half {
     flex: 1;
   }
 
-  /* Vertical divider between half fields */
-  .contatti__field--half:first-child .contatti__input {
-    border-right: 2px solid var(--color-black-almost-900);
+  .contatti__field--half:last-child .contatti__input {
+    border-left: none;
+  }
+
+  .contatti__field + .contatti__row .contatti__input {
+    margin-top: -2px;
+  }
+
+  .contatti__row + .contatti__field .contatti__input {
+    margin-top: -2px;
   }
 
   /* Textarea */
@@ -387,6 +385,16 @@ const footerLinksRight = [
     display: block;
   }
 
+  /* When a field has an error, remove the negative margin collapse on the next element */
+  .contatti__field--error + .contatti__row .contatti__input,
+  .contatti__field--error + .contatti__field .contatti__input {
+    margin-top: 0;
+  }
+
+  .contatti__row:has(.contatti__field--error) + .contatti__field .contatti__input {
+    margin-top: 0;
+  }
+
   /* ── Separator ── */
   .contatti__separator {
     border: none;
@@ -461,9 +469,11 @@ const footerLinksRight = [
     .contatti__row {
       flex-direction: column;
     }
-    .contatti__field--half:first-child .contatti__input {
-      border-right: none;
-      border-bottom: 2px solid var(--color-black-almost-900);
+    .contatti__row .contatti__input {
+      margin-top: -2px;
+    }
+    .contatti__field--half:last-child .contatti__input {
+      border-left: 2px solid var(--color-black-almost-900);
     }
     .contatti__textarea {
       min-height: 150px;
