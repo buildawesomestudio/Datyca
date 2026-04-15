@@ -40,7 +40,7 @@ const footerLinksRight = [
       </div>
 
       <!-- Right: Form -->
-      <form class="contatti__form" method="POST" action="/contact.php" novalidate>
+      <form class="contatti__form" method="POST" action="/contact.php" data-astro-reload novalidate>
         <!-- Honeypot — hidden from humans, bots fill it -->
         <div class="contatti__hp" aria-hidden="true">
           <label for="contatti-website">Website</label>
@@ -116,8 +116,8 @@ const footerLinksRight = [
               <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2.5" fill="none" stroke-dasharray="50 20" stroke-linecap="round" />
             </svg>
           </button>
-          <p class="contatti__form-status" data-contatti-status></p>
         </div>
+        <p class="contatti__form-status" data-contatti-status></p>
       </form>
     </div>
 
@@ -333,13 +333,8 @@ const footerLinksRight = [
 
   /* ── Submit row ── */
   .contatti__submit-row {
-    display: flex;
-    align-items: center;
-    gap: 16px;
     align-self: flex-end;
     margin-top: 20px;
-    flex-wrap: wrap;
-    justify-content: flex-end;
   }
 
   /* ── Spinner ── */
@@ -365,7 +360,9 @@ const footerLinksRight = [
     font-family: var(--font-sans);
     font-size: 14px;
     line-height: 20px;
-    margin: 0;
+    margin: 10px 0 0;
+    text-align: right;
+    min-height: 20px;
   }
 
   .contatti__form-status--success {
