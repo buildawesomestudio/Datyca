@@ -743,17 +743,18 @@ const footerLinksRight = [
         const fieldEl = input.closest('.contatti__field') as HTMLElement;
         if (!fieldEl) return;
 
-        input.addEventListener('focus', () => {
-          if (fieldEl.classList.contains('contatti__field--error')) {
+        // Only clear error when the field actually becomes valid
+        const validateAndClear = () => {
+          if (!fieldEl.classList.contains('contatti__field--error')) return;
+          const name = (input as HTMLInputElement).name;
+          const rule = validationRules[name];
+          if (rule && rule.test((input as HTMLInputElement).value)) {
             clearError(fieldEl, input);
           }
-        }, { signal: ac.signal });
+        };
 
-        input.addEventListener('input', () => {
-          if (fieldEl.classList.contains('contatti__field--error')) {
-            clearError(fieldEl, input);
-          }
-        }, { signal: ac.signal });
+        input.addEventListener('input', validateAndClear, { signal: ac.signal });
+        input.addEventListener('change', validateAndClear, { signal: ac.signal });
       });
 
       // ── Submit state helpers ──
