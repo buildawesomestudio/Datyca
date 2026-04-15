@@ -6,11 +6,11 @@ const OFFSET = 138;
 const VB_H = 488 + 4 * OFFSET; // 1040
 
 const layers = [
-  { name: 'AI GOVERNANCE', side: 'left', index: 0 },
-  { name: 'DATA <br>PROTECTION', side: 'right', index: 1 },
-  { name: 'CYBERSECURITY', side: 'left', index: 2 },
-  { name: 'LEGAL DESIGN', side: 'right', index: 3 },
-  { name: 'LEGAL DESK', side: 'left', index: 4 },
+  { name: 'AI GOVERNANCE', side: 'left', index: 0, href: '#ai-governance' },
+  { name: 'DATA <br>PROTECTION', side: 'right', index: 1, href: '/servizi/data-protection' },
+  { name: 'CYBERSECURITY', side: 'left', index: 2, href: '/servizi/cybersecurity' },
+  { name: 'LEGAL DESIGN', side: 'right', index: 3, href: '/servizi/legal-design' },
+  { name: 'LEGAL DESK', side: 'left', index: 4, href: '/servizi/legal-desk' },
 ];
 
 const labelY = (i: number) =>
@@ -78,9 +78,11 @@ const renderOrder = [4, 3, 2, 1, 0];
 
       </defs>
 
-      {renderOrder.map(i => (
+      {renderOrder.map(i => {
+        const layer = layers[i];
+        return (
         <g transform={`translate(0, ${i * OFFSET})`}>
-          <g class="cf-layer" data-index={i}>
+          <g class="cf-layer" data-index={i} data-href={layer.href} style="cursor: pointer;">
             {/* Side wall (fill covers layers behind, stroke draws outline) */}
             <path d={SIDE} fill="#0D0826" stroke="#4545F7" stroke-width="2" stroke-miterlimit="10" />
             {/* Front connector */}
@@ -97,14 +99,16 @@ const renderOrder = [4, 3, 2, 1, 0];
             />
           </g>
         </g>
-      ))}
+        );
+      })}
     </svg>
 
     {/* HTML labels — positioned at each layer's face center */}
     {layers.map(l => (
-      <span
+      <a
         class:list={['cf-label', `cf-label--${l.side}`]}
         data-layer={l.index}
+        href={l.href}
         style={`--dt: ${labelY(l.index)}; --mt: ${mobileLabelY(l.index)}`}
         set:html={l.name}
       />
@@ -137,6 +141,8 @@ const renderOrder = [4, 3, 2, 1, 0];
     text-transform: uppercase;
     color: var(--color-grey-toned-400);
     white-space: nowrap;
+    text-decoration: none;
+    cursor: pointer;
   }
 
   /* Left labels: right-aligned, to the LEFT of the SVG */
@@ -359,6 +365,20 @@ const renderOrder = [4, 3, 2, 1, 0];
 
       const ac = new AbortController();
 
+      // Click on SVG layer → navigate to its href
+      svgEl.addEventListener('click', (e: MouseEvent) => {
+        const target = e.target as Element;
+        const layerGroup = target.closest('.cf-layer');
+        if (layerGroup) {
+          const href = layerGroup.getAttribute('data-href');
+          if (href) {
+            const link = document.createElement('a');
+            link.href = href;
+            link.click();
+          }
+        }
+      }, { signal: ac.signal });
+
       if (!ScrollTrigger.isTouch) {
         // Native SVG hit-testing: the face fills are opaque and
         // layer 0 is painted last (in front), so e.target returns
@@ -391,6 +411,21 @@ const renderOrder = [4, 3, 2, 1, 0];
     // ── matchMedia: Mobile / Tablet ─────────────────────────
     mm.add('(max-width: 1023px)', () => {
       currentLayer = -1;
+      const ac = new AbortController();
+
+      // Click on SVG layer → navigate to its href
+      svgEl.addEventListener('click', (e: MouseEvent) => {
+        const target = e.target as Element;
+        const layerGroup = target.closest('.cf-layer');
+        if (layerGroup) {
+          const href = layerGroup.getAttribute('data-href');
+          if (href) {
+            const link = document.createElement('a');
+            link.href = href;
+            link.click();
+          }
+        }
+      }, { signal: ac.signal });
 
       // ── Spread diamonds vertically for label readability ──
       const ORIG_OFFSET = 138;
@@ -476,6 +511,7 @@ const renderOrder = [4, 3, 2, 1, 0];
       });
 
       return () => {
+        ac.abort();
         currentLayer = -1;
         // Restore original SVG layout for desktop
         svgEl.setAttribute('viewBox', `0 0 800 1040`);
