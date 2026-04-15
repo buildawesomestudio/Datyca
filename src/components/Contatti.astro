@@ -379,6 +379,12 @@ const footerLinksRight = [
 
   .contatti__field--error .contatti__input {
     border-color: var(--color-red);
+  }
+
+  /* Lift the entire error field (or row containing it) above neighbors
+     so the red border covers the collapsed overlap cleanly */
+  .contatti__field--error,
+  .contatti__row:has(.contatti__field--error) {
     position: relative;
     z-index: 1;
   }
