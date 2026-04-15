@@ -40,7 +40,7 @@ const footerLinksRight = [
       </div>
 
       <!-- Right: Form -->
-      <form class="contatti__form" method="POST" action="/contact.php" data-astro-reload novalidate>
+      <form class="contatti__form" novalidate>
         <!-- Honeypot — hidden from humans, bots fill it -->
         <div class="contatti__hp" aria-hidden="true">
           <label for="contatti-website">Website</label>
@@ -109,7 +109,7 @@ const footerLinksRight = [
         <div id="contatti-turnstile" class="contatti__turnstile"></div>
 
         <div class="contatti__submit-row">
-          <button type="submit" class="contatti__submit text-cta" data-contatti-submit>
+          <button type="button" class="contatti__submit text-cta" data-contatti-submit>
             <span data-contatti-submit-label>INVIA</span>
             <svg class="contatti__submit-arrow" width="24" height="24" aria-hidden="true"><use href="#icon-arrow-forward" /></svg>
             <svg class="contatti__submit-spinner" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
@@ -781,8 +781,9 @@ const footerLinksRight = [
       }
 
       // ── Submit handler ──
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
+      // Use click + Enter instead of form submit to bypass Astro ClientRouter
+      // interception (captures submit events at document level before preventDefault)
+      async function handleSubmit() {
         if (isSubmitting) return;
 
         clearStatus();
@@ -880,7 +881,19 @@ const footerLinksRight = [
         } finally {
           setSubmitting(false);
         }
-      }, { signal: ac.signal });
+      }
+
+      submitBtn.addEventListener('click', handleSubmit, { signal: ac.signal });
+
+      // Enter key on inputs triggers submit (textarea excluded — Enter = newline)
+      form.querySelectorAll<HTMLElement>('input, select').forEach(input => {
+        input.addEventListener('keydown', (e) => {
+          if ((e as KeyboardEvent).key === 'Enter') {
+            e.preventDefault();
+            handleSubmit();
+          }
+        }, { signal: ac.signal });
+      });
 
       return () => { ac.abort(); };
     }
