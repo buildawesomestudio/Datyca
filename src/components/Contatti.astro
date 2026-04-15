@@ -243,13 +243,7 @@ const footerLinksRight = [
 
   .contatti__field--half {
     flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* Make select-wrap fill the flex item height so the select aligns with email */
-  .contatti__field--half .contatti__select-wrap {
-    flex: 1;
+    position: relative; /* chevron positioning context */
   }
 
   .contatti__field--half:last-child .contatti__input {
@@ -267,9 +261,10 @@ const footerLinksRight = [
     resize: vertical;
   }
 
-  /* Select */
+  /* Select — display:contents removes wrapper from layout,
+     select becomes direct flex child like the email input */
   .contatti__select-wrap {
-    position: relative;
+    display: contents;
   }
 
   .contatti__select {
