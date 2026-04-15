@@ -235,17 +235,20 @@ const footerLinksRight = [
     color: var(--color-black-almost-900);
   }
 
-  /* Collapse adjacent borders — margin on row, no top border inside */
+  /* Collapse adjacent borders — margin on row */
   .contatti__row {
     display: flex;
     margin-top: -2px;
   }
 
-  .contatti__row .contatti__input {
-    border-top: none;
+  .contatti__field--half {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
   }
 
-  .contatti__field--half {
+  /* Make select-wrap fill the flex item height so the select aligns with email */
+  .contatti__field--half .contatti__select-wrap {
     flex: 1;
   }
 
@@ -381,10 +384,6 @@ const footerLinksRight = [
     z-index: 1;
   }
 
-  /* Row inputs have border-top:none — restore it on error so all 4 sides are red */
-  .contatti__row .contatti__field--error .contatti__input {
-    border-top: 2px solid var(--color-red);
-  }
 
   .contatti__field--error .contatti__error {
     display: block;
