@@ -378,7 +378,9 @@ const footerLinksRight = [
   }
 
   .contatti__field--error {
-    box-shadow: inset 0 0 0 2px var(--color-red);
+    border-color: var(--color-red);
+    position: relative;
+    z-index: 1;
   }
 
 
@@ -729,18 +731,32 @@ const footerLinksRight = [
         const fieldEl = input.closest('.contatti__field') as HTMLElement;
         if (!fieldEl) return;
 
-        // Only clear error when the field actually becomes valid
-        const validateAndClear = () => {
+        const fieldName = (input as HTMLInputElement).name;
+        const rule = validationRules[fieldName];
+        if (!rule) return;
+
+        // Real-time: re-validate on input — clear error when valid, keep when invalid
+        const validateOnInput = () => {
           if (!fieldEl.classList.contains('contatti__field--error')) return;
-          const name = (input as HTMLInputElement).name;
-          const rule = validationRules[name];
-          if (rule && rule.test((input as HTMLInputElement).value)) {
+          if (rule.test((input as HTMLInputElement).value)) {
             clearError(fieldEl, input);
           }
         };
 
-        input.addEventListener('input', validateAndClear, { signal: ac.signal });
-        input.addEventListener('change', validateAndClear, { signal: ac.signal });
+        // On blur: validate and show error if invalid (only if field was touched)
+        const validateOnBlur = () => {
+          const val = (input as HTMLInputElement).value;
+          if (val.trim().length === 0 && !fieldEl.classList.contains('contatti__field--error')) return; // skip empty untouched
+          if (!rule.test(val)) {
+            showError(fieldEl, input, rule.message);
+          } else {
+            clearError(fieldEl, input);
+          }
+        };
+
+        input.addEventListener('input', validateOnInput, { signal: ac.signal });
+        input.addEventListener('change', validateOnInput, { signal: ac.signal });
+        input.addEventListener('blur', validateOnBlur, { signal: ac.signal });
       });
 
       // ── Submit state helpers ──
