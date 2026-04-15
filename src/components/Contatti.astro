@@ -770,6 +770,7 @@ const footerLinksRight = [
 
       function showStatus(message: string, type: 'success' | 'error') {
         if (!statusEl) return;
+        gsap.killTweensOf(statusEl);
         statusEl.textContent = message;
         statusEl.className = 'contatti__form-status contatti__form-status--' + type;
         gsap.fromTo(statusEl, { autoAlpha: 0, y: 5 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: 'power2.out' });
@@ -777,7 +778,9 @@ const footerLinksRight = [
 
       function clearStatus() {
         if (!statusEl) return;
-        gsap.to(statusEl, { autoAlpha: 0, duration: 0.2, onComplete: () => { statusEl.textContent = ''; } });
+        gsap.killTweensOf(statusEl);
+        statusEl.textContent = '';
+        gsap.set(statusEl, { autoAlpha: 0 });
       }
 
       // ── Submit handler ──
