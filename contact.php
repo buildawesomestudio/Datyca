@@ -27,10 +27,12 @@ require $configPath;
 // contact-config.php must define:
 // $RESEND_API_KEY, $TURNSTILE_SECRET, $CONTACT_EMAIL
 $FROM_EMAIL = 'Datyca <noreply@datyca.com>';
+$BASE_URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'];
 
 $ALLOWED_ORIGINS = [
     'https://datyca.com',
     'https://www.datyca.com',
+    'https://darkorchid-falcon-584985.hostingersite.com',
     'http://localhost:4321',
     'http://localhost:3000',
 ];
@@ -191,55 +193,163 @@ $safeMessage = nl2br(htmlspecialchars($message, ENT_QUOTES, 'UTF-8'));
 // ============================================
 $notificationHtml = <<<HTML
 <!DOCTYPE html>
-<html lang="it">
-<head><meta charset="UTF-8"></head>
-<body style="margin:0;padding:0;background:#f4f4f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f7;padding:40px 20px;">
-    <tr><td align="center">
-      <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;overflow:hidden;">
-        <!-- Header -->
-        <tr>
-          <td style="background:#0D0826;padding:32px 40px;">
-            <img src="https://datyca.com/images/logo-full_dark.svg" alt="Datyca" width="140" style="display:block;" />
-          </td>
-        </tr>
-        <!-- Body -->
-        <tr>
-          <td style="padding:40px;">
-            <h1 style="margin:0 0 24px;font-size:22px;color:#0D0826;">Nuovo messaggio dal sito</h1>
-            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
-              <tr>
-                <td style="padding:12px 0;border-bottom:1px solid #eee;color:#666;width:120px;vertical-align:top;">Nome</td>
-                <td style="padding:12px 0;border-bottom:1px solid #eee;color:#0D0826;font-weight:600;">{$safeName}</td>
-              </tr>
-              <tr>
-                <td style="padding:12px 0;border-bottom:1px solid #eee;color:#666;vertical-align:top;">Email</td>
-                <td style="padding:12px 0;border-bottom:1px solid #eee;color:#0D0826;">
-                  <a href="mailto:{$safeEmail}" style="color:#4545F7;text-decoration:none;">{$safeEmail}</a>
-                </td>
-              </tr>
-              <tr>
-                <td style="padding:12px 0;border-bottom:1px solid #eee;color:#666;vertical-align:top;">Oggetto</td>
-                <td style="padding:12px 0;border-bottom:1px solid #eee;color:#0D0826;font-weight:600;">{$safeOggetto}</td>
-              </tr>
-            </table>
-            <div style="background:#f8f8fa;border-left:4px solid #4545F7;padding:20px;border-radius:0 4px 4px 0;">
-              <p style="margin:0 0 8px;font-size:13px;color:#666;text-transform:uppercase;letter-spacing:0.5px;">Messaggio</p>
-              <p style="margin:0;color:#0D0826;line-height:1.6;">{$safeMessage}</p>
-            </div>
-          </td>
-        </tr>
-        <!-- Footer -->
-        <tr>
-          <td style="padding:24px 40px;background:#f8f8fa;border-top:1px solid #eee;">
-            <p style="margin:0;font-size:13px;color:#999;">
-              Puoi rispondere direttamente a questa email per contattare {$safeName}.
-            </p>
-          </td>
-        </tr>
-      </table>
-    </td></tr>
-  </table>
+<html lang="it" dir="ltr" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+  <meta name="format-detection" content="telephone=no, date=no, address=no, email=no, url=no">
+  <meta name="x-apple-disable-message-reformatting">
+  <meta name="color-scheme" content="light dark">
+  <meta name="supported-color-schemes" content="light dark">
+  <title>Nuovo messaggio dal sito</title>
+
+  <!--[if mso]>
+  <noscript>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+  </noscript>
+  <style>
+    table { border-collapse: collapse; }
+    td { font-family: Arial, sans-serif; }
+  </style>
+  <![endif]-->
+
+  <style>
+    :root {
+      color-scheme: light dark;
+      supported-color-schemes: light dark;
+    }
+
+    @font-face {
+      font-family: 'Optik';
+      font-style: normal;
+      font-weight: 400;
+      mso-font-alt: 'Arial';
+      src: url('{$BASE_URL}/fonts/Optik-Regular.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'Spectral';
+      font-style: normal;
+      font-weight: 400;
+      mso-font-alt: 'Georgia';
+      src: url('{$BASE_URL}/fonts/Spectralregular.woff2') format('woff2');
+    }
+
+    body, table, td, p, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }
+
+    @media (prefers-color-scheme: dark) {
+      .email-bg { background-color: #F5F4F2 !important; }
+      .logo-cell { background-color: #F5F4F2 !important; }
+      .content-cell { background-color: #F5F4F2 !important; }
+      .footer-cell { background-color: #F5F4F2 !important; }
+      .heading-coral { color: #F21763 !important; }
+      .body-text { color: #1a1a1a !important; }
+      .label-text { color: #666666 !important; }
+      .value-text { color: #1a1a1a !important; }
+      .link-indigo { color: #4545F7 !important; }
+      .border-indigo { border-color: #4545F7 !important; }
+      .msg-border { border-left-color: #4545F7 !important; }
+      .footer-text { color: #4545F7 !important; }
+    }
+
+    [data-ogsb] .email-bg { background-color: #F5F4F2 !important; }
+    [data-ogsb] .logo-cell { background-color: #F5F4F2 !important; }
+    [data-ogsb] .content-cell { background-color: #F5F4F2 !important; }
+    [data-ogsb] .footer-cell { background-color: #F5F4F2 !important; }
+    [data-ogsc] .heading-coral { color: #F21763 !important; }
+    [data-ogsc] .body-text { color: #1a1a1a !important; }
+    [data-ogsc] .label-text { color: #666666 !important; }
+    [data-ogsc] .value-text { color: #1a1a1a !important; }
+    [data-ogsc] .link-indigo { color: #4545F7 !important; }
+    [data-ogsc] .border-indigo { border-color: #4545F7 !important; }
+    [data-ogsc] .footer-text { color: #4545F7 !important; }
+
+    @media only screen and (max-width: 620px) {
+      .email-container { width: 100% !important; }
+      .content-cell { padding: 32px 24px !important; }
+      .logo-cell { padding: 28px 24px !important; }
+      .footer-cell { padding: 20px 24px !important; }
+      .heading-coral { font-size: 32px !important; }
+    }
+  </style>
+</head>
+<body style="margin: 0; padding: 0; background-color: #F5F4F2;" bgcolor="#F5F4F2">
+  <div role="article" aria-roledescription="email" aria-label="Nuovo messaggio dal sito" lang="it" dir="ltr" style="font-size: medium; font-size: max(16px, 1rem);">
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #F5F4F2;" bgcolor="#F5F4F2" class="email-bg">
+      <tr>
+        <td align="center" style="padding: 40px 16px;">
+
+          <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" class="email-container" style="max-width: 600px; width: 100%; background-color: #F5F4F2;" bgcolor="#F5F4F2">
+
+            <!-- ═══ LOGO ═══ -->
+            <tr>
+              <td class="logo-cell" style="padding: 32px 40px 28px; background-color: #F5F4F2; border: 2px solid #4545F7; border-bottom: none;" bgcolor="#F5F4F2">
+                <a href="{$BASE_URL}" target="_blank" style="display: inline-block;"><img src="{$BASE_URL}/images/logo-full_dark.svg" alt="Datyca Legal Design Lab" width="200" style="display: block; width: 200px; max-width: 100%; height: auto;" /></a>
+              </td>
+            </tr>
+
+            <!-- ═══ CONTENT ═══ -->
+            <tr>
+              <td class="content-cell border-indigo" style="padding: 40px; background-color: #F5F4F2; border-left: 2px solid #4545F7; border-right: 2px solid #4545F7; border-top: 2px solid #4545F7;" bgcolor="#F5F4F2">
+
+                <h1 class="heading-coral" style="margin: 0 0 28px; font-family: 'Spectral', Georgia, 'Palatino Linotype', serif; font-weight: 400; font-size: 42px; line-height: 1.2; color: #F21763;">
+                  Nuovo messaggio
+                </h1>
+
+                <!-- Data table -->
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 28px;">
+                  <tr>
+                    <td class="label-text" style="padding: 14px 0; border-bottom: 1px solid #ddd; font-family: 'Optik', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; font-size: 14px; color: #666666; width: 100px; vertical-align: top;">Nome</td>
+                    <td class="value-text" style="padding: 14px 0; border-bottom: 1px solid #ddd; font-family: 'Optik', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; font-size: 18px; color: #1a1a1a; font-weight: 600;">{$safeName}</td>
+                  </tr>
+                  <tr>
+                    <td class="label-text" style="padding: 14px 0; border-bottom: 1px solid #ddd; font-family: 'Optik', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; font-size: 14px; color: #666666; vertical-align: top;">Email</td>
+                    <td style="padding: 14px 0; border-bottom: 1px solid #ddd; font-family: 'Optik', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; font-size: 18px;">
+                      <a href="mailto:{$safeEmail}" class="link-indigo" style="color: #4545F7; text-decoration: none;">{$safeEmail}</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="label-text" style="padding: 14px 0; border-bottom: 1px solid #ddd; font-family: 'Optik', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; font-size: 14px; color: #666666; vertical-align: top;">Oggetto</td>
+                    <td class="value-text" style="padding: 14px 0; border-bottom: 1px solid #ddd; font-family: 'Optik', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; font-size: 18px; color: #1a1a1a; font-weight: 600;">{$safeOggetto}</td>
+                  </tr>
+                </table>
+
+                <!-- Message block -->
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td class="msg-border" style="border-left: 4px solid #4545F7; padding: 20px;">
+                      <p class="label-text" style="margin: 0 0 8px; font-family: 'Optik', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; font-size: 12px; color: #666666; text-transform: uppercase; letter-spacing: 0.5px;">Messaggio</p>
+                      <p class="body-text" style="margin: 0; font-family: 'Optik', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; font-size: 18px; line-height: 1.6; color: #1a1a1a;">{$safeMessage}</p>
+                    </td>
+                  </tr>
+                </table>
+
+              </td>
+            </tr>
+
+            <!-- ═══ FOOTER ═══ -->
+            <tr>
+              <td class="footer-cell border-indigo" style="padding: 24px 40px 28px; background-color: #F5F4F2; border: 2px solid #4545F7; border-top: 2px solid #4545F7; text-align: center;" bgcolor="#F5F4F2">
+                <p class="footer-text" style="margin: 0; font-family: 'Optik', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; font-size: 14px; color: #4545F7;">
+                  Rispondi a questa email per contattare {$safeName}
+                </p>
+              </td>
+            </tr>
+
+          </table>
+
+        </td>
+      </tr>
+    </table>
+
+  </div>
 </body>
 </html>
 HTML;
@@ -249,51 +359,150 @@ HTML;
 // ============================================
 $autoReplyHtml = <<<HTML
 <!DOCTYPE html>
-<html lang="it">
-<head><meta charset="UTF-8"></head>
-<body style="margin:0;padding:0;background:#f4f4f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f7;padding:40px 20px;">
-    <tr><td align="center">
-      <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;overflow:hidden;">
-        <!-- Header -->
-        <tr>
-          <td style="background:#0D0826;padding:32px 40px;text-align:center;">
-            <img src="https://datyca.com/images/logo-full_dark.svg" alt="Datyca" width="140" style="display:block;margin:0 auto;" />
-          </td>
-        </tr>
-        <!-- Body -->
-        <tr>
-          <td style="padding:40px;">
-            <h1 style="margin:0 0 16px;font-size:22px;color:#0D0826;">Grazie per averci contattato</h1>
-            <p style="margin:0 0 24px;color:#444;line-height:1.6;">
-              Ciao <strong>{$safeName}</strong>,<br><br>
-              abbiamo ricevuto il tuo messaggio e ti risponderemo il prima possibile, generalmente entro 24-48 ore lavorative.
-            </p>
-            <div style="background:#f8f8fa;border-radius:6px;padding:20px;margin-bottom:24px;">
-              <p style="margin:0 0 8px;font-size:13px;color:#666;text-transform:uppercase;letter-spacing:0.5px;">Riepilogo</p>
-              <p style="margin:0 0 4px;color:#0D0826;"><strong>Oggetto:</strong> {$safeOggetto}</p>
-              <p style="margin:0;color:#0D0826;"><strong>Messaggio:</strong></p>
-              <p style="margin:8px 0 0;color:#444;line-height:1.6;">{$safeMessage}</p>
-            </div>
-            <p style="margin:0;color:#444;line-height:1.6;">
-              Nel frattempo, ti invitiamo a visitare il nostro sito per scoprire di più sui nostri servizi.
-            </p>
-          </td>
-        </tr>
-        <!-- Footer -->
-        <tr>
-          <td style="padding:24px 40px;background:#0D0826;text-align:center;">
-            <p style="margin:0 0 8px;font-size:14px;color:#EBEBEB;">
-              DATYCA Legal Design Lab S.r.l.
-            </p>
-            <p style="margin:0;font-size:12px;color:#888;">
-              Palermo &middot; Milano &middot; Roma
-            </p>
-          </td>
-        </tr>
-      </table>
-    </td></tr>
-  </table>
+<html lang="it" dir="ltr" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+  <meta name="format-detection" content="telephone=no, date=no, address=no, email=no, url=no">
+  <meta name="x-apple-disable-message-reformatting">
+  <meta name="color-scheme" content="light dark">
+  <meta name="supported-color-schemes" content="light dark">
+  <title>Datyca — Messaggio ricevuto</title>
+
+  <!--[if mso]>
+  <noscript>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+  </noscript>
+  <style>
+    table { border-collapse: collapse; }
+    td { font-family: Arial, sans-serif; }
+  </style>
+  <![endif]-->
+
+  <style>
+    :root {
+      color-scheme: light dark;
+      supported-color-schemes: light dark;
+    }
+
+    @font-face {
+      font-family: 'Optik';
+      font-style: normal;
+      font-weight: 400;
+      mso-font-alt: 'Arial';
+      src: url('{$BASE_URL}/fonts/Optik-Regular.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'Spectral';
+      font-style: normal;
+      font-weight: 400;
+      mso-font-alt: 'Georgia';
+      src: url('{$BASE_URL}/fonts/Spectralregular.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'Spectral';
+      font-style: italic;
+      font-weight: 400;
+      mso-font-alt: 'Georgia';
+      src: url('{$BASE_URL}/fonts/Spectralitalic.woff2') format('woff2');
+    }
+
+    body, table, td, p, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }
+
+    @media (prefers-color-scheme: dark) {
+      .email-bg { background-color: #F5F4F2 !important; }
+      .logo-cell { background-color: #F5F4F2 !important; }
+      .content-cell { background-color: #F5F4F2 !important; }
+      .footer-cell { background-color: #F5F4F2 !important; }
+      .heading-coral { color: #F21763 !important; }
+      .body-text { color: #1a1a1a !important; }
+      .border-indigo { border-color: #4545F7 !important; }
+      .footer-text { color: #4545F7 !important; }
+      .footer-italic { color: #4545F7 !important; }
+    }
+
+    [data-ogsb] .email-bg { background-color: #F5F4F2 !important; }
+    [data-ogsb] .logo-cell { background-color: #F5F4F2 !important; }
+    [data-ogsb] .content-cell { background-color: #F5F4F2 !important; }
+    [data-ogsb] .footer-cell { background-color: #F5F4F2 !important; }
+    [data-ogsc] .heading-coral { color: #F21763 !important; }
+    [data-ogsc] .body-text { color: #1a1a1a !important; }
+    [data-ogsc] .border-indigo { border-color: #4545F7 !important; }
+    [data-ogsc] .footer-text { color: #4545F7 !important; }
+    [data-ogsc] .footer-italic { color: #4545F7 !important; }
+
+    @media only screen and (max-width: 620px) {
+      .email-container { width: 100% !important; }
+      .content-cell { padding: 32px 24px !important; }
+      .logo-cell { padding: 28px 24px !important; }
+      .footer-cell { padding: 20px 24px !important; }
+      .heading-coral { font-size: 32px !important; }
+    }
+  </style>
+</head>
+<body style="margin: 0; padding: 0; background-color: #F5F4F2;" bgcolor="#F5F4F2">
+  <div role="article" aria-roledescription="email" aria-label="Messaggio ricevuto" lang="it" dir="ltr" style="font-size: medium; font-size: max(16px, 1rem);">
+
+    <!-- Outer wrapper -->
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #F5F4F2;" bgcolor="#F5F4F2" class="email-bg">
+      <tr>
+        <td align="center" style="padding: 40px 16px;">
+
+          <!-- Email container (600px) -->
+          <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" class="email-container" style="max-width: 600px; width: 100%; background-color: #F5F4F2;" bgcolor="#F5F4F2">
+
+            <!-- ═══ LOGO SECTION ═══ -->
+            <tr>
+              <td class="logo-cell" style="padding: 32px 40px 28px; background-color: #F5F4F2; border: 2px solid #4545F7; border-bottom: none;" bgcolor="#F5F4F2">
+                <a href="{$BASE_URL}" target="_blank" style="display: inline-block;"><img src="{$BASE_URL}/images/logo-full_dark.svg" alt="Datyca Legal Design Lab" width="200" style="display: block; width: 200px; max-width: 100%; height: auto;" /></a>
+              </td>
+            </tr>
+
+            <!-- ═══ CONTENT SECTION ═══ -->
+            <tr>
+              <td class="content-cell border-indigo" style="padding: 40px; background-color: #F5F4F2; border-left: 2px solid #4545F7; border-right: 2px solid #4545F7; border-top: 2px solid #4545F7;" bgcolor="#F5F4F2">
+
+                <!-- Heading -->
+                <h1 class="heading-coral" style="margin: 0 0 24px; font-family: 'Spectral', Georgia, 'Palatino Linotype', serif; font-weight: 400; font-size: 42px; line-height: 1.2; color: #F21763;">
+                  Grazie per averci contattato!
+                </h1>
+
+                <!-- Body text -->
+                <p class="body-text" style="margin: 0; font-family: 'Optik', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; font-weight: 400; font-size: 18px; line-height: 1.6; color: #1a1a1a;">
+                  Abbiamo ricevuto il tuo messaggio.<br>
+                  Un nostro professionista ti ricontatter&agrave; a breve per comprendere le tue esigenze e individuare insieme il percorso pi&ugrave; adatto.
+                </p>
+
+              </td>
+            </tr>
+
+            <!-- ═══ FOOTER SECTION ═══ -->
+            <tr>
+              <td class="footer-cell border-indigo" style="padding: 24px 40px 28px; background-color: #F5F4F2; border: 2px solid #4545F7; border-top: 2px solid #4545F7; text-align: center;" bgcolor="#F5F4F2">
+
+                <p style="margin: 0; font-size: 17px; line-height: 1.5;">
+                  <span class="footer-text" style="font-family: 'Optik', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; font-weight: 400; color: #4545F7; letter-spacing: 0.3px;">Empowering trust, </span><span class="footer-italic" style="font-family: 'Spectral', Georgia, 'Palatino Linotype', serif; font-style: italic; font-weight: 400; color: #4545F7;">creating opportunities</span>
+                </p>
+
+              </td>
+            </tr>
+
+          </table>
+          <!-- /Email container -->
+
+        </td>
+      </tr>
+    </table>
+    <!-- /Outer wrapper -->
+
+  </div>
 </body>
 </html>
 HTML;
