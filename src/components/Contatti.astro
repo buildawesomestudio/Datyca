@@ -216,9 +216,20 @@ const footerLinksRight = [
     flex-direction: column;
   }
 
+  /* Borders on field containers, NOT on inputs */
+  .contatti__field {
+    border: 2px solid var(--color-black-almost-900);
+  }
+
+  /* Collapse vertical borders between stacked fields */
+  .contatti__field + .contatti__row,
+  .contatti__row + .contatti__field {
+    margin-top: -2px;
+  }
+
   .contatti__input {
     width: 100%;
-    border: 2px solid var(--color-black-almost-900);
+    border: none;
     padding: 21px 20px 21px 25px;
     font-family: var(--font-sans);
     font-weight: 400;
@@ -235,24 +246,18 @@ const footerLinksRight = [
     color: var(--color-black-almost-900);
   }
 
-  /* Collapse adjacent borders — margin on row */
   .contatti__row {
     display: flex;
-    margin-top: -2px;
   }
 
   .contatti__field--half {
     flex: 1;
-    position: relative; /* chevron positioning context */
+    position: relative; /* chevron positioning */
   }
 
-  .contatti__field--half:last-child .contatti__input {
+  /* Collapse horizontal border between half fields */
+  .contatti__field--half + .contatti__field--half {
     border-left: none;
-  }
-
-  .contatti__field + .contatti__field .contatti__input,
-  .contatti__row + .contatti__field .contatti__input {
-    margin-top: -2px;
   }
 
   /* Textarea */
@@ -261,10 +266,9 @@ const footerLinksRight = [
     resize: vertical;
   }
 
-  /* Select — display:contents removes wrapper from layout,
-     select becomes direct flex child like the email input */
+  /* Select */
   .contatti__select-wrap {
-    display: contents;
+    position: relative;
   }
 
   .contatti__select {
@@ -373,7 +377,7 @@ const footerLinksRight = [
     padding: 6px 0 8px 25px;
   }
 
-  .contatti__field--error .contatti__input {
+  .contatti__field--error {
     border-color: var(--color-red);
     position: relative;
     z-index: 1;
@@ -384,13 +388,9 @@ const footerLinksRight = [
     display: block;
   }
 
-  /* When a field/row has an error, remove the negative margin collapse on the next element */
-  .contatti__field--error + .contatti__row {
-    margin-top: 0;
-  }
-
-  .contatti__field--error + .contatti__field .contatti__input,
-  .contatti__row:has(.contatti__field--error) + .contatti__field .contatti__input {
+  /* When error message is visible, remove collapse on the next element */
+  .contatti__field--error + .contatti__row,
+  .contatti__row:has(.contatti__field--error) + .contatti__field {
     margin-top: 0;
   }
 
@@ -468,7 +468,7 @@ const footerLinksRight = [
     .contatti__row {
       flex-direction: column;
     }
-    .contatti__field--half:last-child .contatti__input {
+    .contatti__field--half + .contatti__field--half {
       border-left: 2px solid var(--color-black-almost-900);
       margin-top: -2px;
     }
