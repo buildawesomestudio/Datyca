@@ -383,6 +383,11 @@ const footerLinksRight = [
     padding: 6px 0 8px 25px;
   }
 
+  .contatti__field--error .contatti__input {
+    outline: 2px solid var(--color-red);
+    outline-offset: -2px;
+  }
+
   .contatti__field--error .contatti__error {
     display: block;
   }
@@ -724,18 +729,16 @@ const footerLinksRight = [
         messaggio: { test: (v) => v.trim().length >= 10,                  message: 'Inserisci un messaggio (min. 10 caratteri)' },
       };
 
-      function showError(fieldEl: HTMLElement, input: HTMLElement, message: string) {
+      function showError(fieldEl: HTMLElement, _input: HTMLElement, message: string) {
         fieldEl.classList.add('contatti__field--error');
         const errSpan = fieldEl.querySelector('.contatti__error') as HTMLElement;
         if (errSpan) errSpan.textContent = message;
-        gsap.to(input, { borderColor: '#F21763', duration: 0.3, overwrite: true });
       }
 
-      function clearError(fieldEl: HTMLElement, input: HTMLElement) {
+      function clearError(fieldEl: HTMLElement, _input: HTMLElement) {
         fieldEl.classList.remove('contatti__field--error');
         const errSpan = fieldEl.querySelector('.contatti__error') as HTMLElement;
         if (errSpan) errSpan.textContent = '';
-        gsap.to(input, { borderColor: '#0D0826', duration: 0.3, overwrite: true });
       }
 
       // Clear error on focus/input
