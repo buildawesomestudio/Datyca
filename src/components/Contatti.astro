@@ -235,12 +235,9 @@ const footerLinksRight = [
     color: var(--color-black-almost-900);
   }
 
-  /* Collapse adjacent borders */
+  /* Collapse adjacent borders — margin on containers, not inputs */
   .contatti__row {
     display: flex;
-  }
-
-  .contatti__row .contatti__input {
     margin-top: -2px;
   }
 
@@ -252,10 +249,7 @@ const footerLinksRight = [
     border-left: none;
   }
 
-  .contatti__field + .contatti__row .contatti__input {
-    margin-top: -2px;
-  }
-
+  .contatti__field + .contatti__field .contatti__input,
   .contatti__row + .contatti__field .contatti__input {
     margin-top: -2px;
   }
@@ -393,12 +387,12 @@ const footerLinksRight = [
     display: block;
   }
 
-  /* When a field has an error, remove the negative margin collapse on the next element */
-  .contatti__field--error + .contatti__row .contatti__input,
-  .contatti__field--error + .contatti__field .contatti__input {
+  /* When a field/row has an error, remove the negative margin collapse on the next element */
+  .contatti__field--error + .contatti__row {
     margin-top: 0;
   }
 
+  .contatti__field--error + .contatti__field .contatti__input,
   .contatti__row:has(.contatti__field--error) + .contatti__field .contatti__input {
     margin-top: 0;
   }
@@ -477,11 +471,9 @@ const footerLinksRight = [
     .contatti__row {
       flex-direction: column;
     }
-    .contatti__row .contatti__input {
-      margin-top: -2px;
-    }
     .contatti__field--half:last-child .contatti__input {
       border-left: 2px solid var(--color-black-almost-900);
+      margin-top: -2px;
     }
     .contatti__textarea {
       min-height: 150px;
