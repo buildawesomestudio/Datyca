@@ -1,5 +1,4 @@
 ---
-import { ClientRouter } from 'astro:transitions';
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import HeaderCompact from '../components/HeaderCompact.astro';
@@ -29,7 +28,6 @@ const { title = 'Datyca', description = '' } = Astro.props;
   <link rel="preload" href="/src/fonts/Optik/Optik-Regular.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <title>{title}</title>
-  <ClientRouter />
 </head>
 <body>
 
@@ -49,159 +47,17 @@ const { title = 'Datyca', description = '' } = Astro.props;
     gsap.config({ nullTargetWarn: false });
     ScrollTrigger.config({ ignoreMobileResize: true });
 
-    /* ── View Transitions GSAP lifecycle ────────────────────────────
-     *  - initRegistry persists across navigations (module scope)
-     *  - pageCtx wraps all GSAP objects per page for one-line cleanup
-     *  - astro:page-load  fires on EVERY navigation (including initial)
-     *  - astro:before-swap fires BEFORE DOM replacement (not on initial)
+    /* ── Native-navigation lifecycle ────────────────────────────────
+     *  No ClientRouter: every cross-page click is a full reload, so
+     *  browser handles scroll restoration (back/forward via bfcache or
+     *  native history.scroll) and tears down the JS context on unload.
+     *  Our only job is: drain the init queue, refresh ScrollTrigger,
+     *  normalize scroll on pin pages, and honor #hash in URLs.
      * ────────────────────────────────────────────────────────────── */
 
-    const initRegistry: Array<() => void> = [];
-    let pageCtx: gsap.Context | null = null;
-
-    /* ── Manual scroll restoration ──────────────────────────────────
-     *  Why manual: Astro/browser restore scroll from history state DURING
-     *  the DOM swap, BEFORE ScrollTrigger re-creates pin-spacers. On pages
-     *  with pins (home has Hero + Principi + CosaFacciamoCards), the saved
-     *  scrollY refers to the fully-inflated document; at restore time the
-     *  doc is still "short" → scroll gets clamped, user lands at the wrong
-     *  section (often Hero). We save scrollY per-path to sessionStorage on
-     *  before-preparation, and restore it AFTER ScrollTrigger.refresh() in
-     *  initPage, only for 'traverse' (back/forward) navigations.
-     * ────────────────────────────────────────────────────────────── */
-    if ('scrollRestoration' in history) {
-      history.scrollRestoration = 'manual';
-    }
-    let navType: 'initial' | 'push' | 'replace' | 'traverse' = 'initial';
-    const scrollKey = (path: string) => 'scrollY:' + path;
-
-    document.addEventListener('astro:before-preparation', (ev: any) => {
-      // Save scroll of the page we're leaving
-      sessionStorage.setItem(scrollKey(location.pathname), String(window.scrollY));
-      navType = ev.navigationType || 'push';
-    });
-
-    function initPage() {
-      // Collect new init functions pushed by component scripts
-      const queue: Array<() => void> = (window as any).__initQueue ?? [];
-      for (const fn of queue) {
-        if (!initRegistry.includes(fn)) initRegistry.push(fn);
-      }
-      (window as any).__initQueue = [];
-
-      // Astro ClientRouter + <video>: preloaded videos don't re-initialize after
-      // DOM swap (known Astro issue #11918). Force re-load on every page-load so
-      // the Hero video (and any others) start fresh.
-      document.querySelectorAll('video').forEach(v => {
-        try { v.load(); } catch { /* ignore */ }
-      });
-
-      // Page-scoped GSAP context — tracks all triggers/tweens/matchMedia for cleanup
-      pageCtx = gsap.context(() => {
-        // no-op: context is populated via pageCtx.add() below
-      });
-
-      // Run inits next frame (DOM layout ready)
-      requestAnimationFrame(() => {
-        if (!pageCtx) return; // Guard: user navigated before frame fired
-        pageCtx.add(() => {
-          for (const fn of initRegistry) {
-            try { fn(); } catch (e) { console.error('[init]', e); }
-          }
-        });
-        requestAnimationFrame(() => {
-          ScrollTrigger.refresh();
-
-          // Resolve scroll target for this navigation:
-          //   1. Back/forward  → restore scrollY saved on departure
-          //   2. #hash in URL  → scroll to anchor
-          //   3. Otherwise     → stay at top
-          let targetY: number | null = null;
-          if (navType === 'traverse') {
-            const saved = sessionStorage.getItem(scrollKey(location.pathname));
-            if (saved !== null) targetY = Number(saved);
-          }
-
-          // Disable any normalizeScroll left over from the previous page
-          // BEFORE our scrollTo, so it doesn't fight us with its own
-          // internal tracking. We re-enable it below with the correct
-          // scrollY already in place.
-          ScrollTrigger.normalizeScroll(false);
-
-          // Apply the target scroll. Hash fallback only when no saved Y.
-          if (targetY !== null) {
-            window.scrollTo(0, targetY);
-          } else {
-            scrollToHash();
-          }
-
-          // Pin stability: normalizeScroll intercepts native scroll and
-          // replaces it with JS-driven scroll. On touch devices this fixes
-          // WebKit #181954 pin jitter. On desktop it tames macOS trackpad
-          // momentum so snap activates faster (momentum: 0.3 = ~300ms
-          // deceleration vs ~1500ms native). Called AFTER the scrollTo so
-          // normalizeScroll syncs its internal state to the correct scrollY.
-          const hasPins = ScrollTrigger.getAll().some(st => !!st.pin);
-          const hasSnap = ScrollTrigger.getAll().some(st => !!(st as any).snap);
-          if (hasPins) {
-            ScrollTrigger.normalizeScroll(
-              ScrollTrigger.isTouch !== 0
-                ? true                          // touch: full normalizeScroll
-                : hasSnap ? { momentum: 0.3 }   // desktop + snap: short momentum
-                : false                          // desktop no snap: native scroll
-            );
-          }
-
-          // Sticky restore window: async stuff (images loading, lottie
-          // finishing its first paint, normalizeScroll init on touch) can
-          // trigger ScrollTrigger.refresh() shortly after init and recompute
-          // pin-spacers, which may shift the page so our scrollY no longer
-          // lands on the intended section. Re-apply the target on every
-          // ScrollTrigger refresh AND on timed checkpoints for ~1s, bailing
-          // out as soon as the user interacts (wheel/touch/keyboard/mouse).
-          if (targetY !== null) {
-            const target = targetY;
-            let userIntervened = false;
-            const cancelEvents = ['wheel', 'touchstart', 'mousedown', 'keydown'] as const;
-            const onCancel = () => { userIntervened = true; };
-            cancelEvents.forEach(ev =>
-              window.addEventListener(ev, onCancel, { once: true, passive: true })
-            );
-
-            const reapply = () => {
-              if (userIntervened) return;
-              if (Math.abs(window.scrollY - target) > 2) {
-                window.scrollTo(0, target);
-              }
-            };
-            ScrollTrigger.addEventListener('refresh', reapply);
-            const timers = [50, 150, 400, 800].map(ms =>
-              window.setTimeout(reapply, ms)
-            );
-            window.setTimeout(() => {
-              ScrollTrigger.removeEventListener('refresh', reapply);
-              cancelEvents.forEach(ev => window.removeEventListener(ev, onCancel));
-              timers.forEach(t => window.clearTimeout(t));
-            }, 1200);
-          }
-
-          navType = 'initial';
-        });
-      });
-    }
-
-    function cleanupPage() {
-      if (pageCtx) {
-        pageCtx.revert(); // Kills all GSAP objects: ScrollTriggers, tweens, matchMedia
-        pageCtx = null;
-      }
-      // Safety: clear any scroll lock the megamenu may have left behind
-      document.documentElement.style.overflow = '';
-    }
-
-    /* Cross-page navigation with a #hash needs an explicit scroll after init +
-     * refresh, because pin-spacers inflate the document AFTER the browser's
-     * initial anchor-scroll attempt. We use 'auto' (instant) to land directly. */
+    /* Cross-page navigation with a #hash: browsers try to scroll to the
+     * anchor BEFORE ScrollTrigger creates pin-spacers, so the target ends
+     * up at the wrong scrollY. Re-apply scrollIntoView AFTER refresh. */
     function scrollToHash() {
       const hash = window.location.hash;
       if (!hash || hash.length < 2) return;
@@ -226,8 +82,50 @@ const { title = 'Datyca', description = '' } = Astro.props;
       }, 800);
     });
 
-    document.addEventListener('astro:page-load', initPage);
-    document.addEventListener('astro:before-swap', cleanupPage);
+    function initPage() {
+      // Drain queue of init fns registered by component scripts at module scope
+      const queue: Array<() => void> = (window as any).__initQueue ?? [];
+      for (const fn of queue) {
+        try { fn(); } catch (e) { console.error('[init]', e); }
+      }
+      (window as any).__initQueue = [];
+
+      // Let layout settle (component matchMedia callbacks have created their
+      // ScrollTriggers + pin-spacers by now), then refresh and handle scroll.
+      requestAnimationFrame(() => {
+        ScrollTrigger.refresh();
+
+        // Pin stability: normalizeScroll intercepts native scroll and replaces
+        // it with JS-driven scroll. On touch devices this fixes WebKit pin
+        // jitter (WebKit #181954). On desktop + snap we use short momentum so
+        // snap activates faster (~300ms vs native ~1500ms). Disabled on
+        // pin-less pages — intercepting scroll with no benefit just makes
+        // scrolling feel slower.
+        const hasPins = ScrollTrigger.getAll().some(st => !!st.pin);
+        const hasSnap = ScrollTrigger.getAll().some(st => !!(st as any).snap);
+        if (hasPins) {
+          ScrollTrigger.normalizeScroll(
+            ScrollTrigger.isTouch !== 0
+              ? true                          // touch: full normalizeScroll
+              : hasSnap ? { momentum: 0.3 }   // desktop + snap: short momentum
+              : false                          // desktop no snap: native scroll
+          );
+        }
+
+        // Honor #hash in URL (after pin-spacers are finalized)
+        scrollToHash();
+      });
+    }
+
+    // Module scripts are deferred — they execute after HTML parsing. By the
+    // time this code runs, all component <script>s earlier in the bundle have
+    // already pushed their init fns into __initQueue. We still guard against
+    // 'loading' in case preserveScriptOrder causes an edge case.
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initPage);
+    } else {
+      initPage();
+    }
   </script>
 </body>
 </html>
