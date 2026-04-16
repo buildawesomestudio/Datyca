@@ -238,6 +238,13 @@ $notificationHtml = <<<HTML
       mso-font-alt: 'Georgia';
       src: url('{$BASE_URL}/fonts/Spectralregular.woff2') format('woff2');
     }
+    @font-face {
+      font-family: 'Spectral';
+      font-style: normal;
+      font-weight: 500;
+      mso-font-alt: 'Georgia';
+      src: url('{$BASE_URL}/fonts/Spectral500.woff2') format('woff2');
+    }
 
     body, table, td, p, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
     table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
@@ -249,7 +256,7 @@ $notificationHtml = <<<HTML
       .content-cell { background-color: #F5F4F2 !important; }
       .footer-cell { background-color: #F5F4F2 !important; }
       .heading-coral { color: #F21763 !important; }
-      .body-text { color: #1a1a1a !important; }
+      .body-text { color: #0D0826 !important; }
       .label-text { color: #666666 !important; }
       .value-text { color: #1a1a1a !important; }
       .link-indigo { color: #4545F7 !important; }
@@ -263,7 +270,7 @@ $notificationHtml = <<<HTML
     [data-ogsb] .content-cell { background-color: #F5F4F2 !important; }
     [data-ogsb] .footer-cell { background-color: #F5F4F2 !important; }
     [data-ogsc] .heading-coral { color: #F21763 !important; }
-    [data-ogsc] .body-text { color: #1a1a1a !important; }
+    [data-ogsc] .body-text { color: #0D0826 !important; }
     [data-ogsc] .label-text { color: #666666 !important; }
     [data-ogsc] .value-text { color: #1a1a1a !important; }
     [data-ogsc] .link-indigo { color: #4545F7 !important; }
@@ -275,7 +282,7 @@ $notificationHtml = <<<HTML
       .content-cell { padding: 32px 24px !important; }
       .logo-cell { padding: 28px 24px !important; }
       .footer-cell { padding: 20px 24px !important; }
-      .heading-coral { font-size: 32px !important; }
+      .heading-coral { font-size: 36px !important; }
     }
   </style>
 </head>
@@ -291,7 +298,7 @@ $notificationHtml = <<<HTML
             <!-- ═══ LOGO ═══ -->
             <tr>
               <td class="logo-cell" style="padding: 32px 40px 28px; background-color: #F5F4F2; border: 2px solid #4545F7; border-bottom: none;" bgcolor="#F5F4F2">
-                <a href="{$BASE_URL}" target="_blank" style="display: inline-block;"><img src="{$BASE_URL}/images/logo-full_dark.svg" alt="Datyca Legal Design Lab" width="200" style="display: block; width: 200px; max-width: 100%; height: auto;" /></a>
+                <a href="{$BASE_URL}" target="_blank" style="display: inline-block;"><img src="{$BASE_URL}/images/logo-full_dark.png" alt="Datyca Legal Design Lab" width="200" style="display: block; width: 200px; max-width: 100%; height: auto;" /></a>
               </td>
             </tr>
 
@@ -299,7 +306,7 @@ $notificationHtml = <<<HTML
             <tr>
               <td class="content-cell border-indigo" style="padding: 40px; background-color: #F5F4F2; border-left: 2px solid #4545F7; border-right: 2px solid #4545F7; border-top: 2px solid #4545F7;" bgcolor="#F5F4F2">
 
-                <h1 class="heading-coral" style="margin: 0 0 28px; font-family: 'Spectral', Georgia, 'Palatino Linotype', serif; font-weight: 400; font-size: 42px; line-height: 1.2; color: #F21763;">
+                <h1 class="heading-coral" style="margin: 0 0 28px; font-family: 'Spectral', Georgia, 'Palatino Linotype', serif; font-weight: 500; font-size: 48px; line-height: 1; letter-spacing: -0.03em; color: #F21763;">
                   Nuovo messaggio
                 </h1>
 
@@ -411,6 +418,13 @@ $autoReplyHtml = <<<HTML
       mso-font-alt: 'Georgia';
       src: url('{$BASE_URL}/fonts/Spectralitalic.woff2') format('woff2');
     }
+    @font-face {
+      font-family: 'Spectral';
+      font-style: normal;
+      font-weight: 500;
+      mso-font-alt: 'Georgia';
+      src: url('{$BASE_URL}/fonts/Spectral500.woff2') format('woff2');
+    }
 
     body, table, td, p, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
     table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
@@ -422,7 +436,7 @@ $autoReplyHtml = <<<HTML
       .content-cell { background-color: #F5F4F2 !important; }
       .footer-cell { background-color: #F5F4F2 !important; }
       .heading-coral { color: #F21763 !important; }
-      .body-text { color: #1a1a1a !important; }
+      .body-text { color: #0D0826 !important; }
       .border-indigo { border-color: #4545F7 !important; }
       .footer-text { color: #4545F7 !important; }
       .footer-italic { color: #4545F7 !important; }
@@ -433,7 +447,7 @@ $autoReplyHtml = <<<HTML
     [data-ogsb] .content-cell { background-color: #F5F4F2 !important; }
     [data-ogsb] .footer-cell { background-color: #F5F4F2 !important; }
     [data-ogsc] .heading-coral { color: #F21763 !important; }
-    [data-ogsc] .body-text { color: #1a1a1a !important; }
+    [data-ogsc] .body-text { color: #0D0826 !important; }
     [data-ogsc] .border-indigo { border-color: #4545F7 !important; }
     [data-ogsc] .footer-text { color: #4545F7 !important; }
     [data-ogsc] .footer-italic { color: #4545F7 !important; }
@@ -443,7 +457,7 @@ $autoReplyHtml = <<<HTML
       .content-cell { padding: 32px 24px !important; }
       .logo-cell { padding: 28px 24px !important; }
       .footer-cell { padding: 20px 24px !important; }
-      .heading-coral { font-size: 32px !important; }
+      .heading-coral { font-size: 36px !important; }
     }
   </style>
 </head>
@@ -461,7 +475,7 @@ $autoReplyHtml = <<<HTML
             <!-- ═══ LOGO SECTION ═══ -->
             <tr>
               <td class="logo-cell" style="padding: 32px 40px 28px; background-color: #F5F4F2; border: 2px solid #4545F7; border-bottom: none;" bgcolor="#F5F4F2">
-                <a href="{$BASE_URL}" target="_blank" style="display: inline-block;"><img src="{$BASE_URL}/images/logo-full_dark.svg" alt="Datyca Legal Design Lab" width="200" style="display: block; width: 200px; max-width: 100%; height: auto;" /></a>
+                <a href="{$BASE_URL}" target="_blank" style="display: inline-block;"><img src="{$BASE_URL}/images/logo-full_dark.png" alt="Datyca Legal Design Lab" width="200" style="display: block; width: 200px; max-width: 100%; height: auto;" /></a>
               </td>
             </tr>
 
@@ -470,12 +484,12 @@ $autoReplyHtml = <<<HTML
               <td class="content-cell border-indigo" style="padding: 40px; background-color: #F5F4F2; border-left: 2px solid #4545F7; border-right: 2px solid #4545F7; border-top: 2px solid #4545F7;" bgcolor="#F5F4F2">
 
                 <!-- Heading -->
-                <h1 class="heading-coral" style="margin: 0 0 24px; font-family: 'Spectral', Georgia, 'Palatino Linotype', serif; font-weight: 400; font-size: 42px; line-height: 1.2; color: #F21763;">
+                <h1 class="heading-coral" style="margin: 0 0 24px; font-family: 'Spectral', Georgia, 'Palatino Linotype', serif; font-weight: 500; font-size: 48px; line-height: 1; letter-spacing: -0.03em; color: #F21763;">
                   Grazie per averci contattato!
                 </h1>
 
                 <!-- Body text -->
-                <p class="body-text" style="margin: 0; font-family: 'Optik', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; font-weight: 400; font-size: 18px; line-height: 1.6; color: #1a1a1a;">
+                <p class="body-text" style="margin: 0; font-family: 'Optik', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; font-weight: 400; font-size: 18px; line-height: 23px; letter-spacing: 0.01em; color: #0D0826;">
                   Abbiamo ricevuto il tuo messaggio.<br>
                   Un nostro professionista ti ricontatter&agrave; a breve per comprendere le tue esigenze e individuare insieme il percorso pi&ugrave; adatto.
                 </p>
@@ -487,8 +501,8 @@ $autoReplyHtml = <<<HTML
             <tr>
               <td class="footer-cell border-indigo" style="padding: 24px 40px 28px; background-color: #F5F4F2; border: 2px solid #4545F7; border-top: 2px solid #4545F7; text-align: center;" bgcolor="#F5F4F2">
 
-                <p style="margin: 0; font-size: 17px; line-height: 1.5;">
-                  <span class="footer-text" style="font-family: 'Optik', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; font-weight: 400; color: #4545F7; letter-spacing: 0.3px;">Empowering trust, </span><span class="footer-italic" style="font-family: 'Spectral', Georgia, 'Palatino Linotype', serif; font-style: italic; font-weight: 400; color: #4545F7;">creating opportunities</span>
+                <p style="margin: 0; font-size: 15px; line-height: 23px; letter-spacing: 0.08em;">
+                  <span class="footer-text" style="font-family: 'Optik', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; font-weight: 500; color: #4545F7;">Empowering trust, </span><span class="footer-italic" style="font-family: 'Optik', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; font-style: italic; font-weight: 500; color: #4545F7;">creating opportunities</span>
                 </p>
 
               </td>
