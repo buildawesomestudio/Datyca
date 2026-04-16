@@ -279,18 +279,24 @@
       const spanWidth = (tickerBase.querySelector('.missione__ticker-text') as HTMLElement).offsetWidth;
       const halfCount = tickerBase.children.length / 2;
       const halfWidth = halfCount * spanWidth;
-      const tickerDuration = 20;
+      const tickerDuration = 26.67;
 
-      const tweenBase = gsap.to(tickerBase, {
-        x: -halfWidth, duration: tickerDuration,
-        ease: 'none', repeat: -1, paused: true,
-      });
+      const tweenBase = gsap.fromTo(tickerBase,
+        { x: -halfWidth },
+        {
+          x: 0, duration: tickerDuration,
+          ease: 'none', repeat: -1, paused: true,
+        }
+      );
       idleTweens.push(tweenBase);
 
-      const tweenColored = gsap.to(tickerColored, {
-        x: -halfWidth, duration: tickerDuration,
-        ease: 'none', repeat: -1, paused: true,
-      });
+      const tweenColored = gsap.fromTo(tickerColored,
+        { x: -halfWidth },
+        {
+          x: 0, duration: tickerDuration,
+          ease: 'none', repeat: -1, paused: true,
+        }
+      );
       idleTweens.push(tweenColored);
 
       // ── Entrance animation ──

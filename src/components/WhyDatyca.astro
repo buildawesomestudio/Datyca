@@ -83,11 +83,13 @@ const cards = [
   .why-card__title {
     color: var(--color-red);
     margin-bottom: 30px;
+    text-transform: uppercase;
   }
 
   .why-card--cta {
     justify-content: flex-end;
     align-items: flex-end;
+    border: none;
   }
 
   .why-cta {
@@ -153,13 +155,10 @@ const cards = [
       margin-bottom: 20px;
     }
 
-    /* CTA: strip card styling, standalone button */
+    /* CTA: standalone button below the grid (border already none from base) */
     .why-card--cta {
-      border: none;
       padding: 0;
       margin-top: 32px;
-    }
-    .why-card--cta {
       align-items: flex-start;
     }
   }

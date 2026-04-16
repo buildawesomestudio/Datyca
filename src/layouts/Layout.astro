@@ -59,6 +59,28 @@ const { title = 'Datyca', description = '' } = Astro.props;
     const initRegistry: Array<() => void> = [];
     let pageCtx: gsap.Context | null = null;
 
+    /* ── Manual scroll restoration ──────────────────────────────────
+     *  Why manual: Astro/browser restore scroll from history state DURING
+     *  the DOM swap, BEFORE ScrollTrigger re-creates pin-spacers. On pages
+     *  with pins (home has Hero + Principi + CosaFacciamoCards), the saved
+     *  scrollY refers to the fully-inflated document; at restore time the
+     *  doc is still "short" → scroll gets clamped, user lands at the wrong
+     *  section (often Hero). We save scrollY per-path to sessionStorage on
+     *  before-preparation, and restore it AFTER ScrollTrigger.refresh() in
+     *  initPage, only for 'traverse' (back/forward) navigations.
+     * ────────────────────────────────────────────────────────────── */
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+    let navType: 'initial' | 'push' | 'replace' | 'traverse' = 'initial';
+    const scrollKey = (path: string) => 'scrollY:' + path;
+
+    document.addEventListener('astro:before-preparation', (ev: any) => {
+      // Save scroll of the page we're leaving
+      sessionStorage.setItem(scrollKey(location.pathname), String(window.scrollY));
+      navType = ev.navigationType || 'push';
+    });
+
     function initPage() {
       // Collect new init functions pushed by component scripts
       const queue: Array<() => void> = (window as any).__initQueue ?? [];
@@ -89,11 +111,36 @@ const { title = 'Datyca', description = '' } = Astro.props;
         });
         requestAnimationFrame(() => {
           ScrollTrigger.refresh();
+
+          // Resolve scroll target for this navigation:
+          //   1. Back/forward  → restore scrollY saved on departure
+          //   2. #hash in URL  → scroll to anchor
+          //   3. Otherwise     → stay at top
+          let targetY: number | null = null;
+          if (navType === 'traverse') {
+            const saved = sessionStorage.getItem(scrollKey(location.pathname));
+            if (saved !== null) targetY = Number(saved);
+          }
+
+          // Disable any normalizeScroll left over from the previous page
+          // BEFORE our scrollTo, so it doesn't fight us with its own
+          // internal tracking. We re-enable it below with the correct
+          // scrollY already in place.
+          ScrollTrigger.normalizeScroll(false);
+
+          // Apply the target scroll. Hash fallback only when no saved Y.
+          if (targetY !== null) {
+            window.scrollTo(0, targetY);
+          } else {
+            scrollToHash();
+          }
+
           // Pin stability: normalizeScroll intercepts native scroll and
           // replaces it with JS-driven scroll. On touch devices this fixes
           // WebKit #181954 pin jitter. On desktop it tames macOS trackpad
           // momentum so snap activates faster (momentum: 0.3 = ~300ms
-          // deceleration vs ~1500ms native).
+          // deceleration vs ~1500ms native). Called AFTER the scrollTo so
+          // normalizeScroll syncs its internal state to the correct scrollY.
           const hasPins = ScrollTrigger.getAll().some(st => !!st.pin);
           const hasSnap = ScrollTrigger.getAll().some(st => !!(st as any).snap);
           if (hasPins) {
@@ -103,11 +150,42 @@ const { title = 'Datyca', description = '' } = Astro.props;
                 : hasSnap ? { momentum: 0.3 }   // desktop + snap: short momentum
                 : false                          // desktop no snap: native scroll
             );
-          } else {
-            ScrollTrigger.normalizeScroll(false);
           }
-          // After pin-spacers are finalized, honor any #hash in the URL
-          scrollToHash();
+
+          // Sticky restore window: async stuff (images loading, lottie
+          // finishing its first paint, normalizeScroll init on touch) can
+          // trigger ScrollTrigger.refresh() shortly after init and recompute
+          // pin-spacers, which may shift the page so our scrollY no longer
+          // lands on the intended section. Re-apply the target on every
+          // ScrollTrigger refresh AND on timed checkpoints for ~1s, bailing
+          // out as soon as the user interacts (wheel/touch/keyboard/mouse).
+          if (targetY !== null) {
+            const target = targetY;
+            let userIntervened = false;
+            const cancelEvents = ['wheel', 'touchstart', 'mousedown', 'keydown'] as const;
+            const onCancel = () => { userIntervened = true; };
+            cancelEvents.forEach(ev =>
+              window.addEventListener(ev, onCancel, { once: true, passive: true })
+            );
+
+            const reapply = () => {
+              if (userIntervened) return;
+              if (Math.abs(window.scrollY - target) > 2) {
+                window.scrollTo(0, target);
+              }
+            };
+            ScrollTrigger.addEventListener('refresh', reapply);
+            const timers = [50, 150, 400, 800].map(ms =>
+              window.setTimeout(reapply, ms)
+            );
+            window.setTimeout(() => {
+              ScrollTrigger.removeEventListener('refresh', reapply);
+              cancelEvents.forEach(ev => window.removeEventListener(ev, onCancel));
+              timers.forEach(t => window.clearTimeout(t));
+            }, 1200);
+          }
+
+          navType = 'initial';
         });
       });
     }
