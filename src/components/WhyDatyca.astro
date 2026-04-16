@@ -6,22 +6,32 @@ const cards = [
   {
     title: 'ISO/IEC 42001',
     description: 'Siamo tra le prime società in Italia certificate per i Sistemi di Gestione dell\'Intelligenza Artificiale.',
+    icon: '/images/why-datyca/iso-42001.webp',
+    alt: 'Certificazione ISO/IEC 42001',
   },
   {
     title: 'AIGP (IAPP)',
     description: 'I nostri professionisti sono certificati AIGP, qualifica di riferimento a livello internazionale per la governance dell\'intelligenza artificiale.',
+    icon: '/images/why-datyca/aigp.webp',
+    alt: 'Certificazione AIGP IAPP',
   },
   {
     title: 'Alta formazione',
     description: 'Docenti e ideatori di percorsi di alta formazione universitaria in materia di governance dell\'intelligenza artificiale.',
+    icon: '/images/why-datyca/alta-formazione.svg',
+    alt: 'Alta formazione',
   },
   {
     title: 'Legal Tech',
     description: 'Sviluppiamo piattaforme e strumenti digitali per la gestione integrata della compliance in materia di AI, privacy e cybersecurity.',
+    icon: '/images/why-datyca/legal-tech.svg',
+    alt: 'Legal Tech',
   },
   {
     title: 'Ricerca applicata',
     description: 'Promotori di TAIG Lab, centro studi indipendente dedicato alla ricerca applicata sulla Technical AI Governance.',
+    icon: '/images/why-datyca/ricerca-applicata.svg',
+    alt: 'Ricerca applicata',
   },
 ];
 ---
@@ -35,7 +45,7 @@ const cards = [
   <div class="why-grid" id="why-grid">
     {cards.map((card) => (
       <div class="why-card">
-        <img src="/images/XL/Ico_visual.svg" alt="" width="120" height="120" class="why-card__icon" />
+        <img src={card.icon} alt={card.alt} width="120" height="120" class="why-card__icon" loading="lazy" decoding="async" />
         <h3 class="text-para-title why-card__title">{card.title}</h3>
         <p class="text-regular">{card.description}</p>
       </div>
@@ -78,6 +88,8 @@ const cards = [
     width: 120px;
     height: 120px;
     margin-bottom: 30px;
+    object-fit: contain;
+    object-position: left center;
   }
 
   .why-card__title {
