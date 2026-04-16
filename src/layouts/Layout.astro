@@ -82,27 +82,54 @@ const { title = 'Datyca', description = '' } = Astro.props;
       }, 800);
     });
 
-    /* Before the page enters bfcache (fires on unload/navigation), clear the
-     * inline styles GSAP applied during hover so they don't freeze into the
-     * cached page. Otherwise on back-navigation the browser restores the page
-     * from bfcache with purple border/text still applied, making buttons look
+    /* Clean GSAP hover inline styles before the page is cached (bfcache) so
+     * they don't persist on back-navigation restore, leaving buttons looking
      * "stuck hovered" even though the cursor is elsewhere.
+     *
+     * Why we clean at BOTH click-time AND pagehide:
+     *   1. Click: runs synchronously before navigation starts, so the state
+     *      captured by bfcache is clean even on browsers (Safari) that snapshot
+     *      early in the unload sequence.
+     *   2. pagehide: safety net for navigation triggered outside our click
+     *      handler (browser back/forward, tab close, location.href=).
+     *
+     * Why killTweensOf: if the user clicks while a mouseenter tween is still
+     * in-flight (hover animation not yet complete), simply removing the inline
+     * style doesn't help — the tween continues and re-applies the style on the
+     * next tick, freezing that state into the cache. Kill the tweens targeting
+     * just the relevant properties first, then clear.
      *
      * Scope: only properties commonly used by hover handlers. We don't touch
      * `transform` on non-SVG elements because it's used by pinned content,
-     * entrance animations, matrix-based positioning — those should survive
-     * bfcache restore. For SVG arrows inside <a>/<button>, we DO clear the
-     * inline transform (they use `x: 5` on hover). */
-    window.addEventListener('pagehide', () => {
+     * entrance animations, matrix-based positioning. For SVG arrows inside
+     * <a>/<button>, we DO clear the inline transform (they use `x: 5` on hover). */
+    function cleanHoverStyles() {
       document.querySelectorAll<HTMLElement>('[style]').forEach(el => {
+        gsap.killTweensOf(el, 'borderColor,color,backgroundColor');
         el.style.removeProperty('border-color');
         el.style.removeProperty('color');
         el.style.removeProperty('background-color');
       });
       document.querySelectorAll<SVGElement>('a svg[style], button svg[style]').forEach(svg => {
+        gsap.killTweensOf(svg, 'x,y,transform');
         svg.style.removeProperty('transform');
       });
-    });
+    }
+
+    // 1. Click on internal link → clean BEFORE navigation → bfcache captures clean state
+    document.addEventListener('click', (e) => {
+      const link = (e.target as HTMLElement).closest('a[href]') as HTMLAnchorElement | null;
+      if (!link) return;
+      try {
+        const url = new URL(link.href, window.location.origin);
+        if (url.origin !== window.location.origin) return;      // external
+        if (url.pathname === window.location.pathname) return;  // same-page (hash anchor)
+        cleanHoverStyles();
+      } catch { /* malformed URL */ }
+    }, true);  // capture phase so we run before any link handler
+
+    // 2. Safety net for back/forward & tab close
+    window.addEventListener('pagehide', cleanHoverStyles);
 
     function initPage() {
       // Drain queue of init fns registered by component scripts at module scope
