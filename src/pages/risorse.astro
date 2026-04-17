@@ -19,10 +19,6 @@ import Contatti from '../components/Contatti.astro';
     <div class="ris-page__dark">
       <ImpactIntro
         title="Risorse"
-        subtitle="Lorem ipsum dolor sit amet"
-        bodyHtml={[
-          'Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et massa mi. Aliquam in hendrerit urna. Pellentesque sit amet sapien fringilla.',
-        ]}
         hideVisual={true}
       />
       <section class="ris-cards">
@@ -131,14 +127,28 @@ import Contatti from '../components/Contatti.astro';
   }
 
   /* ── Gradient area ── */
+  /* ── NOTE — gradient sizing unit choice ──────────────────────────────
+     Other dark "outro" sections on the site (e.g. .pa-promo, .taig-promo)
+     use the same radial-gradient with percentage-based ellipse dimensions
+     (ellipse 80% 120% at -5% 110%). That works there because those sections
+     are ~400–600px tall, so the ellipse ends up big enough to read well.
+     On this page the section is deliberately short (just title + 1 card),
+     so a %-based ellipse would shrink with the container and the gradient
+     would visibly thin out.
+     Fix: use absolute units (vw for width, px for height) so the ellipse's
+     visual mass stays constant regardless of min-height. The section still
+     anchors the gradient at bottom-left and simply reveals more or less of
+     it depending on how tall it is. If in the future we shorten any other
+     outro section below ~400px, apply the same pattern there. */
   .ris-gradient {
-    min-height: clamp(300px, 40vw, 600px);
+    min-height: clamp(230px, 30vw, 440px);
     background: radial-gradient(
-      ellipse 80% 120% at -5% 110%,
+      ellipse 80vw 600px at -5vw 100%,
       var(--color-red) 0%,
       var(--color-blue-deep-800) 30%,
       var(--color-black-almost-900) 55%
     );
+    background-repeat: no-repeat;
   }
 
   /* ── Mobile ── */
@@ -166,15 +176,13 @@ import Contatti from '../components/Contatti.astro';
     const card = document.querySelector<HTMLElement>('.ris-card');
     if (!card) return;
 
-    // Page-load reveal sequenced after ImpactIntro content. Intro runs:
-    // words 0s → subtitle 0.3s → body 0.45s + 0.6s = ends ~1.05s.
-    // Card starts at 0.9s so it arrives as the body is finishing — natural
-    // continuation, independent of scroll. No matchMedia needed: identical
-    // on mobile and desktop.
+    // Page-load reveal sequenced after the "Risorse" title (single word,
+    // ends ~0.7s). Card starts at 0.45s so it arrives while the title is
+    // settling — natural continuation, independent of scroll.
     gsap.set(card, { opacity: 0, y: 30 });
     gsap.to(card, {
       opacity: 1, y: 0,
-      duration: 0.7, delay: 0.9, ease: 'power2.out',
+      duration: 0.7, delay: 0.45, ease: 'power2.out',
     });
 
     /* ── Card hover (desktop pointer only) ── */

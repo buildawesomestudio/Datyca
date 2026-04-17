@@ -1,8 +1,8 @@
 ---
 interface Props {
   title: string;
-  subtitle: string;
-  bodyHtml: string[];
+  subtitle?: string;
+  bodyHtml?: string[];
   ctaText?: string;
   ctaHref?: string;
   imageSrc?: string;
@@ -16,11 +16,11 @@ const { title, subtitle, bodyHtml, ctaText, ctaHref, imageSrc, imageAlt, hideVis
 <section class="impact-intro ii">
   <div class="ii__inner">
     <h1 class="text-h1 ii__title">{title}</h1>
-    <p class="text-h2 ii__subtitle">{subtitle}</p>
+    {subtitle && <p class="text-h2 ii__subtitle">{subtitle}</p>}
 
     <div class="ii__content">
       <div class="ii__body-wrap">
-        {bodyHtml.map(html => (
+        {bodyHtml && bodyHtml.map(html => (
           <p class="text-body ii__body" set:html={html} />
         ))}
       </div>
@@ -199,7 +199,7 @@ const { title, subtitle, bodyHtml, ctaText, ctaHref, imageSrc, imageAlt, hideVis
 
     function setup() {
       const titleEl = section.querySelector('.ii__title') as HTMLElement;
-      const subtitleEl = section.querySelector('.ii__subtitle') as HTMLElement;
+      const subtitleEl = section.querySelector('.ii__subtitle') as HTMLElement | null;
       const bodyEls = section.querySelectorAll<HTMLElement>('.ii__body');
       const visualEl = (section.querySelector('.ii__logo') || section.querySelector('.ii__image') || section.querySelector('.ii__visual')) as HTMLElement;
       const ctaWrap = section.querySelector('.ii__cta-wrap') as HTMLElement | null;
@@ -209,14 +209,16 @@ const { title, subtitle, bodyHtml, ctaText, ctaHref, imageSrc, imageAlt, hideVis
 
       if (hasRevealed) {
         gsap.set(titleEl, { autoAlpha: 1, y: 0 });
-        gsap.set(subtitleEl, { autoAlpha: 1, y: 0 });
+        if (subtitleEl) gsap.set(subtitleEl, { autoAlpha: 1, y: 0 });
         gsap.set(bodyEls, { autoAlpha: 1, y: 0 });
         if (visualEl) gsap.set(visualEl, { autoAlpha: 1, y: 0 });
         if (ctaWrap) gsap.set(ctaWrap, { autoAlpha: 1, y: 0 });
         return () => { ac.abort(); };
       }
 
-      const hiddenEls: HTMLElement[] = [subtitleEl, ...Array.from(bodyEls)];
+      const hiddenEls: HTMLElement[] = [];
+      if (subtitleEl) hiddenEls.push(subtitleEl);
+      hiddenEls.push(...Array.from(bodyEls));
       if (visualEl) hiddenEls.push(visualEl);
       if (ctaWrap) hiddenEls.push(ctaWrap);
       gsap.set(hiddenEls, { autoAlpha: 0, y: 20 });
@@ -233,10 +235,12 @@ const { title, subtitle, bodyHtml, ctaText, ctaHref, imageSrc, imageAlt, hideVis
         ease: 'power2.out',
       }, 0);
 
-      revealTl.to(subtitleEl, {
-        autoAlpha: 1, y: 0,
-        duration: 0.6, ease: 'power2.out',
-      }, 0.3);
+      if (subtitleEl) {
+        revealTl.to(subtitleEl, {
+          autoAlpha: 1, y: 0,
+          duration: 0.6, ease: 'power2.out',
+        }, 0.3);
+      }
 
       revealTl.to(bodyEls, {
         autoAlpha: 1, y: 0,

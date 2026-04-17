@@ -134,9 +134,8 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
     display: flex;
     flex-direction: column;
     background: var(--color-white-snow);
-    will-change: transform;
-    /* FOUC gate: hide until GSAP init sets autoAlpha: 0 + xPercent: 100.
-       GSAP's autoAlpha writes inline visibility, which overrides this. */
+    /* FOUC gate: hide until GSAP init sets autoAlpha: 0 + clipPath. GSAP's
+       autoAlpha writes inline visibility, which overrides this. */
     visibility: hidden;
   }
 
@@ -309,7 +308,10 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
     const colorPurple = root.getPropertyValue('--color-purple-500').trim();
     const colorRed = root.getPropertyValue('--color-red').trim();
     let isOpen = false;
-    let tween: gsap.core.Tween | null = null;
+    let tl: gsap.core.Timeline | null = null;
+
+    // Staggered reveal targets: header row + each nav group
+    const contentItems = megamenu.querySelectorAll('.megamenu-header, .megamenu-group');
 
     const ac = new AbortController();
     const { signal } = ac;
@@ -319,7 +321,7 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
       btn.addEventListener('click', () => {
         if (isOpen) return;
         isOpen = true;
-        if (tween) tween.kill();
+        if (tl) tl.kill();
 
         ScrollTrigger.normalizeScroll(false);
         const columns = megamenu.querySelector('.megamenu-columns') as HTMLElement;
@@ -327,13 +329,28 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
 
         document.documentElement.style.overflow = 'hidden';
         megamenu.setAttribute('aria-hidden', 'false');
-        gsap.set(megamenu, { autoAlpha: 1 });
+        gsap.set(megamenu, { autoAlpha: 1, clipPath: 'inset(100% 0 0 0)' });
+        gsap.set(contentItems, { y: 50, autoAlpha: 0 });
 
-        tween = gsap.to(megamenu, {
-          xPercent: 0,
-          duration: 1.2,
+        // Bottom-to-top order aligns stagger with clip direction → items
+        // animate as they're uncovered instead of after.
+        const itemsBottomUp = [...contentItems].sort(
+          (a, b) => (b as HTMLElement).offsetTop - (a as HTMLElement).offsetTop
+        );
+
+        tl = gsap.timeline();
+        tl.to(megamenu, {
+          clipPath: 'inset(0% 0 0 0)',
+          duration: 0.7,
+          ease: 'expo.out',
+        }, 0);
+        tl.to(itemsBottomUp, {
+          y: 0,
+          autoAlpha: 1,
+          duration: 0.55,
           ease: 'power2.out',
-        });
+          stagger: 0.07,
+        }, 0.1);
       }, { signal });
     });
 
@@ -354,19 +371,21 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
     function close() {
       if (!isOpen) return;
       isOpen = false;
-      if (tween) tween.kill();
+      if (tl) tl.kill();
 
       // Unlock scroll immediately — waiting for onComplete blocks scroll on
       // same-page hash navigation (e.g. /#principi while already on /).
       document.documentElement.style.overflow = '';
       megamenu.setAttribute('aria-hidden', 'true');
 
-      tween = gsap.to(megamenu, {
-        xPercent: 100,
-        duration: 0.85,
-        ease: 'power2.in',
+      tl = gsap.timeline();
+      tl.to(megamenu, {
+        clipPath: 'inset(100% 0 0 0)',
+        duration: 0.45,
+        ease: 'power3.in',
         onComplete: () => {
           gsap.set(megamenu, { autoAlpha: 0 });
+          gsap.set(contentItems, { y: 50, autoAlpha: 0 });
           restoreNormalizeScroll();
         },
       });
@@ -382,10 +401,11 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
     // new page loads or the snapshot is taken.
     megamenu.querySelectorAll<HTMLAnchorElement>('a[href]').forEach((link) => {
       link.addEventListener('click', () => {
-        if (tween) { tween.kill(); tween = null; }
+        if (tl) { tl.kill(); tl = null; }
         if (!isOpen) return;
         isOpen = false;
-        gsap.set(megamenu, { autoAlpha: 0, xPercent: 100 });
+        gsap.set(megamenu, { autoAlpha: 0, clipPath: 'inset(100% 0 0 0)' });
+        gsap.set(contentItems, { y: 50, autoAlpha: 0 });
         megamenu.setAttribute('aria-hidden', 'true');
         document.documentElement.style.overflow = '';
         restoreNormalizeScroll();
@@ -405,8 +425,9 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
     window.addEventListener('pageshow', (e) => {
       if (!e.persisted) return;
       isOpen = false;
-      if (tween) { tween.kill(); tween = null; }
-      gsap.set(megamenu, { autoAlpha: 0, xPercent: 100 });
+      if (tl) { tl.kill(); tl = null; }
+      gsap.set(megamenu, { autoAlpha: 0, clipPath: 'inset(100% 0 0 0)' });
+      gsap.set(contentItems, { y: 50, autoAlpha: 0 });
       megamenu.setAttribute('aria-hidden', 'true');
       document.documentElement.style.overflow = '';
       restoreNormalizeScroll();
@@ -415,16 +436,18 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
     // Also snap closed on pagehide — if bfcache takes a snapshot here, it
     // captures the closed state instead of the mid-close animation.
     window.addEventListener('pagehide', () => {
-      if (!isOpen && !tween) return;
-      if (tween) { tween.kill(); tween = null; }
+      if (!isOpen && !tl) return;
+      if (tl) { tl.kill(); tl = null; }
       isOpen = false;
-      gsap.set(megamenu, { autoAlpha: 0, xPercent: 100 });
+      gsap.set(megamenu, { autoAlpha: 0, clipPath: 'inset(100% 0 0 0)' });
+      gsap.set(contentItems, { y: 50, autoAlpha: 0 });
       megamenu.setAttribute('aria-hidden', 'true');
       document.documentElement.style.overflow = '';
     }, { signal });
 
     // ═══ INITIAL STATES ═══
-    gsap.set(megamenu, { autoAlpha: 0, xPercent: 100 });
+    gsap.set(megamenu, { autoAlpha: 0, clipPath: 'inset(100% 0 0 0)' });
+    gsap.set(contentItems, { y: 50, autoAlpha: 0 });
     gsap.set('.megamenu-arrow', { autoAlpha: 0, x: -8 });
 
     // ═══ CLOSE BUTTON HOVER ═══
