@@ -331,8 +331,8 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
 
         tween = gsap.to(megamenu, {
           xPercent: 0,
-          duration: 0.8,
-          ease: 'power3.out',
+          duration: 1.2,
+          ease: 'power2.out',
         });
       }, { signal });
     });
@@ -363,8 +363,8 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
 
       tween = gsap.to(megamenu, {
         xPercent: 100,
-        duration: 0.65,
-        ease: 'power3.in',
+        duration: 0.85,
+        ease: 'power2.in',
         onComplete: () => {
           gsap.set(megamenu, { autoAlpha: 0 });
           restoreNormalizeScroll();
@@ -374,17 +374,53 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
 
     closeBtn.addEventListener('click', close, { signal });
 
-    // Close menu when any link is clicked (critical for same-page hash links
-    // like /#principi — Astro ClientRouter doesn't fire astro:before-swap for
-    // same-page hashes, so the cleanupPage safety net never runs).
+    // Close menu when any link is clicked. We SNAP closed (no tween) rather
+    // than animate, because the navigation fires immediately — any in-flight
+    // close tween gets frozen by the browser and ends up in the bfcache
+    // snapshot. Result: pressing Back restores the page with the menu still
+    // half-visible. Instant reset guarantees the DOM is clean before the
+    // new page loads or the snapshot is taken.
     megamenu.querySelectorAll<HTMLAnchorElement>('a[href]').forEach((link) => {
       link.addEventListener('click', () => {
-        close();
+        if (tween) { tween.kill(); tween = null; }
+        if (!isOpen) return;
+        isOpen = false;
+        gsap.set(megamenu, { autoAlpha: 0, xPercent: 100 });
+        megamenu.setAttribute('aria-hidden', 'true');
+        document.documentElement.style.overflow = '';
+        restoreNormalizeScroll();
       }, { signal });
     });
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && isOpen) close();
+    }, { signal });
+
+    // ═══ BFCACHE RESET ═══
+    // Safari/Firefox cache the page DOM + JS state when navigating away. If
+    // the user clicks a menu link, the close tween is still running when the
+    // page gets cached → pressing Back restores the page with the menu still
+    // visible. Force-close instantly on bfcache restore so Back returns the
+    // user to the underlying page, not to the menu.
+    window.addEventListener('pageshow', (e) => {
+      if (!e.persisted) return;
+      isOpen = false;
+      if (tween) { tween.kill(); tween = null; }
+      gsap.set(megamenu, { autoAlpha: 0, xPercent: 100 });
+      megamenu.setAttribute('aria-hidden', 'true');
+      document.documentElement.style.overflow = '';
+      restoreNormalizeScroll();
+    }, { signal });
+
+    // Also snap closed on pagehide — if bfcache takes a snapshot here, it
+    // captures the closed state instead of the mid-close animation.
+    window.addEventListener('pagehide', () => {
+      if (!isOpen && !tween) return;
+      if (tween) { tween.kill(); tween = null; }
+      isOpen = false;
+      gsap.set(megamenu, { autoAlpha: 0, xPercent: 100 });
+      megamenu.setAttribute('aria-hidden', 'true');
+      document.documentElement.style.overflow = '';
     }, { signal });
 
     // ═══ INITIAL STATES ═══
