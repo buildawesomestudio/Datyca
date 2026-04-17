@@ -27,6 +27,8 @@ import Contatti from '../../components/Contatti.astro';
           'Il Lab sviluppa studi indipendenti, analisi tecniche, linee guida pratiche e materiali operativi, collaborando con enti pubblici, Università, imprese e organizzazioni della società civile per <strong>diffondere conoscenza</strong> e costruire modelli di adozione dell\'IA fondati su criteri tecnici, giuridici e umani.',
           'I risultati della ricerca alimentano direttamente i servizi di consulenza e i percorsi di formazione di DATYCA.',
         ]}
+        imageSrc="/images/taig-logo.svg"
+        imageAlt="TAIG Lab"
         ctaText="SCOPRI TAIG LAB"
         ctaHref="https://taiglab.com"
       />
@@ -43,6 +45,39 @@ import Contatti from '../../components/Contatti.astro';
 <style>
   .taig-page__dark {
     position: relative;
+  }
+
+  /* TAIG logo (square). Match its height to the adjacent text column and
+     push it further away horizontally.
+     - align-items: stretch → visual cell grows to the text cell's height
+     - min-height: 0       → override the global 300px floor
+     - object-fit: contain + object-position: left center → logo respects
+       its 1:1 aspect ratio and sits at the left of the cell, leaving air
+       on the right rather than centering and losing separation. */
+  .taig-page__dark :global(.ii__content) {
+    align-items: stretch;
+    gap: clamp(60px, 8vw, 120px);
+  }
+
+  .taig-page__dark :global(.ii__visual),
+  .taig-page__dark :global(.ii__image) {
+    min-height: 0;
+  }
+
+  .taig-page__dark :global(.ii__image) {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: left center;
+  }
+
+  @media (max-width: 767px) {
+    .taig-page__dark :global(.ii__image) {
+      max-width: 320px;
+      margin-inline: auto;
+      display: block;
+      object-position: center;
+    }
   }
 
   .taig-promo {

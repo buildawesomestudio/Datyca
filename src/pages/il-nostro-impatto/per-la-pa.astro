@@ -132,10 +132,12 @@ const cosaFacciamoItems = [
   }
 
   /* ── La nostra visione ── */
+  /* No padding-bottom: next Section already provides padding-top, avoiding
+     a doubled gap before "Le nostre competenze per il settore pubblico". */
   .pa-visione {
     max-width: 1440px;
     margin-inline: auto;
-    padding: 0 clamp(40px, 10.9vw, 157px) var(--section-padding-y);
+    padding: 0 clamp(40px, 10.9vw, 157px);
   }
 
   .pa-visione__inner {
@@ -183,7 +185,7 @@ const cosaFacciamoItems = [
 
   @media (max-width: 767px) {
     .pa-visione {
-      padding: 0 var(--section-padding-x) var(--section-padding-y);
+      padding: 0 var(--section-padding-x);
     }
 
     .pa-visione__inner {
@@ -288,6 +290,9 @@ const cosaFacciamoItems = [
     mm.add('(max-width: 767px)', setup);
   }
 
-  ((window as any).__initQueue ??= []).push(initPaVisione);
-  ((window as any).__initQueue ??= []).push(initPaBgSquares);
+  // Page-level scripts run AFTER Layout's <script>, which means Layout's
+  // initPage() has already drained __initQueue by the time we'd push into it.
+  // Call the init directly — we're in module execution phase, DOM is parsed.
+  initPaVisione();
+  initPaBgSquares();
 </script>

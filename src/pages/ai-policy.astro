@@ -177,7 +177,7 @@ const sections = [
     --pp-text:        #2A2A2A;
     --pp-text-light:  #555555;
     --pp-light-gray:  #E1E1E1;
-    --pp-bg:          #FAFAFA;
+    --pp-bg:          var(--color-white-snow);
     --pp-white:       #FFFFFF;
   }
 
@@ -188,15 +188,16 @@ const sections = [
     background: var(--color-bg);
   }
   .ap-hero__title {
-    color: var(--color-pink);
+    color: var(--color-red);
     margin-bottom: 12px;
   }
   .ap-hero__subtitle {
     font-family: var(--font-serif);
-    color: var(--color-pink);
-    font-style: italic;
+    color: var(--color-white-almost);
+    font-style: normal;
     font-size: clamp(15px, 1.3vw, 18px);
     line-height: 1.4;
+    letter-spacing: -0.04em;
   }
 
   /* ── LIGHT WRAP ─────────────────────────────────────────────── */

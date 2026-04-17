@@ -331,7 +331,7 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
 
         tween = gsap.to(megamenu, {
           xPercent: 0,
-          duration: 0.5,
+          duration: 0.8,
           ease: 'power3.out',
         });
       }, { signal });
@@ -363,7 +363,7 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
 
       tween = gsap.to(megamenu, {
         xPercent: 100,
-        duration: 0.4,
+        duration: 0.65,
         ease: 'power3.in',
         onComplete: () => {
           gsap.set(megamenu, { autoAlpha: 0 });

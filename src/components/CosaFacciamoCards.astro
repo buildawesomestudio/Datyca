@@ -23,7 +23,7 @@ const { items, hideCta, sectionTitle = 'Cosa facciamo' } = Astro.props;
     <div class="cfc__stack">
       {items.map((item) => (
         <article class="cfc__card">
-          <h3 class="cfc__title" set:html={item.title.replace(/\n/g, '<br>')} />
+          <h3 class="cfc__title">{item.title.replace(/\n/g, ' ')}</h3>
           <p class="text-body cfc__body">{item.body}</p>
         </article>
       ))}

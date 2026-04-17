@@ -3,8 +3,6 @@ import Layout from '../layouts/Layout.astro';
 import Breadcrumb from '../components/Breadcrumb.astro';
 import Contatti from '../components/Contatti.astro';
 
-const lastUpdated = '16 aprile 2026';
-
 const sections = [
   { id: 'chi-siamo',       label: 'Chi siamo' },
   { id: 'dati',            label: 'Quali dati raccogliamo e perché' },
@@ -51,13 +49,10 @@ const extLinks = [
       ]}
     />
 
-    {/* DARK HERO — title + GDPR reference + last updated.
-        Font Spectral (matches the Word document) + magenta accent
-        (Datyca brand pink), per client direction. */}
+    {/* DARK HERO — title in brand magenta (#F21763), white subtitle. */}
     <section class="pp-hero">
       <h1 class="text-hero pp-hero__title">Privacy Policy</h1>
       <p class="pp-hero__ref">ai sensi dell&rsquo;art. 13 Regolamento (UE) 2016/679</p>
-      <p class="pp-hero__date">Ultimo aggiornamento: {lastUpdated}</p>
     </section>
 
     {/* LIGHT CONTENT AREA — legal document style */}
@@ -251,7 +246,7 @@ const extLinks = [
         <section class="pp-section" id="aggiornamenti">
           <p class="pp-section__num">Sezione 10</p>
           <h2 class="pp-section__title">Aggiornamenti</h2>
-          <p>Questa privacy policy può essere aggiornata per riflettere modifiche nelle nostre attività o nel quadro normativo. La data dell&rsquo;ultimo aggiornamento è indicata in alto. In caso di modifiche rilevanti, ti informeremo attraverso il sito.</p>
+          <p>Questa privacy policy può essere aggiornata per riflettere modifiche nelle nostre attività o nel quadro normativo. In caso di modifiche rilevanti, ti informeremo attraverso il sito.</p>
         </section>
 
       </div>
@@ -282,7 +277,7 @@ const extLinks = [
     --pp-light-gray:  #E1E1E1;
     --pp-row-stripe:  #F8F8FC;
     --pp-blue-tint:   #F0F0FF;
-    --pp-bg:          #FAFAFA;
+    --pp-bg:          var(--color-white-snow);
     --pp-white:       #FFFFFF;
   }
 
@@ -292,26 +287,18 @@ const extLinks = [
     padding: clamp(40px, 6vw, 64px) var(--section-padding-x) clamp(48px, 7vw, 72px);
     background: var(--color-bg);
   }
-  /* Per client direction: title, GDPR ref and date all in Spectral
-     (matches the Word document) and brand magenta (--color-pink). */
+  /* Per client direction: title in brand magenta (#F21763), subtitle white.
+     Letter-spacing -0.04em to match the rest of the site's serif copy. */
   .pp-hero__title {
-    color: var(--color-pink);
+    color: var(--color-red);
     margin-bottom: 12px;
   }
   .pp-hero__ref {
     font-family: var(--font-serif);
-    color: var(--color-pink);
-    font-style: italic;
+    color: var(--color-white-almost);
     font-size: clamp(15px, 1.3vw, 18px);
     line-height: 1.4;
-    margin-bottom: 8px;
-  }
-  .pp-hero__date {
-    font-family: var(--font-serif);
-    color: var(--color-pink);
-    font-size: clamp(14px, 1.1vw, 16px);
-    line-height: 1.4;
-    opacity: 0.75;
+    letter-spacing: -0.04em;
   }
 
   /* ── LIGHT WRAP ─────────────────────────────────────────────── */
@@ -411,21 +398,21 @@ const extLinks = [
     text-transform: uppercase;
     letter-spacing: 0.12em;
     padding: 14px 16px;
-    text-align: left;
+    text-align: center;
   }
   .pp-table tbody td {
     padding: 14px 16px;
     border-bottom: 1px solid #F0F0F0;
-    vertical-align: top;
+    vertical-align: middle;
     color: var(--pp-text-light);
     line-height: 1.5;
+    text-align: center;
   }
   .pp-table tbody tr:last-child td { border-bottom: none; }
   .pp-table tbody tr:nth-child(even) td { background: var(--pp-row-stripe); }
   .pp-table tbody td:first-child {
     font-weight: 500;
     color: var(--pp-text);
-    white-space: nowrap;
   }
   .pp-summary__note {
     font-size: 15px;
