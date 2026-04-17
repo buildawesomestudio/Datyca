@@ -57,7 +57,7 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
 ];
 ---
 
-<div id="megamenu">
+<div id="megamenu" aria-hidden="true">
   <div class="megamenu-header">
     <a href="/" class="megamenu-logo">
       <img src="/images/logo-full_dark.svg" alt="Datyca - Legal Design Lab" width="220" height="68" />
@@ -134,9 +134,7 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
     display: flex;
     flex-direction: column;
     background: var(--color-white-snow);
-    clip-path: circle(0% at 95% 3%);
-    pointer-events: none;
-    overflow: hidden;
+    will-change: transform;
   }
 
   .megamenu-header {
@@ -313,45 +311,29 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
     const colorRed = root.getPropertyValue('--color-red').trim();
     let isOpen = false;
     let tween: gsap.core.Tween | null = null;
-    let activeOpenBtn: HTMLElement = openBtns[0];
 
     const ac = new AbortController();
     const { signal } = ac;
-
-    // ═══ CIRCLE ORIGIN (center of whichever hamburger was clicked) ═══
-    function getOrigin() {
-      const rect = activeOpenBtn.getBoundingClientRect();
-      const x = ((rect.left + rect.width / 2) / document.documentElement.clientWidth) * 100;
-      const y = ((rect.top + rect.height / 2) / document.documentElement.clientHeight) * 100;
-      return `${x.toFixed(1)}% ${y.toFixed(1)}%`;
-    }
 
     // ═══ OPEN ═══
     openBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         if (isOpen) return;
-        activeOpenBtn = btn;
         isOpen = true;
         if (tween) tween.kill();
-
-        const origin = getOrigin();
 
         ScrollTrigger.normalizeScroll(false);
         const columns = megamenu.querySelector('.megamenu-columns') as HTMLElement;
         if (columns) columns.scrollTop = 0;
 
-        gsap.set(megamenu, { clipPath: `circle(0% at ${origin})` });
-        megamenu.style.display = '';
-        megamenu.style.pointerEvents = 'auto';
         document.documentElement.style.overflow = 'hidden';
+        megamenu.setAttribute('aria-hidden', 'false');
+        gsap.set(megamenu, { autoAlpha: 1 });
 
         tween = gsap.to(megamenu, {
-          clipPath: `circle(150% at ${origin})`,
-          duration: 1,
-          ease: 'power3.inOut',
-          onComplete: () => {
-            megamenu.style.clipPath = 'none';
-          },
+          xPercent: 0,
+          duration: 0.5,
+          ease: 'power3.out',
         });
       }, { signal });
     });
@@ -378,16 +360,14 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
       // Unlock scroll immediately — waiting for onComplete blocks scroll on
       // same-page hash navigation (e.g. /#principi while already on /).
       document.documentElement.style.overflow = '';
+      megamenu.setAttribute('aria-hidden', 'true');
 
-      const origin = getOrigin();
-      gsap.set(megamenu, { clipPath: `circle(150% at ${origin})` });
       tween = gsap.to(megamenu, {
-        clipPath: `circle(0% at ${origin})`,
-        duration: 0.8,
-        ease: 'power3.inOut',
+        xPercent: 100,
+        duration: 0.4,
+        ease: 'power3.in',
         onComplete: () => {
-          megamenu.style.pointerEvents = 'none';
-          megamenu.style.display = 'none';
+          gsap.set(megamenu, { autoAlpha: 0 });
           restoreNormalizeScroll();
         },
       });
@@ -409,8 +389,8 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
     }, { signal });
 
     // ═══ INITIAL STATES ═══
+    gsap.set(megamenu, { autoAlpha: 0, xPercent: 100 });
     gsap.set('.megamenu-arrow:not(.megamenu-arrow--top)', { autoAlpha: 0, x: -8 });
-    megamenu.style.display = 'none';
 
     // ═══ LINK HOVER ═══
     megamenu.querySelectorAll<HTMLElement>('.megamenu-link').forEach((link) => {

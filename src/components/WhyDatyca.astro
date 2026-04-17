@@ -1,6 +1,5 @@
 ---
 import Section from './Section.astro';
-import SectionHeader from './SectionHeader.astro';
 
 const cards = [
   {
@@ -37,10 +36,10 @@ const cards = [
 ---
 
 <Section id="why-datyca">
-  <SectionHeader
-    title="Perché Datyca"
-    subtitle="Investiamo in competenze, standard e tecnologie per garantire ai nostri clienti il massimo livello di affidabilità."
-  />
+  <h2 class="text-h2 why-claim">
+    Investiamo in <em>competenze</em>, <em>standard</em> e <em>tecnologie</em><br />
+    per garantire ai nostri clienti il massimo livello di affidabilità.
+  </h2>
 
   <div class="why-grid" id="why-grid">
     {cards.map((card) => (
@@ -60,6 +59,29 @@ const cards = [
 </Section>
 
 <style>
+  /* ── FOUC gate ── */
+  .why-claim {
+    font-family: var(--font-serif);
+    letter-spacing: -0.04em;
+    line-height: 1.15;
+    visibility: hidden;
+  }
+
+  .why-claim :global(br) {
+    display: none;
+  }
+
+  @media (min-width: 740px) {
+    .why-claim :global(br) {
+      display: inline;
+    }
+  }
+
+  .why-claim em {
+    color: var(--color-red);
+    font-style: italic;
+  }
+
   .why-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -190,78 +212,38 @@ const cards = [
 
     function setupWhyDatyca() {
       const root = getComputedStyle(document.documentElement);
-      const colorRed = root.getPropertyValue('--color-red').trim();
       const colorPurple600 = root.getPropertyValue('--color-purple-600').trim();
       const colorText = root.getPropertyValue('--color-text').trim();
 
-      const titleEl = section.querySelector('.section-header__title') as HTMLElement;
-      const subtitleEl = section.querySelector('.section-header__subtitle') as HTMLElement;
+      const claimEl = section.querySelector('.why-claim') as HTMLElement;
       const cards = section.querySelectorAll<HTMLElement>('.why-card');
       const cta = section.querySelector<HTMLElement>('#why-cta');
 
       if (hasRevealed) {
-        // Already revealed — set final state immediately
-        if (subtitleEl) gsap.set(subtitleEl, { autoAlpha: 1, y: 0 });
+        if (claimEl) gsap.set(claimEl, { autoAlpha: 1 });
         gsap.set(cards, { autoAlpha: 1, y: 0 });
       } else {
-        // Initial hidden states
         gsap.set(cards, { autoAlpha: 0, y: 30 });
-        if (subtitleEl) gsap.set(subtitleEl, { autoAlpha: 0, y: 20 });
 
         const tl = gsap.timeline({ paused: true });
 
-        if (titleEl) {
-          // Split into words first, then chars on "Datyca" for the wave
-          const wordSplit = SplitText.create(titleEl, { type: 'words', aria: 'none' });
-          const words = wordSplit.words;
-          const datycaWord = words[words.length - 1] as HTMLElement;
+        if (claimEl) {
+          gsap.set(claimEl, { autoAlpha: 1 });
+          const wordSplit = SplitText.create(claimEl, { type: 'words', aria: 'none' });
+          gsap.set(wordSplit.words, { autoAlpha: 0, y: 25 });
 
-          const charSplit = SplitText.create(datycaWord, { type: 'chars', aria: 'none' });
-          charSplit.chars.forEach(c => {
-            (c as HTMLElement).style.display = 'inline-block';
-            (c as HTMLElement).style.perspective = '400px';
-          });
-
-          // Initial state: words hidden below
-          gsap.set(words, { autoAlpha: 0, y: 25 });
-
-          // Words rise with overlap (0.12s delay between)
-          tl.to(words, {
+          tl.to(wordSplit.words, {
             autoAlpha: 1, y: 0,
-            duration: 0.7, stagger: 0.12,
+            duration: 0.7, stagger: 0.1,
             ease: 'power3.out',
           }, 0);
 
-          // Color wave + Flip X on "Datyca" chars
-          charSplit.chars.forEach((char, i) => {
-            const offset = 0.25 + i * 0.18;
-
-            tl.to(char, {
-              keyframes: [
-                { color: colorRed, duration: 0.32, ease: 'power1.in' },
-                { color: colorText, duration: 0.58, ease: 'power2.out' },
-              ],
-            }, offset);
-
-            tl.to(char, {
-              rotationX: 360,
-              duration: 0.9,
-              ease: 'power2.inOut',
-            }, offset);
-
-            tl.set(char, { rotationX: 0 }, offset + 0.9);
+          tl.eventCallback('onComplete', () => {
+            wordSplit.revert();
           });
         }
 
-        // Subtitle fade + slide (enters alongside the wave)
-        if (subtitleEl) {
-          tl.to(subtitleEl, {
-            autoAlpha: 1, y: 0,
-            duration: 0.8, ease: 'power2.out',
-          }, 0.4);
-        }
-
-        // Cards staggered (overlap with wave, don't wait for it)
+        // Cards staggered
         tl.to(cards, {
           autoAlpha: 1, y: 0,
           duration: 0.7, stagger: 0.16,

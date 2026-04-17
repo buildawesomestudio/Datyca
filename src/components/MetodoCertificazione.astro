@@ -6,11 +6,11 @@
     <h2 class="text-h2 mc__title">La fiducia inizia dal nostro modo di operare</h2>
 
     <p class="text-body mc__body">
-      DATYCA è tra le prime società in Italia ad aver conseguito la certificazione ISO/IEC 42001 (Artificial Intelligence Management System) per l&rsquo;utilizzo di sistemi di IA a supporto delle attività consulenziali.<br /><br />
+      DATYCA è tra le prime società in Italia ad aver conseguito la certificazione <strong>ISO/IEC 42001</strong> (Artificial Intelligence Management System) per l&rsquo;utilizzo di sistemi di IA a supporto delle attività consulenziali.<br /><br />
       Questo garantisce ai nostri clienti che le informazioni gestite attraverso strumenti intelligenti sono trattate secondo standard riconosciuti di governance, sicurezza e trasparenza, a tutela della riservatezza dei dati ricevuti e dell&rsquo;affidabilità dei relativi processi di consulenza.
     </p>
 
-    <a href="#" class="text-cta mc__cta" data-cta-btn download>
+    <a href="/docs/DATYCA_Certificazione_ISO_42001.pdf" class="text-cta mc__cta" data-cta-btn download target="_blank" rel="noopener noreferrer">
       <span>Scarica la nostra certificazione</span>
       <svg width="18" height="18" aria-hidden="true">
         <use href="#icon-diagonal-down-thick" />
@@ -35,14 +35,19 @@
   }
 
   .mc__title {
-    color: var(--color-white-almost);
+    font-family: var(--font-serif);
+    color: var(--color-red);
     margin-bottom: clamp(24px, 3vw, 40px);
-    font-weight: 600;
+    font-weight: 500;
   }
 
   .mc__body {
     color: var(--color-white-almost);
     margin-bottom: clamp(32px, 4vw, 48px);
+  }
+
+  .mc__body strong {
+    font-weight: 600;
   }
 
   .mc__cta {

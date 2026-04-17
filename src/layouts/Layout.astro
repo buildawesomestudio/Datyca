@@ -55,6 +55,21 @@ const { title = 'Datyca', description = '' } = Astro.props;
      *  normalize scroll on pin pages, and honor #hash in URLs.
      * ────────────────────────────────────────────────────────────── */
 
+    /* Compute scroll destination for an anchor target.
+     *   - If target has data-scroll-align="section-end": align the BOTTOM of
+     *     the closest <section> with the viewport bottom (used when the anchor
+     *     heading sits near the end of a section — a normal top-align anchor
+     *     would leave empty space below). Clamped to valid scroll range.
+     *   - Otherwise: align target's top with viewport top (native behavior). */
+    function computeAnchorScrollTop(target: HTMLElement): number | null {
+      if (target.dataset.scrollAlign === 'section-end') {
+        const section = target.closest('section') ?? target;
+        const sectionBottom = section.getBoundingClientRect().bottom + window.scrollY;
+        return Math.max(0, sectionBottom - document.documentElement.clientHeight);
+      }
+      return null; // signal: use native scrollIntoView
+    }
+
     /* Cross-page navigation with a #hash: browsers try to scroll to the
      * anchor BEFORE ScrollTrigger creates pin-spacers, so the target ends
      * up at the wrong scrollY. Re-apply scrollIntoView AFTER refresh. */
@@ -64,7 +79,12 @@ const { title = 'Datyca', description = '' } = Astro.props;
       let target: HTMLElement | null = null;
       try { target = document.querySelector(hash); } catch { /* invalid selector */ }
       if (!target) return;
-      target.scrollIntoView({ behavior: 'auto', block: 'start' });
+      const customTop = computeAnchorScrollTop(target);
+      if (customTop !== null) {
+        window.scrollTo({ top: customTop, behavior: 'auto' });
+      } else {
+        target.scrollIntoView({ behavior: 'auto', block: 'start' });
+      }
       // Clean the hash from the URL — anchors are navigation aids, not permanent state
       history.replaceState(null, '', window.location.pathname + window.location.search);
     }
@@ -76,6 +96,14 @@ const { title = 'Datyca', description = '' } = Astro.props;
       const url = new URL(link.href, window.location.origin);
       // Only same-page anchors
       if (url.pathname !== window.location.pathname || !url.hash) return;
+      // If the target has a custom scroll-align mode, override native anchor behavior
+      let target: HTMLElement | null = null;
+      try { target = document.querySelector(url.hash); } catch { /* invalid selector */ }
+      const customTop = target ? computeAnchorScrollTop(target) : null;
+      if (customTop !== null) {
+        e.preventDefault();
+        window.scrollTo({ top: customTop, behavior: 'smooth' });
+      }
       // Wait for smooth scroll to finish, then strip hash
       setTimeout(() => {
         history.replaceState(null, '', window.location.pathname + window.location.search);

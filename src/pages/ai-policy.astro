@@ -1,0 +1,389 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import Contatti from '../components/Contatti.astro';
+
+const sections = [
+  { id: 'perche',         label: 'Perché questa policy' },
+  { id: 'come',           label: 'Come utilizziamo l\u2019intelligenza artificiale' },
+  { id: 'principi',       label: 'I nostri principi' },
+  { id: 'sistema',        label: 'Il nostro sistema di gestione' },
+  { id: 'selezione',      label: 'Come selezioniamo gli strumenti' },
+  { id: 'ai-officer',     label: 'AI Officer' },
+  { id: 'aggiornamento',  label: 'Aggiornamento' },
+];
+---
+
+<Layout
+  title="AI Policy — Datyca"
+  description="Il nostro impegno per un uso responsabile dell'intelligenza artificiale. Come DATYCA seleziona, governa e controlla i sistemi di IA."
+>
+  <main>
+    <Breadcrumb
+      items={[
+        { label: 'Home', href: '/' },
+        { label: 'AI Policy' },
+      ]}
+    />
+
+    {/* DARK HERO — Spectral magenta (matches Privacy Policy hero + Word doc fonts) */}
+    <section class="ap-hero">
+      <h1 class="text-hero ap-hero__title">AI Policy</h1>
+      <p class="ap-hero__subtitle">Il nostro impegno per un uso responsabile dell&rsquo;intelligenza artificiale</p>
+    </section>
+
+    {/* LIGHT CONTENT AREA */}
+    <div class="ap-light">
+      <div class="ap-content">
+
+        {/* INDEX */}
+        <nav class="pp-anchor-nav" aria-label="Indice">
+          <h2 class="pp-anchor-nav__title">Indice</h2>
+          <ol class="pp-anchor-nav__list">
+            {sections.map(({ id, label }) => (
+              <li class="pp-anchor-nav__item"><a href={`#${id}`}>{label}</a></li>
+            ))}
+          </ol>
+        </nav>
+
+        {/* 1. PERCHÉ QUESTA POLICY */}
+        <section class="pp-section" id="perche">
+          <p class="pp-section__num">Sezione 1</p>
+          <h2 class="pp-section__title">Perché questa policy</h2>
+          <p>DATYCA Legal Design Lab utilizza sistemi di intelligenza artificiale a supporto delle proprie attività di consulenza. La fiducia dei nostri committenti passa anche dalla trasparenza su come lavoriamo.</p>
+          <p>Con questa policy rendiamo pubblico il nostro impegno: ogni strumento di IA che utilizziamo è selezionato, governato e controllato secondo principi rigorosi di sicurezza, etica e conformità normativa. Il documento descrive come impieghiamo l&rsquo;IA, quali garanzie offriamo e come ci organizziamo per mantenerle nel tempo, in conformità al Regolamento (UE) 2024/1689 (AI Act), alla Legge 23 settembre 2025 n. 132 e allo standard internazionale ISO/IEC 42001:2023.</p>
+        </section>
+
+        <hr class="pp-divider" />
+
+        {/* 2. COME UTILIZZIAMO L'IA */}
+        <section class="pp-section" id="come">
+          <p class="pp-section__num">Sezione 2</p>
+          <h2 class="pp-section__title">Come utilizziamo l&rsquo;intelligenza artificiale</h2>
+          <p>DATYCA non sviluppa modelli proprietari di intelligenza artificiale. Selezioniamo e integriamo nei nostri processi consulenziali sistemi di IA forniti da terze parti, utilizzandoli esclusivamente come strumento di supporto all&rsquo;attività professionale, nel rispetto del principio di prevalenza del lavoro intellettuale che caratterizza ogni nostra prestazione.</p>
+          <p>L&rsquo;IA può assisterci, ad esempio, in attività di ricerca, analisi documentale o scrittura assistita. Non sostituisce mai il giudizio critico, l&rsquo;autonomia decisionale o la responsabilità del professionista. Ogni output generato con il supporto dell&rsquo;IA è revisionato e validato da professionisti con specifiche competenze, che ne verificano accuratezza, coerenza e conformità agli standard qualitativi e deontologici della Società.</p>
+          <p>In coerenza con quanto previsto dall&rsquo;art. 13 della Legge 132/2025, DATYCA comunica ai propri committenti, con linguaggio chiaro e comprensibile, quali sistemi di intelligenza artificiale utilizza nell&rsquo;ambito dell&rsquo;incarico professionale e con quali modalità.</p>
+          <p>DATYCA non utilizza sistemi di IA riconducibili a pratiche vietate dall&rsquo;AI Act, né strumenti che possano compromettere l&rsquo;autonomia, la sicurezza o la tutela dei diritti delle persone.</p>
+        </section>
+
+        <hr class="pp-divider" />
+
+        {/* 3. I NOSTRI PRINCIPI */}
+        <section class="pp-section" id="principi">
+          <p class="pp-section__num">Sezione 3</p>
+          <h2 class="pp-section__title">I nostri principi</h2>
+          <p>L&rsquo;uso dell&rsquo;intelligenza artificiale in DATYCA è guidato da cinque principi, che orientano ogni scelta relativa alla selezione, all&rsquo;adozione e all&rsquo;impiego dei sistemi.</p>
+
+          <div class="pp-treatment">
+            <h3 class="pp-treatment__title"><span class="pp-treatment__dot" aria-hidden="true"></span>Supervisione umana</h3>
+            <p>Ogni output generato dai sistemi di IA è sempre sottoposto a revisione, interpretazione e validazione da parte di professionisti qualificati. DATYCA mantiene il pieno controllo umano del processo e delle decisioni finali. L&rsquo;IA supporta il lavoro delle persone, non lo sostituisce.</p>
+          </div>
+
+          <div class="pp-treatment">
+            <h3 class="pp-treatment__title"><span class="pp-treatment__dot" aria-hidden="true"></span>Trasparenza e comprensibilità</h3>
+            <p>Privilegiamo strumenti che offrano adeguata documentazione e un livello ragionevole di spiegabilità. Con questa policy, rendiamo pubblico il nostro approccio. I committenti sono informati, nell&rsquo;ambito di ciascun incarico, dei sistemi di IA utilizzati e possono comprendere in che modo l&rsquo;IA contribuisce ai processi consulenziali e quali limiti caratterizzano tali sistemi.</p>
+          </div>
+
+          <div class="pp-treatment">
+            <h3 class="pp-treatment__title"><span class="pp-treatment__dot" aria-hidden="true"></span>Protezione dei dati e riservatezza</h3>
+            <p>Utilizziamo esclusivamente strumenti che offrano garanzie elevate in materia di protezione dei dati, sicurezza delle informazioni e rispetto del GDPR. I sistemi di IA selezionati da DATYCA non effettuano addestramento sui dati caricati. Ogni utilizzo è conforme ai requisiti contrattuali, deontologici e normativi in materia di riservatezza.</p>
+          </div>
+
+          <div class="pp-treatment">
+            <h3 class="pp-treatment__title"><span class="pp-treatment__dot" aria-hidden="true"></span>Equità e non discriminazione</h3>
+            <p>Effettuiamo valutazioni preventive per accertare che le soluzioni adottate non producano esiti ingiusti, distorti o discriminatori. L&rsquo;uso dell&rsquo;IA deve contribuire a decisioni e processi equi, in piena coerenza con i valori etici e la responsabilità professionale dell&rsquo;organizzazione.</p>
+          </div>
+
+          <div class="pp-treatment">
+            <h3 class="pp-treatment__title"><span class="pp-treatment__dot" aria-hidden="true"></span>Responsabilità e accountability</h3>
+            <p>DATYCA si assume la responsabilità delle scelte relative ai sistemi di IA che decide di adottare. Ciò include la valutazione delle soluzioni, il rispetto dei requisiti normativi e la supervisione dei rischi derivanti dal loro utilizzo nell&rsquo;ambito dei progetti di consulenza.</p>
+          </div>
+        </section>
+
+        <hr class="pp-divider" />
+
+        {/* 4. IL NOSTRO SISTEMA DI GESTIONE */}
+        <section class="pp-section" id="sistema">
+          <p class="pp-section__num">Sezione 4</p>
+          <h2 class="pp-section__title">Il nostro sistema di gestione</h2>
+          <p>DATYCA ha istituito un Sistema di Gestione dell&rsquo;Intelligenza Artificiale conforme allo standard internazionale <strong>ISO/IEC 42001:2023</strong>, integrando i principi del Regolamento (UE) 2024/1689 (AI Act) e le migliori pratiche internazionali in materia di governance dell&rsquo;IA.</p>
+          <p>Questo significa, in concreto, che l&rsquo;utilizzo dell&rsquo;IA in DATYCA non è affidato a scelte individuali ma è governato da procedure documentate, ruoli definiti e controlli periodici. Il sistema di gestione garantisce che ogni strumento adottato sia valutato, autorizzato e monitorato secondo criteri di sicurezza, conformità e proporzionalità.</p>
+          <p>Per i nostri committenti, la certificazione ISO/IEC 42001 rappresenta una garanzia verificabile: le informazioni trasmesse a DATYCA e gestite attraverso strumenti di IA sono trattate secondo standard riconosciuti di governance, sicurezza e trasparenza.</p>
+        </section>
+
+        <hr class="pp-divider" />
+
+        {/* 5. COME SELEZIONIAMO GLI STRUMENTI */}
+        <section class="pp-section" id="selezione">
+          <p class="pp-section__num">Sezione 5</p>
+          <h2 class="pp-section__title">Come selezioniamo gli strumenti</h2>
+          <p>L&rsquo;adozione di nuovi strumenti di intelligenza artificiale in DATYCA è soggetta a un processo di autorizzazione che ne verifica la conformità ai principi e agli standard del sistema di gestione.</p>
+          <p>Selezioniamo i sistemi di IA valutandone la solidità tecnica, le garanzie di sicurezza offerte dal fornitore, la conformità normativa e la capacità di operare in modo controllabile e monitorabile. In particolare, verifichiamo che:</p>
+          <ul class="ap-criteria">
+            <li>il fornitore offra garanzie adeguate in materia di protezione dei dati e sicurezza delle informazioni</li>
+            <li>i dati caricati non vengano utilizzati per l&rsquo;addestramento dei modelli</li>
+            <li>il sistema offra un livello ragionevole di documentazione e spiegabilità</li>
+            <li>l&rsquo;utilizzo sia proporzionato al bisogno professionale e ai benefici concreti per i committenti</li>
+          </ul>
+          <p>Instauriamo con i fornitori e i partner tecnologici un rapporto di collaborazione responsabile, richiedendo standard di governance analoghi a quelli adottati internamente.</p>
+        </section>
+
+        <hr class="pp-divider" />
+
+        {/* 6. AI OFFICER */}
+        <section class="pp-section" id="ai-officer">
+          <p class="pp-section__num">Sezione 6</p>
+          <h2 class="pp-section__title">AI Officer</h2>
+          <p>Per garantire un uso responsabile, consapevole e trasparente dei sistemi di intelligenza artificiale, DATYCA ha individuato un&rsquo;apposita figura all&rsquo;interno della propria organizzazione: l&rsquo;AI Officer.</p>
+          <p>L&rsquo;AI Officer supervisiona l&rsquo;applicazione della presente policy, coordina le attività di valutazione e monitoraggio dei sistemi di IA e costituisce il punto di contatto per qualsiasi informazione relativa all&rsquo;uso dell&rsquo;intelligenza artificiale in DATYCA.</p>
+          <div class="pp-contact-box">
+            <p>Puoi contattare l&rsquo;AI Officer scrivendo a:</p>
+            <p><a href="mailto:aiofficer@datyca.com">aiofficer@datyca.com</a></p>
+          </div>
+        </section>
+
+        <hr class="pp-divider" />
+
+        {/* 7. AGGIORNAMENTO */}
+        <section class="pp-section" id="aggiornamento">
+          <p class="pp-section__num">Sezione 7</p>
+          <h2 class="pp-section__title">Aggiornamento</h2>
+          <p>In un contesto tecnologico e normativo in rapida evoluzione, questa policy viene riesaminata periodicamente per garantirne l&rsquo;attualità e l&rsquo;efficacia.</p>
+          <p>Ogni aggiornamento rappresenta un ulteriore passo nel processo di miglioramento continuo che caratterizza l&rsquo;approccio di DATYCA all&rsquo;uso responsabile dell&rsquo;intelligenza artificiale.</p>
+        </section>
+
+      </div>
+    </div>
+
+    <Contatti />
+  </main>
+</Layout>
+
+<style>
+  /* ── Shares all .pp-* styles with privacy-policy.astro via Astro
+     scoped style isolation. We redefine the needed styles here so
+     this page is self-contained (Astro scoped styles don't cross
+     page boundaries). ─────────────────────────────────────────── */
+
+  /* Local light-theme palette */
+  .ap-hero,
+  .ap-light,
+  .ap-content,
+  .pp-section,
+  .pp-section :global(p),
+  .pp-anchor-nav,
+  .pp-treatment,
+  .pp-contact-box {
+    --pp-text:        #2A2A2A;
+    --pp-text-light:  #555555;
+    --pp-light-gray:  #E1E1E1;
+    --pp-bg:          #FAFAFA;
+    --pp-white:       #FFFFFF;
+  }
+
+  /* ── DARK HERO ──────────────────────────────────────────────── */
+  .ap-hero {
+    text-align: center;
+    padding: clamp(40px, 6vw, 64px) var(--section-padding-x) clamp(48px, 7vw, 72px);
+    background: var(--color-bg);
+  }
+  .ap-hero__title {
+    color: var(--color-pink);
+    margin-bottom: 12px;
+  }
+  .ap-hero__subtitle {
+    font-family: var(--font-serif);
+    color: var(--color-pink);
+    font-style: italic;
+    font-size: clamp(15px, 1.3vw, 18px);
+    line-height: 1.4;
+  }
+
+  /* ── LIGHT WRAP ─────────────────────────────────────────────── */
+  .ap-light {
+    background: var(--pp-bg);
+    color: var(--pp-text);
+  }
+  .ap-content {
+    max-width: 820px;
+    margin-inline: auto;
+    padding: clamp(48px, 6vw, 80px) clamp(20px, 4vw, 40px) clamp(64px, 8vw, 100px);
+  }
+
+  /* ── ANCHOR NAV ─────────────────────────────────────────────── */
+  .pp-anchor-nav {
+    background: var(--pp-white);
+    border: 1px solid var(--pp-light-gray);
+    border-radius: 12px;
+    padding: clamp(24px, 3vw, 36px);
+    margin-bottom: clamp(40px, 5vw, 56px);
+  }
+  .pp-anchor-nav__title {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--color-grey-400);
+    margin-bottom: 16px;
+  }
+  .pp-anchor-nav__list {
+    list-style: none;
+    counter-reset: pp-nav;
+    columns: 2;
+    column-gap: 40px;
+    padding: 0;
+    margin: 0;
+  }
+  .pp-anchor-nav__item {
+    counter-increment: pp-nav;
+    margin-bottom: 8px;
+    break-inside: avoid;
+  }
+  .pp-anchor-nav__item a {
+    color: var(--pp-text);
+    text-decoration: none;
+    font-size: 15px;
+    display: block;
+    padding: 4px 0;
+    transition: color 0.2s var(--ease-signature);
+  }
+  .pp-anchor-nav__item a::before {
+    content: counter(pp-nav) ". ";
+    color: var(--color-purple-500);
+    font-weight: 600;
+    margin-right: 4px;
+  }
+  .pp-anchor-nav__item a:hover {
+    color: var(--color-purple-500);
+  }
+
+  /* ── DIVIDER ───────────────────────────────────────────────── */
+  .pp-divider {
+    border: none;
+    border-top: 1px solid var(--pp-light-gray);
+    margin: 0 0 clamp(40px, 5vw, 52px);
+  }
+
+  /* ── SECTIONS ──────────────────────────────────────────────── */
+  .pp-section {
+    margin-bottom: clamp(40px, 5vw, 52px);
+    scroll-margin-top: 140px;
+  }
+  .pp-section__num {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--color-purple-500);
+    margin-bottom: 8px;
+  }
+  .pp-section__title {
+    font-family: var(--font-sans);
+    font-size: clamp(22px, 2.4vw, 26px);
+    font-weight: 600;
+    color: var(--color-black-almost-900);
+    margin-bottom: 20px;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+  }
+  .pp-section p {
+    font-size: clamp(15px, 1.1vw, 16px);
+    color: var(--pp-text-light);
+    margin-bottom: 14px;
+    line-height: 1.75;
+  }
+  .pp-section p strong {
+    color: var(--pp-text);
+    font-weight: 600;
+  }
+  .pp-section a {
+    color: var(--color-purple-500);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .pp-section a:hover { text-decoration: underline; }
+
+  /* ── CONTACT BOX ───────────────────────────────────────────── */
+  .pp-contact-box {
+    background: var(--pp-white);
+    border: 1px solid var(--pp-light-gray);
+    border-left: 4px solid var(--color-purple-500);
+    border-radius: 0 8px 8px 0;
+    padding: 20px 24px;
+    margin: 16px 0 20px;
+  }
+  .pp-contact-box p {
+    margin-bottom: 4px;
+    font-size: 15px;
+  }
+  .pp-contact-box p:last-child { margin-bottom: 0; }
+
+  /* ── TREATMENT BLOCKS (principles) ─────────────────────────── */
+  .pp-treatment {
+    background: var(--pp-white);
+    border: 1px solid var(--pp-light-gray);
+    border-radius: 12px;
+    padding: clamp(20px, 2.5vw, 28px) clamp(20px, 3vw, 32px);
+    margin: 20px 0;
+  }
+  .pp-treatment__title {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-black-almost-900);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .pp-treatment__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-purple-500);
+    flex-shrink: 0;
+  }
+  .pp-treatment p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--pp-text-light);
+    margin-bottom: 10px;
+  }
+  .pp-treatment p:last-child { margin-bottom: 0; }
+
+  /* ── CRITERIA LIST ─────────────────────────────────────────── */
+  .ap-criteria {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0 20px;
+  }
+  .ap-criteria li {
+    position: relative;
+    padding: 10px 0 10px 24px;
+    border-bottom: 1px solid #F0F0F0;
+    font-size: clamp(14px, 1vw, 15px);
+    color: var(--pp-text-light);
+    line-height: 1.65;
+  }
+  .ap-criteria li:last-child { border-bottom: none; }
+  .ap-criteria li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 16px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-purple-500);
+  }
+
+  /* ── MOBILE ────────────────────────────────────────────────── */
+  @media (max-width: 767px) {
+    .pp-section {
+      scroll-margin-top: 100px;
+    }
+    .pp-anchor-nav__list {
+      columns: 1;
+    }
+  }
+</style>

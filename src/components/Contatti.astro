@@ -6,17 +6,17 @@ const sedi = [
 ];
 
 const footerLinksLeft = [
-  { label: 'Chi siamo', href: '/#missione' },
+  { label: 'Chi siamo', href: '/#hero' },
   { label: 'AI Governance', href: '/#ai-governance' },
   { label: 'Servizi', href: '/#cosa-facciamo' },
-  { label: 'Il nostro impatto', href: '/#cta-impatto' },
+  { label: 'Il nostro impatto', href: '/#il-nostro-impatto' },
   { label: 'Risorse', href: '/risorse' },
 ];
 
 const footerLinksRight = [
   { label: 'info@datyca.com', href: 'mailto:info@datyca.com' },
-  { label: 'Privacy Policy', href: '#' },
-  { label: 'AI Policy', href: '#' },
+  { label: 'Privacy Policy', href: '/privacy-policy' },
+  { label: 'AI Policy', href: '/ai-policy' },
   { label: 'Cookie Policy', href: '#' },
 ];
 ---
@@ -131,8 +131,13 @@ const footerLinksRight = [
           ))}
         </nav>
         <div class="contatti__footer-col">
-          {footerLinksRight.map(({ label, href }) => (
-            <a href={href} class="contatti__footer-link" data-contatti-footer-link>{label}</a>
+          {footerLinksRight.map(({ label, href, external }) => (
+            <a
+              href={href}
+              class="contatti__footer-link"
+              data-contatti-footer-link
+              {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+            >{label}</a>
           ))}
         </div>
       </div>

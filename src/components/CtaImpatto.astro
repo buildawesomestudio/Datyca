@@ -28,7 +28,7 @@ const impattoCards = [
   <PromoCards />
 
   <!-- ── Il nostro impatto ── -->
-  <h2 class="text-h2 impatto-title">Il nostro impatto</h2>
+  <h2 id="il-nostro-impatto" data-scroll-align="section-end" class="text-h1 impatto-title">Il nostro impatto</h2>
 
   <div class="impatto-grid">
     {impattoCards.map((card) => (
@@ -63,8 +63,10 @@ const impattoCards = [
 
   /* ── Impatto ── */
   .impatto-title {
+    font-family: var(--font-serif);
+    letter-spacing: -0.04em;
+    text-align: center;
     margin-top: clamp(120px, 18.75vw, 270px);
-    padding-left: clamp(0px, calc(10.9vw - 40px), 117px);
   }
 
   .impatto-grid {

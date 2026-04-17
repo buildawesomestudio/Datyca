@@ -29,7 +29,7 @@ import Contatti from '../components/Contatti.astro';
         <div class="ris-cards__inner">
           <a href="/docs/DATYCA_Guida_AI_Governance_10_Step.pdf" class="ris-card" download>
             <div class="ris-card__image">
-              <span class="ris-card__placeholder">IMG</span>
+              <img src="/images/risorse/guida-ai-10-step.webp" alt="Copertina della guida Governare l'intelligenza artificiale in 10 step" loading="lazy" />
             </div>
             <div class="ris-card__content">
               <h2 class="ris-card__title">Governare l'IA in 10 step</h2>
@@ -53,9 +53,14 @@ import Contatti from '../components/Contatti.astro';
     position: relative;
   }
 
-  /* Reduce gap between intro and card */
+  /* Gap between intro body text and the card: 40px desktop, scaled down on
+     mobile. Zero out ImpactIntro's default section padding-bottom, keep only
+     the content margin-bottom so the total gap is exactly this single value. */
   .ris-page__dark :global(.ii__content) {
-    margin-bottom: clamp(32px, 4vw, 40px);
+    margin-bottom: clamp(50px, 6vw, 80px);
+  }
+  .ris-page__dark :global(.ii) {
+    padding-bottom: 0;
   }
 
   /* ── Resource cards section ── */
@@ -77,19 +82,17 @@ import Contatti from '../components/Contatti.astro';
 
   .ris-card__image {
     flex-shrink: 0;
-    width: clamp(100px, 10vw, 150px);
-    height: clamp(100px, 10vw, 150px);
+    width: clamp(140px, 14vw, 200px);
+    aspect-ratio: 1;
     border-radius: 50%;
-    background: var(--color-blue-deep-800);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    overflow: hidden;
   }
 
-  .ris-card__placeholder {
-    font-family: var(--font-sans);
-    font-size: 14px;
-    color: var(--color-grey-400);
+  .ris-card__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
   }
 
   .ris-card__content {
@@ -119,6 +122,12 @@ import Contatti from '../components/Contatti.astro';
     border: 1px solid var(--color-text);
     color: var(--color-text);
     align-self: flex-start;
+  }
+
+  /* FOUC gate — card hidden until reveal plays (chained to ImpactIntro).
+     opacity (not visibility) to avoid inheritance quirks with autoAlpha. */
+  .ris-card {
+    opacity: 0;
   }
 
   /* ── Gradient area ── */
@@ -152,63 +161,39 @@ import Contatti from '../components/Contatti.astro';
 
 <script>
   import gsap from 'gsap';
-  import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
   function initRisorse() {
-    const card = document.querySelector('.ris-card') as HTMLElement;
+    const card = document.querySelector<HTMLElement>('.ris-card');
     if (!card) return;
 
-    let hasRevealed = false;
+    // Page-load reveal sequenced after ImpactIntro content. Intro runs:
+    // words 0s → subtitle 0.3s → body 0.45s + 0.6s = ends ~1.05s.
+    // Card starts at 0.9s so it arrives as the body is finishing — natural
+    // continuation, independent of scroll. No matchMedia needed: identical
+    // on mobile and desktop.
+    gsap.set(card, { opacity: 0, y: 30 });
+    gsap.to(card, {
+      opacity: 1, y: 0,
+      duration: 0.7, delay: 0.9, ease: 'power2.out',
+    });
 
-    function setup() {
+    /* ── Card hover (desktop pointer only) ── */
+    if (window.matchMedia('(pointer: fine)').matches) {
       const root = getComputedStyle(document.documentElement);
       const colorPurple600 = root.getPropertyValue('--color-purple-600').trim();
       const colorPurple500 = root.getPropertyValue('--color-purple-500').trim();
-      const colorText = root.getPropertyValue('--color-text').trim();
 
-      const ac = new AbortController();
-
-      if (hasRevealed) {
-        gsap.set(card, { autoAlpha: 1, y: 0 });
-      } else {
-        gsap.set(card, { autoAlpha: 0, y: 30 });
-
-        const revealTl = gsap.timeline({ paused: true });
-        revealTl.to(card, {
-          autoAlpha: 1, y: 0,
-          duration: 0.7, ease: 'power2.out',
-        });
-
-        ScrollTrigger.create({
-          id: 'risorse-card-reveal',
-          trigger: card,
-          start: 'top 95%',
-          once: true,
-          onEnter: () => {
-            hasRevealed = true;
-            revealTl.play();
-          },
-        });
-      }
-
-      /* ── Card hover (desktop) ── */
-      if (window.matchMedia('(pointer: fine)').matches) {
-        card.addEventListener('mouseenter', () => {
-          gsap.to(card, { borderColor: colorPurple600, duration: 0.3, overwrite: 'auto' });
-        }, { signal: ac.signal });
-
-        card.addEventListener('mouseleave', () => {
-          gsap.to(card, { borderColor: colorPurple500, duration: 0.3, overwrite: 'auto' });
-        }, { signal: ac.signal });
-      }
-
-      return () => { ac.abort(); };
+      card.addEventListener('mouseenter', () => {
+        gsap.to(card, { borderColor: colorPurple600, duration: 0.3, overwrite: 'auto' });
+      });
+      card.addEventListener('mouseleave', () => {
+        gsap.to(card, { borderColor: colorPurple500, duration: 0.3, overwrite: 'auto' });
+      });
     }
-
-    const mm = gsap.matchMedia();
-    mm.add('(min-width: 768px)', setup);
-    mm.add('(max-width: 767px)', setup);
   }
 
-  ((window as any).__initQueue ??= []).push(initRisorse);
+  // Page-level scripts run AFTER Layout's <script>, which means Layout's
+  // initPage() has already drained __initQueue by the time we'd push into it.
+  // Call the init directly — we're in module execution phase, DOM is parsed.
+  initRisorse();
 </script>
