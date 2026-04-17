@@ -135,6 +135,9 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
     flex-direction: column;
     background: var(--color-white-snow);
     will-change: transform;
+    /* FOUC gate: hide until GSAP init sets autoAlpha: 0 + xPercent: 100.
+       GSAP's autoAlpha writes inline visibility, which overrides this. */
+    visibility: hidden;
   }
 
   .megamenu-header {
@@ -236,10 +239,6 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
 
   .megamenu-arrow {
     color: var(--color-purple-500);
-  }
-
-  .megamenu-arrow--top {
-    display: none;
   }
 
   @media (max-width: 767px) {
@@ -390,22 +389,7 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
 
     // ═══ INITIAL STATES ═══
     gsap.set(megamenu, { autoAlpha: 0, xPercent: 100 });
-    gsap.set('.megamenu-arrow:not(.megamenu-arrow--top)', { autoAlpha: 0, x: -8 });
-
-    // ═══ LINK HOVER ═══
-    megamenu.querySelectorAll<HTMLElement>('.megamenu-link').forEach((link) => {
-      const arrow = link.querySelector<SVGElement>('.megamenu-arrow');
-
-      link.addEventListener('mouseenter', () => {
-        gsap.to(link, { color: colorRed, duration: 0.25, overwrite: true });
-        if (arrow) gsap.to(arrow, { autoAlpha: 1, x: 0, color: colorRed, duration: 0.25, overwrite: true });
-      }, { signal });
-
-      link.addEventListener('mouseleave', () => {
-        gsap.to(link, { color: colorPurple, duration: 0.25, overwrite: true });
-        if (arrow) gsap.to(arrow, { autoAlpha: 0, x: -8, duration: 0.2, overwrite: true });
-      }, { signal });
-    });
+    gsap.set('.megamenu-arrow', { autoAlpha: 0, x: -8 });
 
     // ═══ CLOSE BUTTON HOVER ═══
     closeBtn.addEventListener('mouseenter', () => {
@@ -416,10 +400,37 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
       gsap.to(closeBtn, { color: colorPurple, duration: 0.25, overwrite: true });
     }, { signal });
 
-    // ═══ MOBILE ACCORDION ═══
+    // ═══ BREAKPOINT-SCOPED ═══
     const mm = gsap.matchMedia();
 
+    // Desktop: link hover animates arrow in from left + color shift.
+    // Scoped to desktop so a stray trackpad hover on mobile can't hide the
+    // top-level arrows, which must stay visible (they double as tap indicators).
+    mm.add('(min-width: 768px)', () => {
+      const desktopAc = new AbortController();
+      const { signal: desktopSignal } = desktopAc;
+
+      megamenu.querySelectorAll<HTMLElement>('.megamenu-link').forEach((link) => {
+        const arrow = link.querySelector<SVGElement>('.megamenu-arrow');
+
+        link.addEventListener('mouseenter', () => {
+          gsap.to(link, { color: colorRed, duration: 0.25, overwrite: true });
+          if (arrow) gsap.to(arrow, { autoAlpha: 1, x: 0, color: colorRed, duration: 0.25, overwrite: true });
+        }, { signal: desktopSignal });
+
+        link.addEventListener('mouseleave', () => {
+          gsap.to(link, { color: colorPurple, duration: 0.25, overwrite: true });
+          if (arrow) gsap.to(arrow, { autoAlpha: 0, x: -8, duration: 0.2, overwrite: true });
+        }, { signal: desktopSignal });
+      });
+
+      return () => { desktopAc.abort(); };
+    });
+
     mm.add('(max-width: 767px)', () => {
+      // Top-level arrows stay visible static on mobile (no hover on touch)
+      gsap.set('.megamenu-arrow--top', { autoAlpha: 1, x: 0 });
+
       const mobileAc = new AbortController();
       const { signal: mobileSignal } = mobileAc;
 

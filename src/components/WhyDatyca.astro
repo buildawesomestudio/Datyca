@@ -114,6 +114,12 @@ const cards = [
     object-position: left center;
   }
 
+  /* ISO/IEC WebP has slightly larger content than AIGP — scale down to match. */
+  .why-card__icon[src*="iso-42001"] {
+    transform: scale(0.93);
+    transform-origin: left center;
+  }
+
   .why-card__title {
     color: var(--color-red);
     margin-bottom: 30px;
