@@ -1,8 +1,29 @@
 <section id="hero">
   <div id="hero-video-frame">
-    <video id="hero-video" autoplay muted loop playsinline>
-      <source src="/video/hero-av1.mp4" type='video/mp4; codecs="av01.0.08M.08"' />
-      <source src="/video/hero-h264.mp4" type="video/mp4" />
+    {/* LCP element: poster image shown immediately while the video loads.
+        Fades out via GSAP on video 'playing'. If autoplay never kicks in
+        (Low Power Mode, data-saver, codec unsupported), the poster stays. */}
+    <img
+      id="hero-poster"
+      src="/images/hero-poster.webp"
+      alt=""
+      aria-hidden="true"
+      fetchpriority="high"
+      decoding="async"
+      width="1920"
+      height="1080"
+    />
+    <video
+      id="hero-video"
+      poster="/images/hero-poster.webp"
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="auto"
+    >
+      <source src="/video/hero-vp9.webm" type="video/webm" />
+      <source src="/video/hero-h265.mp4" type='video/mp4; codecs="hvc1"' />
     </video>
   </div>
 
@@ -36,10 +57,19 @@
     overflow: hidden;
   }
 
-  #hero-video {
+  #hero-video,
+  #hero-poster {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
+  }
+
+  #hero-poster {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    will-change: opacity;
   }
 
   #hero-content {
@@ -124,6 +154,25 @@
     const hero = document.getElementById('hero');
     if (!hero) return;
 
+    // Poster → video crossfade. The <img> is the LCP element (served
+    // immediately), the video loads and plays underneath. When the video
+    // actually starts playing (not just buffers), fade the poster out.
+    // If autoplay is blocked (iOS Low Power Mode, data-saver) or the codec
+    // is unsupported, 'playing' never fires and the poster stays visible —
+    // graceful fallback, no broken state.
+    const video = hero.querySelector<HTMLVideoElement>('#hero-video');
+    const poster = hero.querySelector<HTMLImageElement>('#hero-poster');
+    if (video && poster) {
+      const fadePoster = () => {
+        gsap.to(poster, { autoAlpha: 0, duration: 0.4, ease: 'power2.out' });
+      };
+      if (!video.paused && video.readyState >= 3 && video.currentTime > 0) {
+        fadePoster();
+      } else {
+        video.addEventListener('playing', fadePoster, { once: true });
+      }
+    }
+
     let heroTl: gsap.core.Timeline | null = null;
 
     function setupHero() {
@@ -141,7 +190,12 @@
       // Hard-reset every Hero descendant before desktop setup (symmetric with
       // setupHeroMobile). clearProps clears GSAP's internal transform cache
       // (xPercent/yPercent/etc.), then removeAttribute clears DOM inline.
-      const allHeroEls = [hero, ...Array.from(hero.querySelectorAll<HTMLElement>('*'))];
+      // Exclude #hero-poster: its opacity is driven by a top-level tween
+      // (poster→video crossfade) that lives OUTSIDE matchMedia. Clearing
+      // its inline style would re-reveal the poster after a breakpoint
+      // crossing, covering the playing video.
+      const allHeroEls = [hero, ...Array.from(hero.querySelectorAll<HTMLElement>('*'))]
+        .filter(el => el.id !== 'hero-poster');
       gsap.set(allHeroEls, { clearProps: 'all' });
       allHeroEls.forEach(el => el.removeAttribute('style'));
 
@@ -225,6 +279,7 @@
 
     function setupHeroMobile() {
       const video = hero.querySelector('#hero-video') as HTMLElement;
+      const posterEl = hero.querySelector('#hero-poster') as HTMLElement;
       const content = hero.querySelector('#hero-content') as HTMLElement;
       const titleEl = hero.querySelector('#hero-title') as HTMLElement;
       const paragraphs = hero.querySelectorAll<HTMLElement>('#hero-details p');
@@ -238,7 +293,12 @@
       //      back as transform: matrix(1,0,0,1,0,-85px) on #hero-content).
       //   2) removeAttribute('style') — defensive DOM cleanup for any non-GSAP
       //      inline that might remain.
-      const allHeroEls = [hero, ...Array.from(hero.querySelectorAll<HTMLElement>('*'))];
+      // Exclude #hero-poster: its opacity is driven by a top-level tween
+      // (poster→video crossfade) that lives OUTSIDE matchMedia. Clearing
+      // its inline style would re-reveal the poster after a breakpoint
+      // crossing, covering the playing video.
+      const allHeroEls = [hero, ...Array.from(hero.querySelectorAll<HTMLElement>('*'))]
+        .filter(el => el.id !== 'hero-poster');
       gsap.set(allHeroEls, { clearProps: 'all' });
       allHeroEls.forEach(el => el.removeAttribute('style'));
 
@@ -287,8 +347,11 @@
         },
       });
 
-      // Parallax: video scrolls slower than content
-      scrollTl.fromTo(video,
+      // Parallax: video (and poster, while still visible) scroll slower than
+      // content. Both must translate together — otherwise during the brief
+      // window before fadePoster completes, the poster would stay put while
+      // the video slides, revealing a seam.
+      scrollTl.fromTo([video, posterEl].filter(Boolean),
         { y: 0 },
         { y: () => document.documentElement.clientHeight * 0.15, ease: 'none', duration: 1 },
         0
