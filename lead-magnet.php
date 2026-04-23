@@ -325,6 +325,9 @@ if ($displayName === '') {
 // ============================================
 // BREVO: send transactional email
 // ============================================
+// `tags` lets us slice stats per email type on Brevo's dashboard. When a
+// newsletter or other template is added later, give it a different tag
+// (e.g. 'newsletter_<YYYYMM>') to keep reports cleanly separated.
 $emailPayload = [
     'templateId' => BREVO_TEMPLATE_ID,
     'to'         => [
@@ -336,6 +339,7 @@ $emailPayload = [
     'params'     => [
         'NOME' => $displayName,
     ],
+    'tags'       => ['leadmagnet'],
 ];
 
 $emailResult = brevoRequest($BREVO_API_KEY, '/smtp/email', $emailPayload);
