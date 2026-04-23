@@ -84,6 +84,54 @@ if ($code === 200) {
     $report['brevo_account_error_code'] = $parsed['code'] ?? null;
 }
 
+// ── Optional: purge a test contact completely ──────────────
+// Usage: /lead-magnet-check.php?purge=someone@example.com
+// Deletes the contact from Brevo (removes from all lists) AND removes
+// the transactional blocklist entry if present.
+$purgeEmail = isset($_GET['purge']) ? trim($_GET['purge']) : '';
+if ($purgeEmail !== '' && filter_var($purgeEmail, FILTER_VALIDATE_EMAIL)) {
+    $actions = [];
+
+    // A. Delete contact
+    $ch = curl_init('https://api.brevo.com/v3/contacts/' . urlencode($purgeEmail));
+    curl_setopt_array($ch, [
+        CURLOPT_CUSTOMREQUEST  => 'DELETE',
+        CURLOPT_HTTPHEADER     => ['api-key: ' . $key, 'accept: application/json'],
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT        => 10,
+    ]);
+    curl_exec($ch);
+    $dCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    $actions['delete_contact'] = [
+        'http_code' => $dCode,
+        'result'    => $dCode === 204 ? 'contact deleted'
+                     : ($dCode === 404 ? 'contact not found (already gone)' : 'unexpected'),
+    ];
+
+    // B. Remove from transactional blocklist (no-op if absent)
+    $ch = curl_init('https://api.brevo.com/v3/smtp/blockedContacts/' . urlencode($purgeEmail));
+    curl_setopt_array($ch, [
+        CURLOPT_CUSTOMREQUEST  => 'DELETE',
+        CURLOPT_HTTPHEADER     => ['api-key: ' . $key, 'accept: application/json'],
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT        => 10,
+    ]);
+    curl_exec($ch);
+    $bCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    $actions['remove_from_blocklist'] = [
+        'http_code' => $bCode,
+        'result'    => $bCode === 204 ? 'unblocked'
+                     : ($bCode === 404 ? 'not in blocklist (nothing to do)' : 'unexpected'),
+    ];
+
+    $report['purge_action'] = [
+        'email'    => $purgeEmail,
+        'actions'  => $actions,
+    ];
+}
+
 // ── Optional: one-shot unblock of a specific email ──────────
 // Usage: /lead-magnet-check.php?unblock=someone@example.com
 // Removes the address from Brevo's transactional blocklist.
