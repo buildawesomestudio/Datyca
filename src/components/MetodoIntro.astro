@@ -6,25 +6,25 @@ const fasi = [
     n: 1,
     title: 'Analisi dei bisogni',
     body: 'Partiamo dall’analisi delle specifiche esigenze dell’organizzazione, del settore di riferimento e dei processi impattati. Ogni intervento nasce da una comprensione profonda del contesto operativo, normativo e umano, per costruire soluzioni realmente su misura e mai generaliste.',
-    color: '#6666FF', // --color-purple-600
+    color: '#4846E8',
   },
   {
     n: 2,
     title: 'Progettazione e attuazione',
     body: 'Traduciamo gli obiettivi in interventi concreti di governance, compliance e design dei processi. Pianifichiamo e attuiamo soluzioni integrate, proporzionate al livello di rischio e all’impatto organizzativo, accompagnando l’implementazione fino alla piena operatività.',
-    color: '#4545F7', // --color-purple-500
+    color: '#8C12FC',
   },
   {
     n: 3,
     title: 'Change Management',
     body: 'Il valore di un progetto si misura nella sua adozione. Affianchiamo le organizzazioni con percorsi personalizzati di formazione e sviluppiamo strumenti operativi su misura per la gestione collaborativa dei nuovi flussi, rendendo il cambiamento comprensibile e sostenibile nel tempo.',
-    color: '#FF00FF', // --color-pink
+    color: '#F902D0',
   },
 ];
 ---
 
 <section id="metodo-intro" class="mi">
-  <h1 class="text-h1 mi__title">Il nostro metodo</h1>
+  <h1 class="text-h1 mi__title">Il nostro metodo.</h1>
 
   <ol class="mi__fasi">
     {fasi.map((fase, i) => (
@@ -85,6 +85,8 @@ const fasi = [
   }
 
   .mi__title {
+    font-family: var(--font-serif);
+    letter-spacing: -0.04em;
     color: var(--color-purple-600);
     margin-bottom: clamp(60px, 8vw, 120px);
     max-width: 900px;
