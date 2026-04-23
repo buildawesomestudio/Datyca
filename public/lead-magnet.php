@@ -28,6 +28,16 @@ require $configPath;
 // contact-config.php must define secrets only:
 //   $TURNSTILE_SECRET, $BREVO_API_KEY
 
+// Defensive: surface a clear error when the config file exists but
+// $BREVO_API_KEY hasn't been added to it (undefined, null, empty string).
+// Without this guard we'd pass an empty key to Brevo and get a cryptic 401.
+if (!isset($BREVO_API_KEY) || !is_string($BREVO_API_KEY) || trim($BREVO_API_KEY) === '') {
+    http_response_code(500);
+    echo json_encode(['message' => 'Chiave Brevo non configurata sul server. Aggiungi $BREVO_API_KEY a contact-config.php.']);
+    error_log('lead-magnet.php: $BREVO_API_KEY is missing or empty in ' . $configPath);
+    exit;
+}
+
 // Non-secret Brevo configuration (safe to version-control).
 // Kept inline here because rotating list/template IDs is a code change
 // (the template copy, segmentation logic, etc. are tied to these values),
