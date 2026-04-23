@@ -150,9 +150,18 @@
   import gsap from 'gsap';
   import { SplitText } from 'gsap/SplitText';
 
+  // Module-scoped: survives across initHero calls (ClientRouter navigations)
+  // so we can disconnect a stale observer before creating a new one.
+  let videoGateObserver: IntersectionObserver | null = null;
+
   function initHero() {
     const hero = document.getElementById('hero');
-    if (!hero) return;
+    if (!hero) {
+      // Defensive: if we navigate to a page without #hero, drop any stale
+      // observer still holding a reference to a detached node.
+      if (videoGateObserver) { videoGateObserver.disconnect(); videoGateObserver = null; }
+      return;
+    }
 
     // Poster → video crossfade. The <img> is the LCP element (served
     // immediately), the video loads and plays underneath. When the video
@@ -171,6 +180,31 @@
       } else {
         video.addEventListener('playing', fadePoster, { once: true });
       }
+    }
+
+    // Visibility gate for the background video. Not using ScrollTrigger
+    // because the desktop pin (end: '+=200%') makes position-based math
+    // unreliable — the trigger would see hero.bottom cross viewport.top
+    // at scroll=100vh while the element is still visually pinned for
+    // another 200vh. IntersectionObserver tracks actual visual visibility,
+    // independent of pin/scroll math, and works identically on both
+    // breakpoints with no duplication in matchMedia.
+    if (video) {
+      if (videoGateObserver) videoGateObserver.disconnect();
+      videoGateObserver = new IntersectionObserver(
+        (entries) => {
+          const entry = entries[0];
+          if (entry.isIntersecting) {
+            // Resume on re-enter. Catches autoplay-blocked rejection
+            // (iOS Low Power Mode) silently — poster fallback stays.
+            video.play().catch(() => { /* autoplay blocked, poster stays */ });
+          } else if (!video.paused) {
+            video.pause();
+          }
+        },
+        { threshold: 0 }
+      );
+      videoGateObserver.observe(hero);
     }
 
     let heroTl: gsap.core.Timeline | null = null;
