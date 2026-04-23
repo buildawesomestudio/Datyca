@@ -23,6 +23,7 @@
 
     {/* ── FORM ────────────────────────────────────────────────── */}
     <div class="lm-modal__pane lm-modal__pane--form" data-lm-pane="form">
+      <p class="lm-modal__kicker">Guida gratuita</p>
       <h2 id="leadmagnet-title" class="lm-modal__title">Scarica la guida</h2>
       <p class="lm-modal__subtitle">
         Inserisci la tua e-mail per ricevere la guida pratica <em>&ldquo;Governare l&rsquo;IA in 10 step&rdquo;</em>.
@@ -36,7 +37,7 @@
         </div>
 
         <div class="lm-modal__field">
-          <label for="lm-email" class="lm-modal__label">Email <span aria-hidden="true">*</span></label>
+          <label for="lm-email" class="lm-modal__label">E-mail <span class="lm-modal__required" aria-hidden="true">*</span></label>
           <input
             type="email"
             id="lm-email"
@@ -49,7 +50,7 @@
         </div>
 
         <div class="lm-modal__field">
-          <label for="lm-nome" class="lm-modal__label">Nome <span class="lm-modal__optional">(facoltativo)</span></label>
+          <label for="lm-nome" class="lm-modal__label">Nome <span class="lm-modal__optional">— facoltativo</span></label>
           <input
             type="text"
             id="lm-nome"
@@ -61,7 +62,7 @@
         </div>
 
         <div class="lm-modal__field">
-          <label for="lm-ruolo" class="lm-modal__label">Ruolo in azienda <span class="lm-modal__optional">(facoltativo)</span></label>
+          <label for="lm-ruolo" class="lm-modal__label">Ruolo in azienda <span class="lm-modal__optional">— facoltativo</span></label>
           <input
             type="text"
             id="lm-ruolo"
@@ -73,17 +74,20 @@
         </div>
 
         <div class="lm-modal__consents">
-          <label class="lm-modal__consent">
-            <input type="checkbox" name="consent_privacy" data-lm-privacy required />
-            <span class="lm-modal__consent-text">
-              Ho preso visione della <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" data-lm-privacy-link>Privacy Policy</a> e acconsento al trattamento dei miei dati per ricevere la guida. <span aria-hidden="true">*</span>
-            </span>
-          </label>
+          <div class="lm-modal__consent-wrap" data-lm-privacy-wrap>
+            <label class="lm-modal__consent">
+              <input type="checkbox" name="consent_privacy" data-lm-privacy required />
+              <span class="lm-modal__consent-text">
+                Ho preso visione della <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" data-lm-privacy-link>Privacy Policy</a> e acconsento al trattamento dei miei dati per ricevere la guida. <span class="lm-modal__required" aria-hidden="true">*</span>
+              </span>
+            </label>
+            <span class="lm-modal__consent-error" data-lm-privacy-error></span>
+          </div>
 
           <label class="lm-modal__consent">
             <input type="checkbox" name="consent_marketing" />
             <span class="lm-modal__consent-text">
-              Voglio ricevere aggiornamenti e approfondimenti di DATYCA su AI Governance, data protection e cybersecurity (1-2 email al mese). Posso revocare il consenso in qualsiasi momento dal link di disiscrizione presente in ogni email.
+              Voglio ricevere aggiornamenti e approfondimenti di DATYCA su AI Governance, data protection e cybersecurity. Posso revocare il consenso in qualsiasi momento dal link di disiscrizione presente in ogni email.
             </span>
           </label>
         </div>
@@ -93,10 +97,13 @@
 
         <p class="lm-modal__banner" data-lm-banner role="alert"></p>
 
-        <button type="button" class="lm-modal__submit text-cta" data-lm-submit disabled>
+        <button type="button" class="lm-modal__submit text-cta" data-lm-submit>
           <span data-lm-submit-label>SCARICA LA GUIDA</span>
-          <svg class="lm-modal__submit-spinner" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
-            <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="40 16" stroke-linecap="round" />
+          <svg class="lm-modal__submit-icon" width="22" height="22" aria-hidden="true">
+            <use href="#icon-diagonal-down-thick" />
+          </svg>
+          <svg class="lm-modal__submit-spinner" data-lm-spinner width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2.5" fill="none" stroke-dasharray="50 20" stroke-linecap="round" />
           </svg>
         </button>
       </form>
@@ -145,24 +152,36 @@
     background: rgba(13, 8, 38, 0.85);
   }
 
+  /* ── CARD ─────────────────────────────────────────────── */
   .lm-modal__card {
     position: relative;
-    width: min(560px, calc(100vw - 32px));
+    width: min(640px, calc(100vw - 32px));
     max-height: calc(100dvh - 32px);
     overflow-y: auto;
     overscroll-behavior: contain;
-    background: #F5F4F2;
+    background: var(--color-white-snow);
     color: var(--color-black-almost-900);
-    border-radius: 16px;
+    border: 2px solid var(--color-purple-500);
+    border-radius: 0;
     padding: clamp(28px, 4vw, 44px);
-    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
     -webkit-overflow-scrolling: touch;
+    /* Hide the native scrollbar (the content still scrolls via wheel/touch).
+       Removing it also kills the blue accent-color tint on macOS. */
+    scrollbar-width: none; /* Firefox */
   }
 
+  .lm-modal__card::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+
+  /* ── CLOSE X ──────────────────────────────────────────── */
   .lm-modal__close {
     position: absolute;
-    top: 14px;
-    right: 14px;
+    top: 12px;
+    right: 12px;
     width: 36px;
     height: 36px;
     display: flex;
@@ -173,7 +192,6 @@
     color: var(--color-black-almost-900);
     cursor: pointer;
     padding: 0;
-    border-radius: 50%;
     -webkit-tap-highlight-color: transparent;
     z-index: 2;
   }
@@ -193,7 +211,6 @@
     visibility: visible;
   }
 
-  /* Stack panes — success overlays form position */
   .lm-modal__pane--success {
     position: absolute;
     inset: 0;
@@ -206,28 +223,42 @@
   }
 
   /* ── FORM HEAD ─────────────────────────────────────────── */
+  .lm-modal__kicker {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 12px;
+    line-height: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--color-purple-500);
+    margin: 0 0 10px;
+  }
+
   .lm-modal__title {
     font-family: var(--font-serif);
-    font-weight: 500;
+    font-weight: 400;
     font-size: clamp(30px, 4vw, 40px);
-    line-height: 1.1;
-    letter-spacing: -0.02em;
+    line-height: 1.05;
+    letter-spacing: -0.04em;
     color: var(--color-black-almost-900);
     margin: 0 0 10px;
   }
 
   .lm-modal__subtitle {
     font-family: var(--font-sans);
+    font-weight: 400;
     font-size: 15px;
-    line-height: 1.55;
-    color: #3A3458;
-    margin: 0 0 24px;
+    line-height: 1.5;
+    color: var(--color-black-almost-900);
+    margin: 0 0 22px;
+    opacity: 0.78;
   }
 
   .lm-modal__subtitle em {
     font-family: var(--font-serif);
     font-style: italic;
     font-weight: 400;
+    opacity: 1;
   }
 
   /* ── FORM ──────────────────────────────────────────────── */
@@ -240,40 +271,53 @@
   .lm-modal__field {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
   }
 
   .lm-modal__label {
     font-family: var(--font-sans);
     font-weight: 600;
-    font-size: 13px;
+    font-size: 12px;
     line-height: 1.3;
     color: var(--color-black-almost-900);
-    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .lm-modal__required {
+    color: var(--color-purple-500);
   }
 
   .lm-modal__optional {
-    font-weight: 400;
+    font-weight: 500;
     color: #6B6786;
+    letter-spacing: 0.08em;
   }
 
   .lm-modal__input {
     width: 100%;
-    padding: 12px 14px;
+    padding: 14px 16px;
     font-family: var(--font-sans);
     font-weight: 400;
     font-size: 16px;
     line-height: 1.4;
-    background: #FFFFFF;
+    background: transparent;
     color: var(--color-black-almost-900);
-    border: 1.5px solid #D9D6D0;
-    border-radius: 8px;
+    border: 2px solid var(--color-black-almost-900);
+    border-radius: 0;
     outline: none;
     -webkit-appearance: none;
   }
 
   .lm-modal__input:focus {
     border-color: var(--color-purple-500);
+  }
+
+  .lm-modal__input:-webkit-autofill,
+  .lm-modal__input:-webkit-autofill:hover,
+  .lm-modal__input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px var(--color-white-snow) inset;
+    -webkit-text-fill-color: var(--color-black-almost-900);
   }
 
   .lm-modal__field--error .lm-modal__input {
@@ -286,7 +330,6 @@
     font-size: 13px;
     line-height: 1.4;
     color: var(--color-red);
-    min-height: 0;
   }
 
   .lm-modal__field--error .lm-modal__error {
@@ -297,31 +340,83 @@
   .lm-modal__consents {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    margin-top: 4px;
+    gap: 14px;
+    margin-top: 6px;
   }
 
   .lm-modal__consent {
     display: flex;
     align-items: flex-start;
-    gap: 10px;
+    gap: 12px;
     cursor: pointer;
   }
 
+  /* Branded checkbox: flat 2px black border, zero radius, purple fill when checked.
+     Matches the input field aesthetic — avoids the native OS widget look. */
   .lm-modal__consent input[type="checkbox"] {
     flex-shrink: 0;
-    width: 18px;
-    height: 18px;
-    margin-top: 2px;
-    accent-color: var(--color-purple-500);
+    width: 20px;
+    height: 20px;
+    margin: 2px 0 0;
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent;
+    border: 2px solid var(--color-black-almost-900);
+    border-radius: 0;
     cursor: pointer;
+    position: relative;
+    display: grid;
+    place-content: center;
+    padding: 0;
+  }
+
+  .lm-modal__consent input[type="checkbox"]:checked {
+    background: var(--color-purple-500);
+    border-color: var(--color-purple-500);
+  }
+
+  .lm-modal__consent input[type="checkbox"]:checked::after {
+    content: '';
+    width: 10px;
+    height: 5px;
+    border-left: 2px solid var(--color-white-almost);
+    border-bottom: 2px solid var(--color-white-almost);
+    /* Translate nudge centers the check inside the 16×16 inner area */
+    transform: translate(0, -2px) rotate(-45deg);
+  }
+
+  .lm-modal__consent input[type="checkbox"]:focus-visible {
+    border-color: var(--color-purple-500);
+  }
+
+  .lm-modal__consent-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .lm-modal__consent-error {
+    display: none;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--color-red);
+    padding-left: 32px; /* align with consent text (checkbox 20 + gap 12) */
+  }
+
+  .lm-modal__consent-wrap--error .lm-modal__consent input[type="checkbox"] {
+    border-color: var(--color-red);
+  }
+
+  .lm-modal__consent-wrap--error .lm-modal__consent-error {
+    display: block;
   }
 
   .lm-modal__consent-text {
     font-family: var(--font-sans);
     font-size: 13px;
-    line-height: 1.5;
-    color: #3A3458;
+    line-height: 1.55;
+    color: var(--color-black-almost-900);
   }
 
   .lm-modal__consent-text a {
@@ -335,7 +430,6 @@
   .lm-modal__turnstile {
     min-height: 0;
   }
-
   .lm-modal__turnstile:empty {
     display: none;
   }
@@ -347,10 +441,9 @@
     font-size: 14px;
     line-height: 1.5;
     color: var(--color-red);
-    background: #FEECF1;
-    border: 1px solid #F6B9CC;
-    border-radius: 8px;
-    padding: 10px 12px;
+    background: rgba(242, 23, 99, 0.08);
+    border-left: 3px solid var(--color-red);
+    padding: 12px 14px;
     margin: 0;
   }
 
@@ -363,19 +456,19 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    padding: 16px 24px;
+    gap: 18px;
+    padding: 18px 25px;
     background: var(--color-purple-500);
     color: var(--color-white-almost);
     border: none;
-    border-radius: 8px;
+    border-radius: 0;
     cursor: pointer;
-    margin-top: 6px;
+    margin-top: 10px;
     -webkit-tap-highlight-color: transparent;
+    align-self: stretch;
   }
 
   .lm-modal__submit:disabled {
-    opacity: 0.55;
     cursor: not-allowed;
   }
 
@@ -383,6 +476,9 @@
     display: none;
   }
 
+  .lm-modal[data-state="loading"] .lm-modal__submit-icon {
+    display: none;
+  }
   .lm-modal[data-state="loading"] .lm-modal__submit-spinner {
     display: block;
   }
@@ -409,10 +505,10 @@
 
   .lm-modal__success-title {
     font-family: var(--font-serif);
-    font-weight: 500;
-    font-size: clamp(32px, 4.6vw, 40px);
+    font-weight: 400;
+    font-size: clamp(36px, 4.8vw, 44px);
     line-height: 1.05;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.04em;
     color: var(--color-black-almost-900);
     margin: 0 0 14px;
   }
@@ -422,9 +518,10 @@
     font-weight: 400;
     font-size: 16px;
     line-height: 1.55;
-    color: #3A3458;
+    color: var(--color-black-almost-900);
     margin: 0 0 20px;
-    max-width: 380px;
+    max-width: 400px;
+    opacity: 0.8;
   }
 
   .lm-modal__success-divider {
@@ -442,13 +539,16 @@
     margin: 0;
   }
 
-  /* sr-only for bots */
   @media (max-width: 520px) {
     .lm-modal__card {
-      padding: 24px 20px 28px;
+      padding: 28px 22px 32px;
     }
     .lm-modal__title {
-      font-size: 28px;
+      font-size: 30px;
+    }
+    .lm-modal__submit {
+      padding: 16px 20px;
+      gap: 14px;
     }
   }
 </style>
@@ -466,17 +566,22 @@
     const form       = root.querySelector('[data-lm-form]') as HTMLFormElement;
     const submitBtn  = root.querySelector('[data-lm-submit]') as HTMLButtonElement;
     const submitLabel = root.querySelector('[data-lm-submit-label]') as HTMLElement;
+    const spinnerEl  = root.querySelector('[data-lm-spinner]') as SVGElement;
     const banner     = root.querySelector('[data-lm-banner]') as HTMLElement;
     const privacyCb  = root.querySelector('[data-lm-privacy]') as HTMLInputElement;
     const emailInput = root.querySelector('#lm-email') as HTMLInputElement;
     const emailField = emailInput.closest('.lm-modal__field') as HTMLElement;
     const emailError = emailField.querySelector('[data-lm-field-error]') as HTMLElement;
     const privacyLink = root.querySelector('[data-lm-privacy-link]') as HTMLAnchorElement;
+    const privacyWrap = root.querySelector('[data-lm-privacy-wrap]') as HTMLElement;
+    const privacyError = root.querySelector('[data-lm-privacy-error]') as HTMLElement;
     const formPane    = root.querySelector('[data-lm-pane="form"]') as HTMLElement;
     const successPane = root.querySelector('[data-lm-pane="success"]') as HTMLElement;
 
-    // Initial GSAP state (no CSS transitions — Golden Rule)
-    gsap.set(root, { autoAlpha: 0 });
+    // Initial GSAP state (no CSS transitions — Golden Rule).
+    // Root stays hidden via the CSS `visibility: hidden` rule — DO NOT set
+    // autoAlpha on it (that would pin opacity: 0 on the container and mask
+    // every inner animation forever, since we later toggle only visibility).
     gsap.set(card, { autoAlpha: 0, scale: 0.95 });
     gsap.set(backdrop, { autoAlpha: 0 });
     gsap.set(formPane, { autoAlpha: 0 });
@@ -486,6 +591,7 @@
     let autoCloseTimer: number | null = null;
     let lastFocused: HTMLElement | null = null;
     let previousOverflow = '';
+    let spinnerTween: gsap.core.Tween | null = null;
 
     // ── State management ─────────────────────────────
     type LMState = 'idle' | 'form' | 'loading' | 'success' | 'error';
@@ -494,19 +600,38 @@
       root.setAttribute('data-state', state);
       if (state === 'loading') {
         submitBtn.disabled = true;
-        submitLabel.textContent = 'INVIO IN CORSO...';
+        submitLabel.textContent = 'INVIO IN CORSO';
         banner.textContent = '';
-      } else if (state === 'error') {
+        startSpinner();
+      } else {
         submitBtn.disabled = false;
-        submitLabel.textContent = 'SCARICA LA GUIDA';
-        banner.textContent = message || 'Errore sconosciuto. Riprova.';
-        updateSubmitEnabled();
-      } else if (state === 'form') {
-        submitBtn.disabled = false;
-        submitLabel.textContent = 'SCARICA LA GUIDA';
-        banner.textContent = '';
-        updateSubmitEnabled();
+        stopSpinner();
+        if (state === 'error') {
+          submitLabel.textContent = 'SCARICA LA GUIDA';
+          banner.textContent = message || 'Errore sconosciuto. Riprova.';
+        } else if (state === 'form') {
+          submitLabel.textContent = 'SCARICA LA GUIDA';
+          banner.textContent = '';
+        }
       }
+    }
+
+    function startSpinner() {
+      if (spinnerTween) return;
+      gsap.set(spinnerEl, { rotation: 0, transformOrigin: '50% 50%' });
+      spinnerTween = gsap.to(spinnerEl, {
+        rotation: 360,
+        duration: 0.8,
+        repeat: -1,
+        ease: 'none',
+      });
+    }
+    function stopSpinner() {
+      if (spinnerTween) {
+        spinnerTween.kill();
+        spinnerTween = null;
+      }
+      gsap.set(spinnerEl, { rotation: 0 });
     }
 
     // ── Open / close with GSAP ──────────────────────
@@ -518,7 +643,6 @@
       document.documentElement.style.overflow = 'hidden';
 
       setState('form');
-      // Make the form pane visible
       gsap.set(successPane, { autoAlpha: 0 });
       gsap.set(root, { visibility: 'visible' });
 
@@ -527,7 +651,6 @@
         .to(card,      { autoAlpha: 1, scale: 1, duration: 0.35, ease: 'power2.out' }, 0)
         .to(formPane,  { autoAlpha: 1, duration: 0.3, ease: 'power2.out' }, 0.1);
 
-      // Defer focus to end of open animation — avoid focusing hidden elements
       tl.call(() => {
         emailInput.focus({ preventScroll: true });
       });
@@ -540,19 +663,19 @@
         clearTimeout(autoCloseTimer);
         autoCloseTimer = null;
       }
+      stopSpinner();
 
       const tl = gsap.timeline({
         onComplete: () => {
           gsap.set(root, { visibility: 'hidden' });
           gsap.set(card, { scale: 0.95 });
           document.documentElement.style.overflow = previousOverflow || '';
-          // Reset pane state for next open
           setState('form');
           gsap.set(formPane,    { autoAlpha: 0 });
           gsap.set(successPane, { autoAlpha: 0 });
           form.reset();
           clearFieldError();
-          // Reset Turnstile widget if it exists
+          clearPrivacyError();
           if ((window as any).turnstile && turnstileWidgetId !== null) {
             try { (window as any).turnstile.reset(turnstileWidgetId); } catch { /* ignore */ }
           }
@@ -563,7 +686,7 @@
         .to(backdrop, { autoAlpha: 0, duration: 0.25, ease: 'power2.in' }, 0);
     }
 
-    // ── Pane crossfade form ↔ success ────────────
+    // ── Pane crossfade form → success ────────────
     function showSuccessPane() {
       const tl = gsap.timeline();
       tl.to(formPane,    { autoAlpha: 0, y: -6, duration: 0.25, ease: 'power2.in' }, 0)
@@ -571,19 +694,8 @@
         .fromTo(successPane, { autoAlpha: 0, y: 6 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'power2.out' }, 0.25);
     }
 
-    // ── Submit enable/disable ─────────────────────
+    // ── Validation (click-time, no disabled-until-valid) ────────
     const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    function updateSubmitEnabled() {
-      if (root.getAttribute('data-state') === 'loading') {
-        submitBtn.disabled = true;
-        return;
-      }
-      const email = emailInput.value.trim();
-      const emailOk = EMAIL_RE.test(email);
-      const privacyOk = privacyCb.checked;
-      submitBtn.disabled = !(emailOk && privacyOk);
-    }
 
     function showFieldError(msg: string) {
       emailField.classList.add('lm-modal__field--error');
@@ -594,11 +706,23 @@
       emailError.textContent = '';
     }
 
+    function showPrivacyError(msg: string) {
+      privacyWrap.classList.add('lm-modal__consent-wrap--error');
+      privacyError.textContent = msg;
+    }
+    function clearPrivacyError() {
+      privacyWrap.classList.remove('lm-modal__consent-wrap--error');
+      privacyError.textContent = '';
+    }
+
+    // Clear privacy error as soon as the user ticks the box
+    privacyCb.addEventListener('change', () => {
+      if (privacyCb.checked) clearPrivacyError();
+    });
+
     emailInput.addEventListener('input', () => {
-      if (emailField.classList.contains('lm-modal__field--error')) {
-        if (EMAIL_RE.test(emailInput.value.trim())) clearFieldError();
-      }
-      updateSubmitEnabled();
+      if (!emailField.classList.contains('lm-modal__field--error')) return;
+      if (EMAIL_RE.test(emailInput.value.trim())) clearFieldError();
     });
     emailInput.addEventListener('blur', () => {
       const val = emailInput.value.trim();
@@ -606,8 +730,6 @@
       if (!EMAIL_RE.test(val)) showFieldError('Inserisci un\'email valida');
       else clearFieldError();
     });
-
-    privacyCb.addEventListener('change', updateSubmitEnabled);
 
     // ── Turnstile lazy-load ──────────────────────
     const TURNSTILE_SITE_KEY = '0x4AAAAAAC97pyXgUgHeiHAx';
@@ -639,7 +761,7 @@
     };
     form.addEventListener('focusin', firstInteraction);
 
-    // ── Privacy link hover ────────────────────────
+    // ── Hovers ──────────────────────────────────
     privacyLink?.addEventListener('mouseenter', () => {
       gsap.to(privacyLink, { color: '#F21763', duration: 0.2, overwrite: true });
     });
@@ -647,7 +769,6 @@
       gsap.to(privacyLink, { color: '#4545F7', duration: 0.2, overwrite: true });
     });
 
-    // ── Submit hover ──────────────────────────────
     submitBtn.addEventListener('mouseenter', () => {
       if (submitBtn.disabled) return;
       gsap.to(submitBtn, { backgroundColor: '#6666FF', duration: 0.25, overwrite: true });
@@ -656,7 +777,6 @@
       gsap.to(submitBtn, { backgroundColor: '#4545F7', duration: 0.25, overwrite: true });
     });
 
-    // ── Close hover ──────────────────────────────
     closeBtn.addEventListener('mouseenter', () => {
       gsap.to(closeBtn, { color: '#F21763', duration: 0.2, overwrite: true });
     });
@@ -674,7 +794,6 @@
         e.preventDefault();
         closeModal();
       } else if (e.key === 'Tab') {
-        // Focus trap — keep focus within card
         const focusables = card.querySelectorAll<HTMLElement>(
           'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
         );
@@ -693,20 +812,41 @@
     });
 
     // ── Submit flow ──────────────────────────────
+    function shakeButton() {
+      gsap.to(submitBtn, {
+        x: [-8, 8, -6, 6, -3, 3, 0],
+        duration: 0.5,
+        ease: 'power2.out',
+      });
+    }
+
     async function submit() {
       if (submitBtn.disabled) return;
 
-      // Re-validate
+      // Validate at click-time (Contatti pattern — no disabled-until-valid).
       const email = emailInput.value.trim();
+      let valid = true;
+
       if (!EMAIL_RE.test(email)) {
         showFieldError('Inserisci un\'email valida');
-        return;
-      }
-      if (!privacyCb.checked) {
-        return; // button would be disabled anyway
+        valid = false;
+      } else {
+        clearFieldError();
       }
 
-      // Get Turnstile token (may be empty if user never interacted with turnstile)
+      if (!privacyCb.checked) {
+        showPrivacyError('Per ricevere la guida è necessario accettare la Privacy Policy.');
+        valid = false;
+      } else {
+        clearPrivacyError();
+      }
+
+      if (!valid) {
+        shakeButton();
+        return;
+      }
+
+      // Get Turnstile token
       let turnstileToken = '';
       if ((window as any).turnstile && turnstileWidgetId !== null) {
         turnstileToken = (window as any).turnstile.getResponse(turnstileWidgetId) || '';
@@ -745,7 +885,6 @@
         } else {
           const msg = (data && data.message) ? data.message : 'Errore sconosciuto. Riprova.';
           setState('error', msg);
-          // Reset Turnstile for another attempt
           if ((window as any).turnstile && turnstileWidgetId !== null) {
             try { (window as any).turnstile.reset(turnstileWidgetId); } catch { /* ignore */ }
           }
