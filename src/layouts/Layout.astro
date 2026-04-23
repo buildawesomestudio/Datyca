@@ -5,6 +5,13 @@ import HeaderCompact from '../components/HeaderCompact.astro';
 import Megamenu from '../components/Megamenu.astro';
 import CookieBanner from '../components/CookieBanner.astro';
 import LeadMagnetModal from '../components/LeadMagnetModal.astro';
+// Import font files to get their hashed, built URLs. Hardcoding '/src/fonts/...'
+// in <link rel="preload"> works in `astro dev` (Vite proxy) but 404s in production
+// where Astro emits '/_astro/Optik-*.<hash>.woff2'. Using `?url` imports lets Astro
+// resolve to the correct path in both modes, and ensures the preload URL matches
+// the one resolved from global.css's @font-face (otherwise the preload isn't used).
+import optikRegular from '../fonts/Optik/Optik-Regular.woff2?url';
+import optikDemiBold from '../fonts/Optik/Optik-DemiBold.woff2?url';
 
 interface Props {
   title?: string;
@@ -26,8 +33,8 @@ const { title = 'Datyca', description = '' } = Astro.props;
       match the dominant page color". */}
   <meta name="theme-color" content="#0D0826" />
   {description && <meta name="description" content={description} />}
-  <link rel="preload" href="/src/fonts/Optik/Optik-DemiBold.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="preload" href="/src/fonts/Optik/Optik-Regular.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href={optikDemiBold} as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href={optikRegular} as="font" type="font/woff2" crossorigin />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   {/* Warm up the iubenda CDN connection (DNS + TLS) in advance so that when
       iubenda_cs.js is lazy-loaded post-paint, the handshake is already done. */}

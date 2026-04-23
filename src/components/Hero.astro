@@ -367,9 +367,22 @@
       return () => { heroTl = null; };
     }
 
-    const mm = gsap.matchMedia();
-    mm.add('(min-width: 1024px)', setupHero);
-    mm.add('(max-width: 1023px)', setupHeroMobile);
+    // Gate SplitText creation on fonts being loaded. SplitText measures text
+    // geometry via canvas — if called before the real font swaps in, it splits
+    // based on the fallback's metrics and the split is wrong (GSAP warns
+    // "SplitText called before fonts loaded"). The poster→video crossfade above
+    // stays synchronous; only matchMedia setup waits.
+    const runMatchMedia = () => {
+      const mm = gsap.matchMedia();
+      mm.add('(min-width: 1024px)', setupHero);
+      mm.add('(max-width: 1023px)', setupHeroMobile);
+    };
+
+    if (document.fonts && document.fonts.status !== 'loaded') {
+      document.fonts.ready.then(runMatchMedia);
+    } else {
+      runMatchMedia();
+    }
   }
 
   ((window as any).__initQueue ??= []).push(initHero);
