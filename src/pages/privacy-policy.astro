@@ -19,14 +19,14 @@ const sections = [
 const summaryRows = [
   { attivita: 'Navigazione',     dati: 'IP, browser, pagine visitate', perche: 'Funzionamento e sicurezza',   base: 'Legittimo interesse',     conservazione: 'Durata sessione' },
   { attivita: 'Form contatti',   dati: 'Nome, e-mail, oggetto, messaggio', perche: 'Rispondere alle tue richieste', base: 'Misure precontrattuali', conservazione: '12 mesi' },
-  { attivita: 'Download guida',  dati: 'E-mail, nome e cognome', perche: 'Inviarti il documento', base: 'Misure precontrattuali', conservazione: '12 mesi' },
+  { attivita: 'Download guida',  dati: 'E-mail, nome, ruolo in azienda', perche: 'Inviarti il documento', base: 'Misure precontrattuali', conservazione: '24 mesi' },
   { attivita: 'Newsletter',      dati: 'E-mail', perche: 'Aggiornamenti e novità', base: 'Consenso', conservazione: 'Fino a revoca' },
 ];
 
 const retentionItems = [
   { label: 'Dati di navigazione', duration: 'Durata della sessione' },
   { label: 'Form contatti',       duration: '12 mesi dall\u2019ultimo contatto' },
-  { label: 'Download guida',      duration: '12 mesi dal download' },
+  { label: 'Download guida',      duration: '24 mesi dall’invio' },
   { label: 'Newsletter',          duration: 'Fino a revoca del consenso' },
 ];
 
@@ -139,14 +139,17 @@ const extLinks = [
 
           <div class="pp-treatment">
             <h3 class="pp-treatment__title"><span class="pp-treatment__dot" aria-hidden="true"></span>Download della guida operativa</h3>
-            <p>Quando scarichi una delle nostre guide, ti chiediamo l&rsquo;indirizzo e-mail per inviarti il documento richiesto. In fase di download puoi anche esprimere il tuo consenso a ricevere la nostra newsletter.</p>
-            <p class="pp-treatment__legal">Base giuridica: esecuzione della tua richiesta (art. 6, par. 1, lett. b) GDPR) per l&rsquo;invio della guida. Per la newsletter, il tuo consenso (art. 6, par. 1, lett. a) GDPR), revocabile in qualsiasi momento.</p>
+            <p>Quando richiedi una delle nostre guide tramite il form dedicato, raccogliamo l&rsquo;indirizzo e-mail (obbligatorio per inviarti il documento) e, se vuoi fornirli, nome e ruolo in azienda (facoltativi). In fase di richiesta puoi anche esprimere separatamente il tuo consenso a ricevere la nostra newsletter: si tratta di due consensi distinti, puoi ricevere la guida senza iscriverti alla newsletter.</p>
+            <p>Per l&rsquo;invio della guida ci avvaliamo di <strong>Brevo (Sendinblue SAS)</strong>, con sede a Parigi (Francia), in qualit&agrave; di responsabile esterno del trattamento (art. 28 GDPR). Brevo tratta i dati all&rsquo;interno dell&rsquo;Unione Europea secondo contratto (DPA) sottoscritto con DATYCA.</p>
+            <p>Conserviamo questi dati per 24 mesi dall&rsquo;invio della guida, salvo che tu abbia espresso il consenso alla newsletter (in tal caso i dati vengono conservati fino a revoca del consenso stesso).</p>
+            <p class="pp-treatment__legal">Base giuridica: esecuzione della tua richiesta (art. 6, par. 1, lett. b) GDPR) per l&rsquo;invio della guida. Per la newsletter, il tuo consenso (art. 6, par. 1, lett. a) GDPR), revocabile in qualsiasi momento dal link di disiscrizione presente in ogni email.</p>
           </div>
 
           <div class="pp-treatment">
             <h3 class="pp-treatment__title"><span class="pp-treatment__dot" aria-hidden="true"></span>Newsletter e comunicazioni</h3>
-            <p>Se scegli di iscriverti alla nostra newsletter, utilizziamo il tuo indirizzo e-mail per inviarti aggiornamenti, approfondimenti e novità in materia di AI Governance e sugli altri temi di nostra competenza.</p>
-            <p>Puoi revocare il consenso in qualsiasi momento cliccando sul link di disiscrizione presente in ogni comunicazione oppure scrivendoci a <a href="mailto:info@datyca.com">info@datyca.com</a>.</p>
+            <p>Se scegli di iscriverti alla nostra newsletter, utilizziamo il tuo indirizzo e-mail per inviarti 1-2 comunicazioni al mese con aggiornamenti, approfondimenti e novit&agrave; su AI Governance, data protection e cybersecurity.</p>
+            <p>L&rsquo;invio delle comunicazioni avviene tramite <strong>Brevo (Sendinblue SAS)</strong>, nostro responsabile esterno del trattamento.</p>
+            <p>Puoi revocare il consenso in qualsiasi momento cliccando sul link di disiscrizione presente in ogni comunicazione oppure scrivendoci a <a href="mailto:info@datyca.com">info@datyca.com</a>. Conserviamo i dati fino alla revoca del consenso; dopo la revoca manteniamo la prova del consenso e della revoca per il tempo necessario a dimostrare la conformit&agrave; normativa.</p>
             <p class="pp-treatment__legal">Base giuridica: il tuo consenso (art. 6, par. 1, lett. a) GDPR).</p>
           </div>
         </section>
@@ -158,6 +161,7 @@ const extLinks = [
           <p class="pp-section__num">Sezione 3</p>
           <h2 class="pp-section__title">A chi comunichiamo i tuoi dati</h2>
           <p>I tuoi dati personali sono trattati dal personale di DATYCA espressamente autorizzato e da soggetti terzi che svolgono attività per nostro conto, nominati responsabili del trattamento ai sensi dell&rsquo;art. 28 GDPR.</p>
+          <p>In particolare, per la consegna della guida operativa e l&rsquo;invio della newsletter ci avvaliamo di <strong>Brevo (Sendinblue SAS)</strong>, con sede legale a Parigi (Francia), quale responsabile esterno del trattamento regolato da apposito contratto (DPA) conforme all&rsquo;art. 28 GDPR.</p>
           <p>Non trasferiamo o condividiamo i tuoi dati con terzi per finalità diverse da quelle descritte in questa policy. L&rsquo;elenco aggiornato dei responsabili del trattamento è disponibile su richiesta scrivendo a <a href="mailto:info@datyca.com">info@datyca.com</a>.</p>
         </section>
 
@@ -237,7 +241,7 @@ const extLinks = [
         <section class="pp-section" id="cookie">
           <p class="pp-section__num">Sezione 9</p>
           <h2 class="pp-section__title">Cookie</h2>
-          <p>Per informazioni sui cookie utilizzati dal sito e su come gestire le tue preferenze, consulta la nostra <strong>Cookie Policy</strong>.</p>
+          <p>Per informazioni sui cookie utilizzati dal sito e su come gestire le tue preferenze, consulta la nostra <a href="https://www.iubenda.com/privacy-policy/48742954/cookie-policy" target="_blank" rel="noopener noreferrer"><strong>Cookie Policy</strong></a>.</p>
         </section>
 
         <hr class="pp-divider" />

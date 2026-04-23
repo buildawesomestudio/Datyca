@@ -3,6 +3,8 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import HeaderCompact from '../components/HeaderCompact.astro';
 import Megamenu from '../components/Megamenu.astro';
+import CookieBanner from '../components/CookieBanner.astro';
+import LeadMagnetModal from '../components/LeadMagnetModal.astro';
 
 interface Props {
   title?: string;
@@ -27,7 +29,186 @@ const { title = 'Datyca', description = '' } = Astro.props;
   <link rel="preload" href="/src/fonts/Optik/Optik-DemiBold.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="/src/fonts/Optik/Optik-Regular.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  {/* Warm up the iubenda CDN connection (DNS + TLS) in advance so that when
+      iubenda_cs.js is lazy-loaded post-paint, the handshake is already done. */}
+  <link rel="dns-prefetch" href="https://cdn.iubenda.com" />
+  <link rel="preconnect" href="https://cdn.iubenda.com" crossorigin />
   <title>{title}</title>
+
+  {/* iubenda Cookie Solution — config MUST be defined before iubenda_cs.js loads.
+      All behavioral settings (consent duration, Consent Mode v2, storage, etc.)
+      live in the iubenda dashboard, not here — frontend only passes IDs + callbacks.
+      Callbacks dispatch custom events consumed by <CookieBanner /> so the UI
+      is decoupled from iubenda's internals.
+      `banner.customClass` tags iubenda's default banner so we can hide it
+      reliably regardless of which banner layout iubenda serves. */}
+  <script is:inline>
+    window._iub = window._iub || [];
+    window._iub.csConfiguration = {
+      siteId: 4506676,
+      cookiePolicyId: 48742954,
+      lang: "it",
+      banner: {
+        customClass: "datyca-iub-hidden"
+      },
+      floatingPreferencesButtonDisplay: false,
+      floatingPreferencesButtonHover: false,
+      floatingPreferencesButtonIcon: false,
+      callback: {
+        onReady: function () {
+          // iubenda's `consentGiven` param is unreliable in v2 (often undefined).
+          // Check the SPECIFIC consent cookie instead: `_iub_previous_preference_id`
+          // is set only after acceptAll/rejectAll. Other `_iub_*` cookies exist
+          // for internal bookkeeping (emitter IDs, etc.) and must NOT be mistaken
+          // for expressed consent — a permissive regex would make the banner
+          // disappear after one reload even without user action.
+          var expressed = document.cookie.indexOf('_iub_previous_preference_id') !== -1;
+          // API-state fallback in case iubenda renames the cookie in a future version.
+          if (!expressed) {
+            try {
+              var api = window._iub && window._iub.cs && window._iub.cs.api;
+              if (api && api.cs) {
+                if (api.cs.state && api.cs.state.consent && api.cs.state.consent.expressed) expressed = true;
+                else if (typeof api.cs.isConsentExpressed === 'function' && api.cs.isConsentExpressed()) expressed = true;
+              }
+            } catch (e) { /* ignore */ }
+          }
+          window.dispatchEvent(new CustomEvent('datyca:cookie:ready', { detail: { expressed: expressed } }));
+        },
+        onBannerShown: function () {
+          // Defense-in-depth: force-hide iubenda's own banner if it leaks past CSS
+          var sels = [
+            '#iubenda-cs-banner',
+            '.iubenda-cs-container',
+            '.iubenda-cs-default-floating',
+            '.iubenda-cs-default-fixed',
+            '.iub-cn-container',
+            '.iubenda-cs-overlay',
+            '.datyca-iub-hidden'
+          ];
+          document.querySelectorAll(sels.join(',')).forEach(function (el) {
+            el.style.setProperty('display', 'none', 'important');
+          });
+        },
+        onPreferenceExpressed: function () {
+          window.dispatchEvent(new Event('datyca:cookie:preference-expressed'));
+        },
+        onConsentGiven: function () {
+          window.dispatchEvent(new Event('datyca:cookie:consent-given'));
+        }
+      }
+    };
+  </script>
+  {/* Lazy-load iubenda_cs.js off the critical path. Loading iubenda during the
+      initial paint competes with LCP (hero video) for main thread and network.
+      Instead we schedule the load for the browser's next idle window after
+      DOMContentLoaded — typically ~200ms-1.5s post-paint, completely invisible
+      to users but dramatic for hero smoothness.
+        - requestIdleCallback: native on Chrome/Firefox/Edge — waits for a frame
+          where the main thread is actually free, with a 2500ms hard timeout
+          so heavy pages can't starve it indefinitely.
+        - setTimeout fallback: Safari doesn't ship requestIdleCallback. A fixed
+          800ms after DOMContentLoaded is a safe heuristic — long enough for
+          the hero to settle, short enough that the banner still feels prompt.
+      Consent Mode v2 (configured in iubenda dashboard) ensures trackers stay
+      blocked until consent arrives, regardless of when the banner renders.
+      Preconnect link above keeps the TLS handshake cost off the critical path. */}
+  <script is:inline>
+    (function () {
+      function loadIubenda() {
+        var s = document.createElement('script');
+        s.src = 'https://cdn.iubenda.com/cs/iubenda_cs.js';
+        s.async = true;
+        document.head.appendChild(s);
+      }
+      function schedule() {
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(loadIubenda, { timeout: 2500 });
+        } else {
+          setTimeout(loadIubenda, 800);
+        }
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', schedule, { once: true });
+      } else {
+        schedule();
+      }
+    })();
+  </script>
+
+  {/* Eliminate FOUC: iubenda_cs.js is async, so the default banner may render
+      for 1-2 frames before our CSS/customClass hide kicks in. A MutationObserver
+      installed NOW (before iubenda has a chance to inject anything) flags the
+      banner nodes with display:none the moment they enter the DOM, preventing
+      the flash. Scoped strictly to banner selectors — the preferences modal
+      (opened manually via openPreferences) has different selectors and is
+      unaffected. */}
+  <script is:inline>
+    (function () {
+      var bannerSelectors = [
+        '#iubenda-cs-banner',
+        '.datyca-iub-hidden',
+        '.iubenda-cs-default-floating',
+        '.iubenda-cs-default-fixed',
+        '.iub-cn-container',
+        '.iubenda-tp-btn',
+        '#iubFloatingButton'
+      ];
+      var mo = null;
+      var caught = false;
+      function hideIubBanners() {
+        for (var i = 0; i < bannerSelectors.length; i++) {
+          var nodes = document.querySelectorAll(bannerSelectors[i]);
+          for (var j = 0; j < nodes.length; j++) {
+            nodes[j].style.setProperty('display', 'none', 'important');
+            caught = true;
+          }
+        }
+        // Stop observing once we've hidden at least one banner — iubenda won't
+        // re-inject after that, and we want to avoid MO overhead during hero
+        // animations (Lottie/GSAP mutate DOM heavily during initial paint).
+        // Give it a small grace window in case iubenda injects additional nodes.
+        if (caught && mo) {
+          setTimeout(function () { if (mo) { mo.disconnect(); mo = null; } }, 500);
+        }
+      }
+      if (window.MutationObserver) {
+        mo = new MutationObserver(hideIubBanners);
+        var start = function () {
+          if (document.body && mo) {
+            mo.observe(document.body, { childList: true, subtree: true });
+            hideIubBanners();
+            // Fail-safe: if iubenda never loads (network error, ad-blocker,
+            // offline), kill the observer after 10s so it doesn't run forever
+            // during Lottie/GSAP animations and battery-drain mobile devices.
+            setTimeout(function () {
+              if (!caught && mo) { mo.disconnect(); mo = null; }
+            }, 10000);
+          }
+        };
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', start);
+        } else {
+          start();
+        }
+      }
+    })();
+  </script>
+
+  {/* Static fallback: same selectors hidden via CSS, in case the observer
+      misses a variant. Surgical (banner only, not preferences modal). */}
+  <style is:global>
+    .datyca-iub-hidden,
+    #iubenda-cs-banner,
+    .iubenda-cs-default-floating,
+    .iubenda-cs-default-fixed,
+    .iub-cn-container,
+    .iubenda-tp-btn,
+    .iub-cs-wizard,
+    #iubFloatingButton {
+      display: none !important;
+    }
+  </style>
 </head>
 <body>
 
@@ -36,6 +217,9 @@ const { title = 'Datyca', description = '' } = Astro.props;
   <Megamenu />
 
   <slot />
+
+  <CookieBanner />
+  <LeadMagnetModal />
 
   <script>
     import gsap from 'gsap';

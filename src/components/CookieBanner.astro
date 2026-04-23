@@ -1,0 +1,290 @@
+---
+const cookiePolicyUrl = 'https://www.iubenda.com/privacy-policy/48742954/cookie-policy';
+---
+
+<div
+  id="cookie-banner"
+  class="cookie-banner"
+  role="dialog"
+  aria-modal="false"
+  aria-labelledby="cookie-banner-title"
+  aria-describedby="cookie-banner-desc"
+>
+  <button
+    type="button"
+    class="cookie-banner__close"
+    aria-label="Chiudi e rifiuta i cookie non necessari"
+    data-cookie-close
+  >
+    <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+      <path d="M1.5 1.5 L12.5 12.5 M12.5 1.5 L1.5 12.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" />
+    </svg>
+  </button>
+
+  <h2 id="cookie-banner-title" class="cookie-banner__title">La tua privacy</h2>
+
+  <p id="cookie-banner-desc" class="cookie-banner__desc">
+    Questo sito usa cookie tecnici per funzionare e, con il tuo consenso, cookie di misurazione per capire come migliorare il servizio.
+    <span class="cookie-banner__policy-wrap">Leggi la <a href={cookiePolicyUrl} target="_blank" rel="noopener noreferrer" class="cookie-banner__policy-link">Cookie Policy</a>.</span>
+  </p>
+
+  <div class="cookie-banner__actions">
+    <button type="button" class="cookie-banner__btn cookie-banner__btn--primary" data-cookie-btn data-cookie-accept>
+      Accetta
+    </button>
+    <button type="button" class="cookie-banner__btn cookie-banner__btn--primary" data-cookie-btn data-cookie-reject>
+      Rifiuta
+    </button>
+  </div>
+
+  <button type="button" class="cookie-banner__customize" data-cookie-customize>
+    Personalizza le tue scelte
+  </button>
+</div>
+
+<style>
+  .cookie-banner {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    width: 380px;
+    max-width: calc(100vw - 48px);
+    padding: 28px 28px 24px;
+    background-color: var(--color-black-almost-900);
+    color: var(--color-white-almost);
+    border: 2px solid var(--color-purple-500);
+    z-index: 9998;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+    visibility: hidden;
+    opacity: 0;
+  }
+
+  .cookie-banner__close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--color-white-almost);
+    cursor: pointer;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .cookie-banner__title {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 22px;
+    line-height: 28px;
+    margin-bottom: 12px;
+    color: var(--color-white-almost);
+  }
+
+  .cookie-banner__desc {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    margin-bottom: 20px;
+    color: var(--color-white-almost);
+  }
+
+  .cookie-banner__policy-wrap {
+    white-space: nowrap;
+  }
+
+  .cookie-banner__policy-link {
+    color: var(--color-purple-600);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    font-weight: 600;
+  }
+
+  .cookie-banner__actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .cookie-banner__btn {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 20px;
+    padding: 12px 16px;
+    border: 2px solid var(--color-purple-500);
+    cursor: pointer;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0;
+    border-radius: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .cookie-banner__btn--primary {
+    background-color: var(--color-purple-500);
+    color: var(--color-white-almost);
+  }
+
+  .cookie-banner__customize {
+    display: block;
+    width: 100%;
+    background: transparent;
+    border: none;
+    padding: 4px 0;
+    margin: 0;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 13px;
+    line-height: 20px;
+    color: var(--color-purple-600);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-align: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  @media (max-width: 767px) {
+    .cookie-banner {
+      bottom: 16px;
+      left: 16px;
+      right: 16px;
+      width: auto;
+      max-width: none;
+      padding: 24px 20px 20px;
+    }
+    .cookie-banner__title {
+      font-size: 20px;
+      line-height: 26px;
+    }
+  }
+</style>
+
+<script>
+  import gsap from 'gsap';
+
+  function initCookieBanner() {
+    const banner = document.getElementById('cookie-banner');
+    if (!banner) return;
+
+    gsap.set(banner, { autoAlpha: 0, y: 40 });
+
+    let isVisible = false;
+
+    function showBanner() {
+      if (isVisible) return;
+      isVisible = true;
+      gsap.to(banner, {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.5,
+        ease: 'power2.out',
+      });
+    }
+
+    function hideBanner() {
+      if (!isVisible) return;
+      isVisible = false;
+      gsap.to(banner, {
+        autoAlpha: 0,
+        y: 40,
+        duration: 0.35,
+        ease: 'power2.in',
+      });
+    }
+
+    window.addEventListener('datyca:cookie:ready', ((e: CustomEvent) => {
+      if (!e.detail?.expressed) showBanner();
+    }) as EventListener);
+
+    window.addEventListener('datyca:cookie:consent-given', hideBanner);
+    window.addEventListener('datyca:cookie:preference-expressed', hideBanner);
+
+    const btnAccept    = banner.querySelector('[data-cookie-accept]')    as HTMLElement | null;
+    const btnReject    = banner.querySelector('[data-cookie-reject]')    as HTMLElement | null;
+    const btnCustomize = banner.querySelector('[data-cookie-customize]') as HTMLElement | null;
+    const btnClose     = banner.querySelector('[data-cookie-close]')     as HTMLElement | null;
+
+    // iubenda public API (schema confermato):
+    //   - api.cs.acceptAll()     → accetta tutti i purposes
+    //   - api.cs.rejectAll()     → rifiuta tutti i purposes
+    //   - api.ui.openPreferences() → apre la modale preferences
+    // Tutti triggerano i callback onConsentGiven / onPreferenceExpressed,
+    // che a loro volta dispatchano gli eventi datyca:cookie:* consumati qui.
+    function iubApi() {
+      return (window as any)._iub?.cs?.api;
+    }
+
+    btnAccept?.addEventListener('click', () => {
+      iubApi()?.cs?.acceptAll?.();
+    });
+
+    btnReject?.addEventListener('click', () => {
+      iubApi()?.cs?.rejectAll?.();
+    });
+
+    btnCustomize?.addEventListener('click', () => {
+      iubApi()?.ui?.openPreferences?.();
+    });
+
+    // X = reject (Garante 2023: X deve equivalere a rifiuto)
+    btnClose?.addEventListener('click', () => {
+      iubApi()?.cs?.rejectAll?.();
+    });
+
+    // Hover: close icon colora rosso
+    btnClose?.addEventListener('mouseenter', () => {
+      gsap.to(btnClose, { color: '#F21763', duration: 0.2, overwrite: true });
+    });
+    btnClose?.addEventListener('mouseleave', () => {
+      gsap.to(btnClose, { color: '#EBEBEB', duration: 0.2, overwrite: true });
+    });
+
+    // Hover: policy link colora rosso
+    const policyLink = banner.querySelector('.cookie-banner__policy-link') as HTMLElement | null;
+    policyLink?.addEventListener('mouseenter', () => {
+      gsap.to(policyLink, { color: '#F21763', duration: 0.2, overwrite: true });
+    });
+    policyLink?.addEventListener('mouseleave', () => {
+      gsap.to(policyLink, { color: '#6666FF', duration: 0.2, overwrite: true });
+    });
+
+    // Hover: bottoni primary (Accetta/Rifiuta) → lighter purple
+    banner.querySelectorAll<HTMLElement>('.cookie-banner__btn--primary').forEach(btn => {
+      btn.addEventListener('mouseenter', () => {
+        gsap.to(btn, {
+          backgroundColor: '#6666FF',
+          borderColor: '#6666FF',
+          duration: 0.25,
+          overwrite: true,
+        });
+      });
+      btn.addEventListener('mouseleave', () => {
+        gsap.to(btn, {
+          backgroundColor: '#4545F7',
+          borderColor: '#4545F7',
+          duration: 0.25,
+          overwrite: true,
+        });
+      });
+    });
+
+    // Hover: link "Personalizza" (stesso schema del Cookie Policy link: purple → red)
+    const customizeLink = banner.querySelector('.cookie-banner__customize') as HTMLElement | null;
+    customizeLink?.addEventListener('mouseenter', () => {
+      gsap.to(customizeLink, { color: '#F21763', duration: 0.2, overwrite: true });
+    });
+    customizeLink?.addEventListener('mouseleave', () => {
+      gsap.to(customizeLink, { color: '#6666FF', duration: 0.2, overwrite: true });
+    });
+  }
+
+  ((window as any).__initQueue ??= []).push(initCookieBanner);
+</script>

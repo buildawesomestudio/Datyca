@@ -1,0 +1,775 @@
+<div
+  id="leadmagnet-modal"
+  class="lm-modal"
+  data-state="idle"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="leadmagnet-title"
+  lang="it"
+>
+  <div class="lm-modal__backdrop" data-lm-backdrop aria-hidden="true"></div>
+
+  <div class="lm-modal__card" data-lm-card>
+    <button
+      type="button"
+      class="lm-modal__close"
+      data-lm-close
+      aria-label="Chiudi"
+    >
+      <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+        <path d="M2 2 L14 14 M14 2 L2 14" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" />
+      </svg>
+    </button>
+
+    {/* ── FORM ────────────────────────────────────────────────── */}
+    <div class="lm-modal__pane lm-modal__pane--form" data-lm-pane="form">
+      <h2 id="leadmagnet-title" class="lm-modal__title">Scarica la guida</h2>
+      <p class="lm-modal__subtitle">
+        Inserisci la tua e-mail per ricevere la guida pratica <em>&ldquo;Governare l&rsquo;IA in 10 step&rdquo;</em>.
+      </p>
+
+      <form class="lm-modal__form" data-lm-form novalidate>
+        {/* Honeypot */}
+        <div class="lm-modal__hp" aria-hidden="true">
+          <label for="lm-website">Website</label>
+          <input type="text" id="lm-website" name="website" tabindex="-1" autocomplete="off" />
+        </div>
+
+        <div class="lm-modal__field">
+          <label for="lm-email" class="lm-modal__label">Email <span aria-hidden="true">*</span></label>
+          <input
+            type="email"
+            id="lm-email"
+            name="email"
+            class="lm-modal__input"
+            autocomplete="email"
+            required
+          />
+          <span class="lm-modal__error" data-lm-field-error></span>
+        </div>
+
+        <div class="lm-modal__field">
+          <label for="lm-nome" class="lm-modal__label">Nome <span class="lm-modal__optional">(facoltativo)</span></label>
+          <input
+            type="text"
+            id="lm-nome"
+            name="nome"
+            class="lm-modal__input"
+            autocomplete="given-name"
+            maxlength="100"
+          />
+        </div>
+
+        <div class="lm-modal__field">
+          <label for="lm-ruolo" class="lm-modal__label">Ruolo in azienda <span class="lm-modal__optional">(facoltativo)</span></label>
+          <input
+            type="text"
+            id="lm-ruolo"
+            name="ruolo"
+            class="lm-modal__input"
+            autocomplete="organization-title"
+            maxlength="150"
+          />
+        </div>
+
+        <div class="lm-modal__consents">
+          <label class="lm-modal__consent">
+            <input type="checkbox" name="consent_privacy" data-lm-privacy required />
+            <span class="lm-modal__consent-text">
+              Ho preso visione della <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" data-lm-privacy-link>Privacy Policy</a> e acconsento al trattamento dei miei dati per ricevere la guida. <span aria-hidden="true">*</span>
+            </span>
+          </label>
+
+          <label class="lm-modal__consent">
+            <input type="checkbox" name="consent_marketing" />
+            <span class="lm-modal__consent-text">
+              Voglio ricevere aggiornamenti e approfondimenti di DATYCA su AI Governance, data protection e cybersecurity (1-2 email al mese). Posso revocare il consenso in qualsiasi momento dal link di disiscrizione presente in ogni email.
+            </span>
+          </label>
+        </div>
+
+        {/* Turnstile container — lazy-mounted on first focus */}
+        <div id="leadmagnet-turnstile" class="lm-modal__turnstile"></div>
+
+        <p class="lm-modal__banner" data-lm-banner role="alert"></p>
+
+        <button type="button" class="lm-modal__submit text-cta" data-lm-submit disabled>
+          <span data-lm-submit-label>SCARICA LA GUIDA</span>
+          <svg class="lm-modal__submit-spinner" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
+            <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="40 16" stroke-linecap="round" />
+          </svg>
+        </button>
+      </form>
+    </div>
+
+    {/* ── SUCCESS ─────────────────────────────────────────────── */}
+    <div class="lm-modal__pane lm-modal__pane--success" data-lm-pane="success" aria-hidden="true">
+      <div class="lm-modal__success-circle" aria-hidden="true">
+        <svg width="36" height="36" viewBox="0 0 36 36">
+          <path d="M8 18.5 L15 25.5 L28 11.5" stroke="#FFFFFF" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </div>
+      <h2 class="lm-modal__success-title">Grazie!</h2>
+      <p class="lm-modal__success-body">
+        Riceverai il link per scaricare la guida all&rsquo;indirizzo e-mail indicato entro pochi minuti.
+      </p>
+      <hr class="lm-modal__success-divider" />
+      <p class="lm-modal__success-note">Se non trovi il messaggio, controlla la cartella spam.</p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .lm-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    visibility: hidden;
+    padding: 16px;
+    pointer-events: none;
+  }
+
+  .lm-modal[data-state="form"],
+  .lm-modal[data-state="loading"],
+  .lm-modal[data-state="success"],
+  .lm-modal[data-state="error"] {
+    pointer-events: auto;
+  }
+
+  .lm-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(13, 8, 38, 0.85);
+  }
+
+  .lm-modal__card {
+    position: relative;
+    width: min(560px, calc(100vw - 32px));
+    max-height: calc(100dvh - 32px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: #F5F4F2;
+    color: var(--color-black-almost-900);
+    border-radius: 16px;
+    padding: clamp(28px, 4vw, 44px);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .lm-modal__close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--color-black-almost-900);
+    cursor: pointer;
+    padding: 0;
+    border-radius: 50%;
+    -webkit-tap-highlight-color: transparent;
+    z-index: 2;
+  }
+
+  /* ── PANES ─────────────────────────────────────────────── */
+  .lm-modal__pane {
+    visibility: hidden;
+    opacity: 0;
+  }
+
+  .lm-modal[data-state="form"]  .lm-modal__pane--form,
+  .lm-modal[data-state="loading"] .lm-modal__pane--form,
+  .lm-modal[data-state="error"] .lm-modal__pane--form {
+    visibility: visible;
+  }
+  .lm-modal[data-state="success"] .lm-modal__pane--success {
+    visibility: visible;
+  }
+
+  /* Stack panes — success overlays form position */
+  .lm-modal__pane--success {
+    position: absolute;
+    inset: 0;
+    padding: clamp(28px, 4vw, 44px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+  }
+
+  /* ── FORM HEAD ─────────────────────────────────────────── */
+  .lm-modal__title {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: clamp(30px, 4vw, 40px);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--color-black-almost-900);
+    margin: 0 0 10px;
+  }
+
+  .lm-modal__subtitle {
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.55;
+    color: #3A3458;
+    margin: 0 0 24px;
+  }
+
+  .lm-modal__subtitle em {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  /* ── FORM ──────────────────────────────────────────────── */
+  .lm-modal__form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .lm-modal__field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .lm-modal__label {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 13px;
+    line-height: 1.3;
+    color: var(--color-black-almost-900);
+    letter-spacing: 0.02em;
+  }
+
+  .lm-modal__optional {
+    font-weight: 400;
+    color: #6B6786;
+  }
+
+  .lm-modal__input {
+    width: 100%;
+    padding: 12px 14px;
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.4;
+    background: #FFFFFF;
+    color: var(--color-black-almost-900);
+    border: 1.5px solid #D9D6D0;
+    border-radius: 8px;
+    outline: none;
+    -webkit-appearance: none;
+  }
+
+  .lm-modal__input:focus {
+    border-color: var(--color-purple-500);
+  }
+
+  .lm-modal__field--error .lm-modal__input {
+    border-color: var(--color-red);
+  }
+
+  .lm-modal__error {
+    display: none;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--color-red);
+    min-height: 0;
+  }
+
+  .lm-modal__field--error .lm-modal__error {
+    display: block;
+  }
+
+  /* ── CONSENTS ──────────────────────────────────────────── */
+  .lm-modal__consents {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 4px;
+  }
+
+  .lm-modal__consent {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    cursor: pointer;
+  }
+
+  .lm-modal__consent input[type="checkbox"] {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    accent-color: var(--color-purple-500);
+    cursor: pointer;
+  }
+
+  .lm-modal__consent-text {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.5;
+    color: #3A3458;
+  }
+
+  .lm-modal__consent-text a {
+    color: var(--color-purple-500);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    font-weight: 600;
+  }
+
+  /* ── TURNSTILE ─────────────────────────────────────────── */
+  .lm-modal__turnstile {
+    min-height: 0;
+  }
+
+  .lm-modal__turnstile:empty {
+    display: none;
+  }
+
+  /* ── BANNER (error) ───────────────────────────────────── */
+  .lm-modal__banner {
+    display: none;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--color-red);
+    background: #FEECF1;
+    border: 1px solid #F6B9CC;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin: 0;
+  }
+
+  .lm-modal[data-state="error"] .lm-modal__banner {
+    display: block;
+  }
+
+  /* ── SUBMIT ────────────────────────────────────────────── */
+  .lm-modal__submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 16px 24px;
+    background: var(--color-purple-500);
+    color: var(--color-white-almost);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 6px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .lm-modal__submit:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .lm-modal__submit-spinner {
+    display: none;
+  }
+
+  .lm-modal[data-state="loading"] .lm-modal__submit-spinner {
+    display: block;
+  }
+
+  /* ── HONEYPOT ──────────────────────────────────────────── */
+  .lm-modal__hp {
+    position: absolute;
+    left: -9999px;
+    height: 0;
+    overflow: hidden;
+  }
+
+  /* ── SUCCESS ───────────────────────────────────────────── */
+  .lm-modal__success-circle {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--color-purple-500);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+
+  .lm-modal__success-title {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: clamp(32px, 4.6vw, 40px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--color-black-almost-900);
+    margin: 0 0 14px;
+  }
+
+  .lm-modal__success-body {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.55;
+    color: #3A3458;
+    margin: 0 0 20px;
+    max-width: 380px;
+  }
+
+  .lm-modal__success-divider {
+    border: none;
+    border-top: 1px solid #D9D6D0;
+    width: 180px;
+    margin: 0 0 14px;
+  }
+
+  .lm-modal__success-note {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.4;
+    color: #6B6786;
+    margin: 0;
+  }
+
+  /* sr-only for bots */
+  @media (max-width: 520px) {
+    .lm-modal__card {
+      padding: 24px 20px 28px;
+    }
+    .lm-modal__title {
+      font-size: 28px;
+    }
+  }
+</style>
+
+<script>
+  import gsap from 'gsap';
+
+  function initLeadMagnetModal() {
+    const root = document.getElementById('leadmagnet-modal');
+    if (!root) return;
+
+    const backdrop   = root.querySelector('[data-lm-backdrop]') as HTMLElement;
+    const card       = root.querySelector('[data-lm-card]') as HTMLElement;
+    const closeBtn   = root.querySelector('[data-lm-close]') as HTMLButtonElement;
+    const form       = root.querySelector('[data-lm-form]') as HTMLFormElement;
+    const submitBtn  = root.querySelector('[data-lm-submit]') as HTMLButtonElement;
+    const submitLabel = root.querySelector('[data-lm-submit-label]') as HTMLElement;
+    const banner     = root.querySelector('[data-lm-banner]') as HTMLElement;
+    const privacyCb  = root.querySelector('[data-lm-privacy]') as HTMLInputElement;
+    const emailInput = root.querySelector('#lm-email') as HTMLInputElement;
+    const emailField = emailInput.closest('.lm-modal__field') as HTMLElement;
+    const emailError = emailField.querySelector('[data-lm-field-error]') as HTMLElement;
+    const privacyLink = root.querySelector('[data-lm-privacy-link]') as HTMLAnchorElement;
+    const formPane    = root.querySelector('[data-lm-pane="form"]') as HTMLElement;
+    const successPane = root.querySelector('[data-lm-pane="success"]') as HTMLElement;
+
+    // Initial GSAP state (no CSS transitions — Golden Rule)
+    gsap.set(root, { autoAlpha: 0 });
+    gsap.set(card, { autoAlpha: 0, scale: 0.95 });
+    gsap.set(backdrop, { autoAlpha: 0 });
+    gsap.set(formPane, { autoAlpha: 0 });
+    gsap.set(successPane, { autoAlpha: 0 });
+
+    let isOpen = false;
+    let autoCloseTimer: number | null = null;
+    let lastFocused: HTMLElement | null = null;
+    let previousOverflow = '';
+
+    // ── State management ─────────────────────────────
+    type LMState = 'idle' | 'form' | 'loading' | 'success' | 'error';
+
+    function setState(state: LMState, message?: string) {
+      root.setAttribute('data-state', state);
+      if (state === 'loading') {
+        submitBtn.disabled = true;
+        submitLabel.textContent = 'INVIO IN CORSO...';
+        banner.textContent = '';
+      } else if (state === 'error') {
+        submitBtn.disabled = false;
+        submitLabel.textContent = 'SCARICA LA GUIDA';
+        banner.textContent = message || 'Errore sconosciuto. Riprova.';
+        updateSubmitEnabled();
+      } else if (state === 'form') {
+        submitBtn.disabled = false;
+        submitLabel.textContent = 'SCARICA LA GUIDA';
+        banner.textContent = '';
+        updateSubmitEnabled();
+      }
+    }
+
+    // ── Open / close with GSAP ──────────────────────
+    function openModal() {
+      if (isOpen) return;
+      isOpen = true;
+      lastFocused = document.activeElement as HTMLElement;
+      previousOverflow = document.documentElement.style.overflow;
+      document.documentElement.style.overflow = 'hidden';
+
+      setState('form');
+      // Make the form pane visible
+      gsap.set(successPane, { autoAlpha: 0 });
+      gsap.set(root, { visibility: 'visible' });
+
+      const tl = gsap.timeline();
+      tl.to(backdrop,  { autoAlpha: 1, duration: 0.25, ease: 'power2.out' }, 0)
+        .to(card,      { autoAlpha: 1, scale: 1, duration: 0.35, ease: 'power2.out' }, 0)
+        .to(formPane,  { autoAlpha: 1, duration: 0.3, ease: 'power2.out' }, 0.1);
+
+      // Defer focus to end of open animation — avoid focusing hidden elements
+      tl.call(() => {
+        emailInput.focus({ preventScroll: true });
+      });
+    }
+
+    function closeModal() {
+      if (!isOpen) return;
+      isOpen = false;
+      if (autoCloseTimer !== null) {
+        clearTimeout(autoCloseTimer);
+        autoCloseTimer = null;
+      }
+
+      const tl = gsap.timeline({
+        onComplete: () => {
+          gsap.set(root, { visibility: 'hidden' });
+          gsap.set(card, { scale: 0.95 });
+          document.documentElement.style.overflow = previousOverflow || '';
+          // Reset pane state for next open
+          setState('form');
+          gsap.set(formPane,    { autoAlpha: 0 });
+          gsap.set(successPane, { autoAlpha: 0 });
+          form.reset();
+          clearFieldError();
+          // Reset Turnstile widget if it exists
+          if ((window as any).turnstile && turnstileWidgetId !== null) {
+            try { (window as any).turnstile.reset(turnstileWidgetId); } catch { /* ignore */ }
+          }
+          lastFocused?.focus?.();
+        },
+      });
+      tl.to(card,     { autoAlpha: 0, scale: 0.95, duration: 0.25, ease: 'power2.in' }, 0)
+        .to(backdrop, { autoAlpha: 0, duration: 0.25, ease: 'power2.in' }, 0);
+    }
+
+    // ── Pane crossfade form ↔ success ────────────
+    function showSuccessPane() {
+      const tl = gsap.timeline();
+      tl.to(formPane,    { autoAlpha: 0, y: -6, duration: 0.25, ease: 'power2.in' }, 0)
+        .call(() => setState('success'), [], 0.25)
+        .fromTo(successPane, { autoAlpha: 0, y: 6 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'power2.out' }, 0.25);
+    }
+
+    // ── Submit enable/disable ─────────────────────
+    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    function updateSubmitEnabled() {
+      if (root.getAttribute('data-state') === 'loading') {
+        submitBtn.disabled = true;
+        return;
+      }
+      const email = emailInput.value.trim();
+      const emailOk = EMAIL_RE.test(email);
+      const privacyOk = privacyCb.checked;
+      submitBtn.disabled = !(emailOk && privacyOk);
+    }
+
+    function showFieldError(msg: string) {
+      emailField.classList.add('lm-modal__field--error');
+      emailError.textContent = msg;
+    }
+    function clearFieldError() {
+      emailField.classList.remove('lm-modal__field--error');
+      emailError.textContent = '';
+    }
+
+    emailInput.addEventListener('input', () => {
+      if (emailField.classList.contains('lm-modal__field--error')) {
+        if (EMAIL_RE.test(emailInput.value.trim())) clearFieldError();
+      }
+      updateSubmitEnabled();
+    });
+    emailInput.addEventListener('blur', () => {
+      const val = emailInput.value.trim();
+      if (val.length === 0) return;
+      if (!EMAIL_RE.test(val)) showFieldError('Inserisci un\'email valida');
+      else clearFieldError();
+    });
+
+    privacyCb.addEventListener('change', updateSubmitEnabled);
+
+    // ── Turnstile lazy-load ──────────────────────
+    const TURNSTILE_SITE_KEY = '0x4AAAAAAC97pyXgUgHeiHAx';
+    let turnstileLoaded = false;
+    let turnstileWidgetId: string | null = null;
+
+    function loadTurnstile() {
+      if (turnstileLoaded) return;
+      turnstileLoaded = true;
+      const script = document.createElement('script');
+      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onLeadMagnetTurnstileLoad';
+      script.async = true;
+      (window as any).onLeadMagnetTurnstileLoad = () => {
+        const container = document.getElementById('leadmagnet-turnstile');
+        if (container && (window as any).turnstile) {
+          turnstileWidgetId = (window as any).turnstile.render(container, {
+            sitekey: TURNSTILE_SITE_KEY,
+            appearance: 'interaction-only',
+            theme: 'light',
+          });
+        }
+      };
+      document.head.appendChild(script);
+    }
+
+    const firstInteraction = () => {
+      loadTurnstile();
+      form.removeEventListener('focusin', firstInteraction);
+    };
+    form.addEventListener('focusin', firstInteraction);
+
+    // ── Privacy link hover ────────────────────────
+    privacyLink?.addEventListener('mouseenter', () => {
+      gsap.to(privacyLink, { color: '#F21763', duration: 0.2, overwrite: true });
+    });
+    privacyLink?.addEventListener('mouseleave', () => {
+      gsap.to(privacyLink, { color: '#4545F7', duration: 0.2, overwrite: true });
+    });
+
+    // ── Submit hover ──────────────────────────────
+    submitBtn.addEventListener('mouseenter', () => {
+      if (submitBtn.disabled) return;
+      gsap.to(submitBtn, { backgroundColor: '#6666FF', duration: 0.25, overwrite: true });
+    });
+    submitBtn.addEventListener('mouseleave', () => {
+      gsap.to(submitBtn, { backgroundColor: '#4545F7', duration: 0.25, overwrite: true });
+    });
+
+    // ── Close hover ──────────────────────────────
+    closeBtn.addEventListener('mouseenter', () => {
+      gsap.to(closeBtn, { color: '#F21763', duration: 0.2, overwrite: true });
+    });
+    closeBtn.addEventListener('mouseleave', () => {
+      gsap.to(closeBtn, { color: '#0D0826', duration: 0.2, overwrite: true });
+    });
+
+    // ── Close interactions ────────────────────────
+    closeBtn.addEventListener('click', closeModal);
+    backdrop.addEventListener('click', closeModal);
+
+    document.addEventListener('keydown', (e) => {
+      if (!isOpen) return;
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closeModal();
+      } else if (e.key === 'Tab') {
+        // Focus trap — keep focus within card
+        const focusables = card.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusables.length === 0) return;
+        const first = focusables[0];
+        const last  = focusables[focusables.length - 1];
+        const active = document.activeElement as HTMLElement;
+        if (e.shiftKey && active === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && active === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    });
+
+    // ── Submit flow ──────────────────────────────
+    async function submit() {
+      if (submitBtn.disabled) return;
+
+      // Re-validate
+      const email = emailInput.value.trim();
+      if (!EMAIL_RE.test(email)) {
+        showFieldError('Inserisci un\'email valida');
+        return;
+      }
+      if (!privacyCb.checked) {
+        return; // button would be disabled anyway
+      }
+
+      // Get Turnstile token (may be empty if user never interacted with turnstile)
+      let turnstileToken = '';
+      if ((window as any).turnstile && turnstileWidgetId !== null) {
+        turnstileToken = (window as any).turnstile.getResponse(turnstileWidgetId) || '';
+      }
+      if (!turnstileToken) {
+        loadTurnstile();
+        setState('error', 'Verifica di sicurezza in corso, riprova tra qualche secondo.');
+        return;
+      }
+
+      setState('loading');
+
+      const fd = new FormData(form);
+      const payload = {
+        email,
+        nome:   String(fd.get('nome')  || ''),
+        ruolo:  String(fd.get('ruolo') || ''),
+        consent_privacy:   !!fd.get('consent_privacy'),
+        consent_marketing: !!fd.get('consent_marketing'),
+        website: String(fd.get('website') || ''),
+        'cf-turnstile-response': turnstileToken,
+      };
+
+      try {
+        const res = await fetch('/lead-magnet.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        let data: any = {};
+        try { data = await res.json(); } catch { /* non-JSON */ }
+
+        if (res.ok && data && data.ok) {
+          showSuccessPane();
+          autoCloseTimer = window.setTimeout(closeModal, 8000);
+        } else {
+          const msg = (data && data.message) ? data.message : 'Errore sconosciuto. Riprova.';
+          setState('error', msg);
+          // Reset Turnstile for another attempt
+          if ((window as any).turnstile && turnstileWidgetId !== null) {
+            try { (window as any).turnstile.reset(turnstileWidgetId); } catch { /* ignore */ }
+          }
+        }
+      } catch {
+        setState('error', 'Connessione fallita. Riprova.');
+      }
+    }
+
+    submitBtn.addEventListener('click', submit);
+
+    // Enter key on single-line inputs triggers submit
+    form.querySelectorAll<HTMLInputElement>('input[type="email"], input[type="text"]').forEach(inp => {
+      inp.addEventListener('keydown', (e) => {
+        if ((e as KeyboardEvent).key === 'Enter') {
+          e.preventDefault();
+          submit();
+        }
+      });
+    });
+
+    // ── External open trigger ─────────────────────
+    window.addEventListener('datyca:leadmagnet:open', openModal);
+  }
+
+  ((window as any).__initQueue ??= []).push(initLeadMagnetModal);
+</script>

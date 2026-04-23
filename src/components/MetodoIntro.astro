@@ -1,65 +1,93 @@
 ---
+// Colori hex per i connector SVG (stop-color richiede literal).
+// Mappati 1:1 alle CSS variables del sito in global.css.
 const fasi = [
   {
-    n: 'Fase 1',
-    title: 'ANALISI DEI BISOGNI',
-    body: 'Partiamo dall\u2019analisi delle specifiche esigenze dell\u2019organizzazione, del settore di riferimento e dei processi impattati. Ogni intervento nasce da una comprensione profonda del contesto operativo, normativo e umano, per costruire soluzioni realmente su misura e mai generaliste.',
+    n: 1,
+    title: 'Analisi dei bisogni',
+    body: 'Partiamo dall’analisi delle specifiche esigenze dell’organizzazione, del settore di riferimento e dei processi impattati. Ogni intervento nasce da una comprensione profonda del contesto operativo, normativo e umano, per costruire soluzioni realmente su misura e mai generaliste.',
+    color: '#6666FF', // --color-purple-600
   },
   {
-    n: 'Fase 2',
-    title: 'PROGETTAZIONE E ATTUAZIONE',
-    body: 'Traduciamo gli obiettivi in interventi concreti di governance, compliance e design dei processi. Pianifichiamo e attuiamo soluzioni integrate, proporzionate al livello di rischio e all\u2019impatto organizzativo, accompagnando l\u2019implementazione fino alla piena operatività.',
+    n: 2,
+    title: 'Progettazione e attuazione',
+    body: 'Traduciamo gli obiettivi in interventi concreti di governance, compliance e design dei processi. Pianifichiamo e attuiamo soluzioni integrate, proporzionate al livello di rischio e all’impatto organizzativo, accompagnando l’implementazione fino alla piena operatività.',
+    color: '#4545F7', // --color-purple-500
   },
   {
-    n: 'Fase 3',
-    title: 'CHANGE MANAGEMENT',
+    n: 3,
+    title: 'Change Management',
     body: 'Il valore di un progetto si misura nella sua adozione. Affianchiamo le organizzazioni con percorsi personalizzati di formazione e sviluppiamo strumenti operativi su misura per la gestione collaborativa dei nuovi flussi, rendendo il cambiamento comprensibile e sostenibile nel tempo.',
+    color: '#FF00FF', // --color-pink
   },
 ];
 ---
 
 <section id="metodo-intro" class="mi">
-  <div class="mi__left">
-    <h1 class="text-h1 mi__title">Il nostro metodo</h1>
+  <h1 class="text-h1 mi__title">Il nostro metodo</h1>
 
-    <ol class="mi__fasi">
-      {fasi.map((fase) => (
-        <li class="mi__fase">
-          <p class="mi__fase-n">{fase.n}</p>
-          <h2 class="text-h2 mi__fase-title">{fase.title}</h2>
+  <ol class="mi__fasi">
+    {fasi.map((fase, i) => (
+      <li class="mi__fase">
+        <div class="mi__fase-marker">
+          <svg class="mi__marker-svg" viewBox="0 0 60 60" aria-hidden="true" focusable="false">
+            <circle
+              cx="30" cy="30" r="28"
+              fill="none" stroke={fase.color} stroke-width="2"
+              stroke-linecap="butt"
+              stroke-dasharray="175.929"
+              stroke-dashoffset="175.929"
+              transform="rotate(-90 30 30)"
+            />
+          </svg>
+          <span class="mi__marker-num" style={`color: ${fase.color};`}>{fase.n}</span>
+        </div>
+        <div class="mi__fase-content">
+          <h2 class="text-h2 mi__fase-title" style={`color: ${fase.color};`}>{fase.title}</h2>
           <p class="text-body mi__fase-body">{fase.body}</p>
-        </li>
-      ))}
-    </ol>
-  </div>
-
-  <div class="mi__right" aria-hidden="true">
-    <div class="mi__line"></div>
-    <p class="mi__placeholder">illustrazione to do</p>
-  </div>
+        </div>
+        {i < fasi.length - 1 && (
+          <div class="mi__connector" aria-hidden="true">
+            <svg class="mi__connector-svg" viewBox="0 0 2 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+              <defs>
+                <linearGradient id={`mi-grad-${i}`} gradientUnits="userSpaceOnUse" x1="1" y1="0" x2="1" y2="100">
+                  <stop offset="0%" stop-color={fase.color}/>
+                  <stop offset="100%" stop-color={fasi[i + 1].color}/>
+                </linearGradient>
+              </defs>
+              <line
+                x1="1" y1="0" x2="1" y2="100"
+                stroke={`url(#mi-grad-${i})`}
+                stroke-width="1.5"
+                stroke-dasharray="4 6"
+                vector-effect="non-scaling-stroke"
+              />
+            </svg>
+          </div>
+        )}
+      </li>
+    ))}
+  </ol>
 </section>
 
 <style>
   .mi {
     --_pad-x: clamp(40px, 10.9vw, 157px);
+    --_marker-size: 60px;
+    --_marker-num-size: clamp(22px, 2.2vw, 28px);
+    --_col-gap: clamp(18px, 2.5vw, 36px);
+    --_fase-gap: clamp(60px, 7vw, 100px);
+
     position: relative;
     max-width: 1440px;
     margin-inline: auto;
     padding: clamp(40px, 6vw, 80px) var(--_pad-x) var(--section-padding-y);
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: clamp(40px, 5vw, 80px);
-  }
-
-  /* ── LEFT: title + fasi ── */
-  .mi__left {
-    display: flex;
-    flex-direction: column;
   }
 
   .mi__title {
     color: var(--color-purple-600);
     margin-bottom: clamp(60px, 8vw, 120px);
+    max-width: 900px;
   }
 
   .mi__fasi {
@@ -68,72 +96,94 @@ const fasi = [
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: clamp(60px, 6vw, 90px);
-    max-width: 460px;
+    gap: var(--_fase-gap);
+    max-width: 780px;
   }
 
+  /* `color` lives on the inline style of each .mi__fase — children inherit */
   .mi__fase {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: var(--_marker-size) 1fr;
+    column-gap: var(--_col-gap);
+    align-items: start;
+    position: relative;
   }
 
-  .mi__fase-n {
+  .mi__fase-marker {
+    position: relative;
+    width: var(--_marker-size);
+    height: var(--_marker-size);
+  }
+
+  .mi__marker-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    display: block;
+  }
+
+  .mi__marker-num {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-family: var(--font-sans);
-    font-size: 18px;
+    font-size: var(--_marker-num-size);
     font-weight: 600;
     line-height: 1;
-    color: var(--color-red);
-    margin-bottom: 16px;
+  }
+
+  .mi__connector {
+    position: absolute;
+    left: calc(var(--_marker-size) / 2 - 1px);
+    top: calc(var(--_marker-size) + 2px);
+    bottom: calc(-1 * var(--_fase-gap) - 2px);
+    width: 2px;
+    pointer-events: none;
+  }
+
+  .mi__connector-svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    display: block;
+  }
+
+  .mi__fase-content {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(12px, 1.5vw, 20px);
+    padding-top: clamp(2px, 0.5vw, 6px);
   }
 
   .mi__fase-title {
-    color: var(--color-white-almost);
-    margin-bottom: 20px;
     font-weight: 600;
   }
 
   .mi__fase-body {
     color: var(--color-white-almost);
+    max-width: 600px;
   }
 
-  /* ── RIGHT: placeholder + vertical line ── */
-  .mi__right {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100%;
-  }
-
-  .mi__line {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 1px;
-    height: 100%;
-    background: var(--color-purple-500);
-    opacity: 0.4;
-  }
-
-  .mi__placeholder {
-    font-family: var(--font-sans);
-    font-size: 30px;
-    color: var(--color-grey-400);
-    text-align: center;
-  }
-
-  /* ── Initial states (GSAP) — prevent FOUC ── */
+  /* ── FOUC prevention (GSAP initial state) ── */
   .mi__title,
-  .mi__fase,
-  .mi__right {
+  .mi__marker-num,
+  .mi__fase-title,
+  .mi__fase-body,
+  .mi__connector {
     visibility: hidden;
   }
 
   @media (max-width: 767px) {
     .mi {
-      grid-template-columns: 1fr;
-      gap: 60px;
       padding: 40px var(--section-padding-x) var(--section-padding-y);
+      --_marker-size: 48px;
+      --_marker-num-size: 20px;
+      --_col-gap: 16px;
+      --_fase-gap: 60px;
     }
 
     .mi__title {
@@ -141,31 +191,11 @@ const fasi = [
     }
 
     .mi__fasi {
-      gap: 60px;
       max-width: none;
     }
 
-    .mi__fase-n {
-      font-size: 16px;
-    }
-
-    /* Placeholder: below content, reduced */
-    .mi__right {
-      min-height: 200px;
-      order: 2;
-    }
-
-    .mi__placeholder {
-      font-size: 20px;
-    }
-
-    .mi__line {
-      /* Horizontal line on mobile */
-      width: 100%;
-      height: 1px;
-      top: auto;
-      bottom: 0;
-      right: 0;
+    .mi__fase-body {
+      max-width: none;
     }
   }
 </style>
@@ -179,61 +209,158 @@ const fasi = [
     const section = document.getElementById('metodo-intro');
     if (!section) return;
 
-    let hasRevealed = false;
+    const CIRCLE_LEN = 2 * Math.PI * 28; // ≈ 175.929
+    let titleRevealed = false;
+    const faseRevealed: boolean[] = [false, false, false];
+    const connectorRevealed: boolean[] = [false, false];
 
     function setup() {
       const titleEl = section!.querySelector('.mi__title') as HTMLElement;
-      const fasi = section!.querySelectorAll<HTMLElement>('.mi__fase');
-      const right = section!.querySelector('.mi__right') as HTMLElement;
+      const faseEls = Array.from(section!.querySelectorAll<HTMLElement>('.mi__fase'));
+      const circles = Array.from(section!.querySelectorAll<SVGCircleElement>('.mi__marker-svg circle'));
+      const nums = Array.from(section!.querySelectorAll<HTMLElement>('.mi__marker-num'));
+      const titles = Array.from(section!.querySelectorAll<HTMLElement>('.mi__fase-title'));
+      const bodies = Array.from(section!.querySelectorAll<HTMLElement>('.mi__fase-body'));
+      const connectors = Array.from(section!.querySelectorAll<HTMLElement>('.mi__connector'));
 
-      if (hasRevealed) {
-        gsap.set(titleEl, { autoAlpha: 1, y: 0 });
-        gsap.set(fasi, { autoAlpha: 1, y: 0 });
-        gsap.set(right, { autoAlpha: 1 });
-        return;
+      // Surgical transform-cache cleanup between matchMedia callbacks.
+      // IMPORTANT: `clearProps: 'all'` on nums/titles would nuke their inline
+      // `style="color: ..."` rendered by Astro → titles/numbers go white.
+      // Only clear transform-related props on elements that animate transforms.
+      gsap.set([...nums, ...bodies], {
+        clearProps: 'x,y,xPercent,yPercent,scale,rotation,transformOrigin',
+      });
+
+      // Baseline hidden states
+      gsap.set(circles, { strokeDasharray: CIRCLE_LEN, strokeDashoffset: CIRCLE_LEN });
+      gsap.set([...nums, ...bodies], { autoAlpha: 0, y: 20 });
+      gsap.set(connectors, { autoAlpha: 1, clipPath: 'inset(0 0 100% 0)' });
+
+      const createdSplits: SplitText[] = [];
+
+      // Cascade: if multiple triggers fire in the same refresh cycle (tall viewport
+      // where several fasi/connector are visible at load), stagger their play()
+      // calls relative to the FIRST trigger time. If a trigger fires later via
+      // scroll, elapsed already exceeds the desired offset → wait = 0 → no delay.
+      let firstTriggerTime = 0;
+      const getCascadeWait = (desired: number): number => {
+        if (firstTriggerTime === 0) firstTriggerTime = performance.now();
+        const elapsed = (performance.now() - firstTriggerTime) / 1000;
+        return Math.max(0, desired - elapsed);
+      };
+      const playDelayed = (tl: gsap.core.Timeline, wait: number) => {
+        if (wait <= 0.001) tl.play();
+        else gsap.delayedCall(wait, () => tl.play());
+      };
+
+      // Desired cascade offsets (seconds from first trigger)
+      const faseCascade = [0, 0.5, 1.0];
+      const connectorCascade = [0.3, 0.8];
+
+      // ── Titolo "Il nostro metodo" ──
+      if (titleRevealed) {
+        gsap.set(titleEl, { autoAlpha: 1 });
+      } else {
+        const wordSplit = SplitText.create(titleEl, { type: 'words', aria: 'none' });
+        createdSplits.push(wordSplit);
+        gsap.set(wordSplit.words, { autoAlpha: 0, y: 20 });
+        gsap.set(titleEl, { autoAlpha: 1 });
+
+        const titleTl = gsap.timeline({ paused: true });
+        titleTl.to(wordSplit.words, {
+          autoAlpha: 1, y: 0,
+          duration: 0.6, stagger: 0.1,
+          ease: 'power2.out',
+        });
+
+        ScrollTrigger.create({
+          id: 'metodo-intro-title',
+          trigger: section!,
+          start: 'top 75%',
+          once: true,
+          onEnter: () => {
+            titleRevealed = true;
+            titleTl.play();
+          },
+        });
       }
 
-      // Initial hidden state (autoAlpha replaces the CSS visibility: hidden)
-      gsap.set([titleEl, ...Array.from(fasi)], { autoAlpha: 0, y: 20 });
-      gsap.set(right, { autoAlpha: 0 });
+      // ── Fasi (1 trigger per fase) ──
+      faseEls.forEach((faseEl, i) => {
+        if (faseRevealed[i]) {
+          gsap.set(circles[i], { strokeDashoffset: 0 });
+          gsap.set([nums[i], bodies[i]], { autoAlpha: 1, y: 0 });
+          gsap.set(titles[i], { autoAlpha: 1 });
+          return;
+        }
 
-      const wordSplit = SplitText.create(titleEl, { type: 'words', aria: 'none' });
-      gsap.set(wordSplit.words, { autoAlpha: 0, y: 20 });
-      gsap.set(titleEl, { autoAlpha: 1, y: 0 }); // Container visible, words hidden
+        const titleSplit = SplitText.create(titles[i], { type: 'words', aria: 'none' });
+        createdSplits.push(titleSplit);
+        gsap.set(titleSplit.words, { autoAlpha: 0, y: 20 });
+        gsap.set(titles[i], { autoAlpha: 1 });
 
-      const revealTl = gsap.timeline({ paused: true });
+        const tl = gsap.timeline({ paused: true });
+        tl.fromTo(circles[i],
+          { strokeDashoffset: CIRCLE_LEN },
+          { strokeDashoffset: 0, duration: 0.7, ease: 'power2.inOut' },
+          0
+        );
+        tl.fromTo(nums[i],
+          { autoAlpha: 0, y: 16 },
+          { autoAlpha: 1, y: 0, duration: 0.4, ease: 'power2.out' },
+          0.35
+        );
+        tl.to(titleSplit.words, {
+          autoAlpha: 1, y: 0,
+          duration: 0.5, stagger: 0.08,
+          ease: 'power2.out',
+        }, 0.25);
+        tl.fromTo(bodies[i],
+          { autoAlpha: 0, y: 20 },
+          { autoAlpha: 1, y: 0, duration: 0.55, ease: 'power2.out' },
+          0.5
+        );
 
-      revealTl.to(wordSplit.words, {
-        autoAlpha: 1, y: 0,
-        duration: 0.6, stagger: 0.1,
-        ease: 'power2.out',
-      }, 0);
-
-      revealTl.to(fasi, {
-        autoAlpha: 1, y: 0,
-        duration: 0.6, stagger: 0.15,
-        ease: 'power2.out',
-      }, 0.3);
-
-      revealTl.to(right, {
-        autoAlpha: 1,
-        duration: 0.8, ease: 'power2.out',
-      }, 0.2);
-
-      revealTl.eventCallback('onComplete', () => {
-        wordSplit.revert();
+        ScrollTrigger.create({
+          id: `metodo-intro-fase-${i + 1}`,
+          trigger: faseEl,
+          start: 'top 85%',
+          once: true,
+          onEnter: () => {
+            faseRevealed[i] = true;
+            playDelayed(tl, getCascadeWait(faseCascade[i]));
+          },
+        });
       });
 
-      ScrollTrigger.create({
-        id: 'metodo-intro-reveal',
-        trigger: section!,
-        start: 'top 75%',
-        once: true,
-        onEnter: () => {
-          hasRevealed = true;
-          revealTl.play();
-        },
+      // ── Connectors (1 trigger per connector) ──
+      connectors.forEach((conn, i) => {
+        if (connectorRevealed[i]) {
+          gsap.set(conn, { clipPath: 'inset(0 0 0% 0)' });
+          return;
+        }
+
+        const tl = gsap.timeline({ paused: true });
+        tl.fromTo(conn,
+          { clipPath: 'inset(0 0 100% 0)' },
+          { clipPath: 'inset(0 0 0% 0)', duration: 0.85, ease: 'power2.inOut' }
+        );
+
+        ScrollTrigger.create({
+          id: `metodo-intro-connector-${i + 1}`,
+          trigger: conn,
+          start: 'top 85%',
+          once: true,
+          onEnter: () => {
+            connectorRevealed[i] = true;
+            playDelayed(tl, getCascadeWait(connectorCascade[i]));
+          },
+        });
       });
+
+      return () => {
+        createdSplits.forEach(s => s.revert());
+      };
     }
 
     const mm = gsap.matchMedia();

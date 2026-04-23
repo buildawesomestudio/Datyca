@@ -17,7 +17,8 @@ const footerLinksRight = [
   { label: 'info@datyca.com', href: 'mailto:info@datyca.com' },
   { label: 'Privacy Policy', href: '/privacy-policy' },
   { label: 'AI Policy', href: '/ai-policy' },
-  { label: 'Cookie Policy', href: '#' },
+  { label: 'Cookie Policy', href: 'https://www.iubenda.com/privacy-policy/48742954/cookie-policy', external: true },
+  { label: 'Preferenze cookie', href: '#', preferences: true },
 ];
 ---
 
@@ -131,12 +132,13 @@ const footerLinksRight = [
           ))}
         </nav>
         <div class="contatti__footer-col">
-          {footerLinksRight.map(({ label, href, external }) => (
+          {footerLinksRight.map(({ label, href, external, preferences }) => (
             <a
               href={href}
               class="contatti__footer-link"
               data-contatti-footer-link
               {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+              {...(preferences ? { 'data-cookie-preferences': '' } : {})}
             >{label}</a>
           ))}
         </div>
@@ -669,6 +671,13 @@ const footerLinksRight = [
           });
         }, { signal: ac.signal });
       });
+
+      // ── Preferenze cookie: riapre la modale iubenda ──
+      const prefsLink = section.querySelector('[data-cookie-preferences]') as HTMLAnchorElement | null;
+      prefsLink?.addEventListener('click', (e) => {
+        e.preventDefault();
+        (window as any)._iub?.cs?.api?.openPreferences?.();
+      }, { signal: ac.signal });
 
       // ── Hover: Indirizzi sedi ──
       addresses.forEach(addr => {

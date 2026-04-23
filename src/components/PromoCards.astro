@@ -1,18 +1,29 @@
 ---
-const promoCards = [
+type PromoCard = {
+  title: string;
+  description: string;
+  cta: string;
+  iconType: 'arrow' | 'download';
+  href?: string;
+  external?: boolean;
+  leadmagnet?: boolean;
+};
+
+const promoCards: PromoCard[] = [
   {
     title: 'Il tuo sistema di IA è conforme?',
     description: 'Rispondi al questionario e ricevi un report personalizzato con il profilo di rischio e gli adempimenti del tuo sistema di intelligenza artificiale.',
     cta: 'SCOPRILO SUBITO',
-    href: '#conformita',
-    iconType: 'arrow' as const,
+    href: 'https://www.goviatech.com/goviaxdatyca',
+    iconType: 'arrow',
+    external: true,
   },
   {
     title: 'Governare l\'IA in 10 step',
     description: 'Una guida pratica per orientare la tua organizzazione nell\'adozione responsabile e conforme dell\'intelligenza artificiale.',
     cta: 'SCARICA LA GUIDA',
-    href: '/docs/DATYCA_Guida_AI_Governance_10_Step.pdf',
-    iconType: 'download' as const,
+    iconType: 'download',
+    leadmagnet: true,
   },
 ];
 
@@ -82,12 +93,31 @@ const layerPaths = {
           <p class="text-body">{card.description}</p>
         </div>
 
-        <a href={card.href} class="text-cta promo-card__cta" data-promo-cta {...(card.iconType === 'download' ? { download: '' } : {})}>
-          <span>{card.cta}</span>
-          <svg width="18" height="18" aria-hidden="true">
-            <use href={card.iconType === 'download' ? '#icon-diagonal-down-thick' : '#icon-arrow-forward'} />
-          </svg>
-        </a>
+        {card.leadmagnet ? (
+          <button
+            type="button"
+            class="text-cta promo-card__cta"
+            data-promo-cta
+            data-promo-leadmagnet
+          >
+            <span>{card.cta}</span>
+            <svg width="18" height="18" aria-hidden="true">
+              <use href="#icon-diagonal-down-thick" />
+            </svg>
+          </button>
+        ) : (
+          <a
+            href={card.href}
+            class="text-cta promo-card__cta"
+            data-promo-cta
+            {...(card.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+          >
+            <span>{card.cta}</span>
+            <svg width="18" height="18" aria-hidden="true">
+              <use href={card.iconType === 'download' ? '#icon-diagonal-down-thick' : '#icon-arrow-forward'} />
+            </svg>
+          </a>
+        )}
       </div>
     ))}
   </div>
@@ -150,6 +180,11 @@ const layerPaths = {
     color: var(--color-text);
     text-decoration: none;
     align-self: flex-start;
+    background: transparent;
+    font: inherit;
+    cursor: pointer;
+    border-radius: 0;
+    -webkit-tap-highlight-color: transparent;
   }
 
   @media (max-width: 767px) {
@@ -254,7 +289,11 @@ const layerPaths = {
       /* ── CTA hover ── */
       ctaBtns.forEach(cta => {
         const arrow = cta.querySelector('svg') as SVGElement;
-        const isDownload = cta.hasAttribute('download');
+        // No arrow slide for download-style icons (leadmagnet button or <a download>)
+        const useSvg = cta.querySelector('svg use') as SVGUseElement | null;
+        const isDownload = cta.hasAttribute('download')
+          || cta.hasAttribute('data-promo-leadmagnet')
+          || (useSvg?.getAttribute('href') || '').includes('diagonal-down');
 
         cta.addEventListener('mouseenter', () => {
           gsap.to(cta, { borderColor: colorPurple600, color: colorPurple600, duration: 0.25, overwrite: 'auto' });
@@ -264,6 +303,13 @@ const layerPaths = {
         cta.addEventListener('mouseleave', () => {
           gsap.to(cta, { borderColor: colorText, color: colorText, duration: 0.25, overwrite: 'auto' });
           if (arrow && !isDownload) gsap.to(arrow, { x: 0, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
+        }, { signal: ac.signal });
+      });
+
+      /* ── Lead magnet: open modal on click ── */
+      section.querySelectorAll<HTMLButtonElement>('[data-promo-leadmagnet]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          window.dispatchEvent(new CustomEvent('datyca:leadmagnet:open'));
         }, { signal: ac.signal });
       });
 
