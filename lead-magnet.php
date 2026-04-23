@@ -216,12 +216,20 @@ $nowIso = gmdate('Y-m-d\TH:i:s\Z');
 $remoteIp = $_SERVER['REMOTE_ADDR'] ?? '';
 
 $attributes = [
-    'NOME'               => $nome,
-    'JOB_TITLE'          => $ruolo,
     'CONSENT_PRIVACY_AT' => $nowIso,
     'CONSENT_IP'         => $remoteIp,
     'CONSENT_SOURCE'     => BREVO_CONSENT_SOURCE,
 ];
+// Preserve existing NOME / JOB_TITLE if the user re-submits without filling
+// the optional fields. Sending an empty string would wipe what they gave us
+// on a previous submission. Omitting the key entirely leaves the stored
+// attribute untouched (Brevo does a partial update with updateEnabled: true).
+if ($nome !== '') {
+    $attributes['NOME'] = $nome;
+}
+if ($ruolo !== '') {
+    $attributes['JOB_TITLE'] = $ruolo;
+}
 if ($consentMarketing) {
     $attributes['CONSENT_MARKETING_AT'] = $nowIso;
 }
@@ -287,6 +295,34 @@ if ($unblockCode !== 204 && $unblockCode !== 404 && $unblockCode !== 200) {
 }
 
 // ============================================
+// BREVO: resolve display name for this send
+// ============================================
+// Personalization ($displayName → both envelope "name" and template
+// {{ params.NOME }}). Prefer the value submitted now; otherwise fall back
+// to whatever is stored on the contact from a previous submission, so a
+// user who introduced themselves last time still sees their name in the
+// subject/body today.
+$displayName = $nome;
+if ($displayName === '') {
+    $getCh = curl_init('https://api.brevo.com/v3/contacts/' . urlencode($email));
+    curl_setopt_array($getCh, [
+        CURLOPT_HTTPHEADER     => ['api-key: ' . $BREVO_API_KEY, 'accept: application/json'],
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT        => 10,
+    ]);
+    $getResp = curl_exec($getCh);
+    $getCode = curl_getinfo($getCh, CURLINFO_HTTP_CODE);
+    curl_close($getCh);
+    if ($getCode === 200) {
+        $parsed = json_decode($getResp, true);
+        $storedName = isset($parsed['attributes']['NOME']) ? trim((string) $parsed['attributes']['NOME']) : '';
+        if ($storedName !== '') {
+            $displayName = $storedName;
+        }
+    }
+}
+
+// ============================================
 // BREVO: send transactional email
 // ============================================
 $emailPayload = [
@@ -294,11 +330,11 @@ $emailPayload = [
     'to'         => [
         [
             'email' => $email,
-            'name'  => $nome !== '' ? $nome : $email,
+            'name'  => $displayName !== '' ? $displayName : $email,
         ],
     ],
     'params'     => [
-        'NOME' => $nome,
+        'NOME' => $displayName,
     ],
 ];
 
