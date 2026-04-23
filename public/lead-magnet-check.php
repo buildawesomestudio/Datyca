@@ -84,4 +84,66 @@ if ($code === 200) {
     $report['brevo_account_error_code'] = $parsed['code'] ?? null;
 }
 
+// ── Optional: transactional events for a specific email ─────
+// Usage: /lead-magnet-check.php?email=someone@example.com
+// Pulls the last Brevo events (sent, delivered, bounced, blocked, spam, etc.)
+// for that address, so we can tell whether a send actually reached the inbox.
+$queryEmail = isset($_GET['email']) ? trim($_GET['email']) : '';
+if ($queryEmail !== '' && filter_var($queryEmail, FILTER_VALIDATE_EMAIL)) {
+    $report['email_probe'] = [
+        'email'            => $queryEmail,
+        'events'           => [],
+        'blocked_contact'  => null,
+    ];
+
+    // A. Transactional events for that address (last 20, most recent first)
+    $eventsUrl = 'https://api.brevo.com/v3/smtp/statistics/events'
+        . '?email=' . urlencode($queryEmail)
+        . '&limit=20&sort=desc';
+    $ch = curl_init($eventsUrl);
+    curl_setopt_array($ch, [
+        CURLOPT_HTTPHEADER     => ['api-key: ' . $key, 'accept: application/json'],
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT        => 10,
+    ]);
+    $evBody = curl_exec($ch);
+    $evCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    $evParsed = json_decode($evBody, true);
+    $report['email_probe']['events_http_code'] = $evCode;
+    if ($evCode === 200 && isset($evParsed['events'])) {
+        foreach ($evParsed['events'] as $ev) {
+            $report['email_probe']['events'][] = [
+                'event'       => $ev['event']       ?? null,
+                'date'        => $ev['date']        ?? null,
+                'subject'     => $ev['subject']     ?? null,
+                'reason'      => $ev['reason']      ?? null,
+                'template_id' => $ev['templateId']  ?? null,
+            ];
+        }
+    } elseif ($evCode !== 200) {
+        $report['email_probe']['events_error'] = $evParsed['message'] ?? 'non-200';
+    }
+
+    // B. Is the contact on the transactional blocklist?
+    $blockUrl = 'https://api.brevo.com/v3/smtp/blockedContacts/' . urlencode($queryEmail);
+    $ch = curl_init($blockUrl);
+    curl_setopt_array($ch, [
+        CURLOPT_HTTPHEADER     => ['api-key: ' . $key, 'accept: application/json'],
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT        => 10,
+    ]);
+    $blBody = curl_exec($ch);
+    $blCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    $blParsed = json_decode($blBody, true);
+    if ($blCode === 200) {
+        $report['email_probe']['blocked_contact'] = $blParsed; // reason + blockedAt
+    } elseif ($blCode === 404) {
+        $report['email_probe']['blocked_contact'] = 'not in blocklist (good)';
+    } else {
+        $report['email_probe']['blocked_contact'] = 'probe http ' . $blCode . ': ' . ($blParsed['message'] ?? '');
+    }
+}
+
 echo json_encode($report, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
