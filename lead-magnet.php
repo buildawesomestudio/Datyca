@@ -256,6 +256,37 @@ if ($contactCode !== 200 && $contactCode !== 201 && $contactCode !== 204) {
 }
 
 // ============================================
+// BREVO: unblock on new explicit request
+// ============================================
+// A fresh form submission is a new specific consent (GDPR art. 6.1.b,
+// execution of user's request) and overrides any stale unsubscribe or
+// bounce block on the transactional blocklist. Without this, an address
+// that ever clicked "unsubscribe" on a past delivery would be silently
+// blocked forever even though the user just explicitly re-requested
+// the guide — confusing UX, and not legally required.
+//
+// DELETE /v3/smtp/blockedContacts/{email}
+//   204 → was blocked, now removed
+//   404 → wasn't blocked (no-op, good)
+//   other → log, proceed anyway (the send may still succeed)
+$unblockCh = curl_init('https://api.brevo.com/v3/smtp/blockedContacts/' . urlencode($email));
+curl_setopt_array($unblockCh, [
+    CURLOPT_CUSTOMREQUEST  => 'DELETE',
+    CURLOPT_HTTPHEADER     => [
+        'api-key: ' . $BREVO_API_KEY,
+        'accept: application/json',
+    ],
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_TIMEOUT        => 10,
+]);
+curl_exec($unblockCh);
+$unblockCode = curl_getinfo($unblockCh, CURLINFO_HTTP_CODE);
+curl_close($unblockCh);
+if ($unblockCode !== 204 && $unblockCode !== 404 && $unblockCode !== 200) {
+    error_log('lead-magnet.php: unblock probe http ' . $unblockCode . ' for ' . $email);
+}
+
+// ============================================
 // BREVO: send transactional email
 // ============================================
 $emailPayload = [

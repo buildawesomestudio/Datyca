@@ -84,6 +84,29 @@ if ($code === 200) {
     $report['brevo_account_error_code'] = $parsed['code'] ?? null;
 }
 
+// ── Optional: one-shot unblock of a specific email ──────────
+// Usage: /lead-magnet-check.php?unblock=someone@example.com
+// Removes the address from Brevo's transactional blocklist.
+$unblockEmail = isset($_GET['unblock']) ? trim($_GET['unblock']) : '';
+if ($unblockEmail !== '' && filter_var($unblockEmail, FILTER_VALIDATE_EMAIL)) {
+    $ch = curl_init('https://api.brevo.com/v3/smtp/blockedContacts/' . urlencode($unblockEmail));
+    curl_setopt_array($ch, [
+        CURLOPT_CUSTOMREQUEST  => 'DELETE',
+        CURLOPT_HTTPHEADER     => ['api-key: ' . $key, 'accept: application/json'],
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT        => 10,
+    ]);
+    curl_exec($ch);
+    $ubCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    $report['unblock_action'] = [
+        'email'            => $unblockEmail,
+        'http_code'        => $ubCode,
+        'result'           => $ubCode === 204 ? 'unblocked'
+                            : ($ubCode === 404 ? 'not in blocklist (nothing to do)' : 'unexpected'),
+    ];
+}
+
 // ── Optional: transactional events for a specific email ─────
 // Usage: /lead-magnet-check.php?email=someone@example.com
 // Pulls the last Brevo events (sent, delivered, bounced, blocked, spam, etc.)
