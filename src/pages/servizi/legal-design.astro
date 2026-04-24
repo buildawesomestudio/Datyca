@@ -1,28 +1,23 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import Breadcrumb from '../../components/Breadcrumb.astro';
-import ServiceIntro from '../../components/ServiceIntro.astro';
-import CosaFacciamoCards from '../../components/CosaFacciamoCards.astro';
-import ServiziCorrelati from '../../components/ServiziCorrelati.astro';
-import Contatti from '../../components/Contatti.astro';
+import ServicePageLayout from '../../layouts/ServicePageLayout.astro';
 
 const serviziServices = [
   {
     slug: 'cybersecurity',
     title: 'Cybersecurity',
-    description: 'Sistemi di intelligenza artificiale affidabili, trasparenti e centrati sull\u2019uomo',
+    description: 'Sistemi di intelligenza artificiale affidabili, trasparenti e centrati sull’uomo',
     href: '/servizi/cybersecurity',
   },
   {
     slug: 'legal-design',
     title: 'Legal Design',
-    description: 'Sistemi di intelligenza artificiale affidabili, trasparenti e centrati sull\u2019uomo',
+    description: 'Sistemi di intelligenza artificiale affidabili, trasparenti e centrati sull’uomo',
     href: '/servizi/legal-design',
   },
   {
     slug: 'data-protection',
     title: 'Data Protection',
-    description: 'Sistemi di intelligenza artificiale affidabili, trasparenti e centrati sull\u2019uomo',
+    description: 'Sistemi di intelligenza artificiale affidabili, trasparenti e centrati sull’uomo',
     href: '/servizi/data-protection',
   },
 ];
@@ -30,62 +25,46 @@ const serviziServices = [
 const cosaFacciamoItems = [
   {
     title: 'Digitalizzazione dei processi\ndi compliance',
-    body: 'Partiamo da procedure e requisiti normativi per progettare flussi digitali che semplificano la collaborazione tra le funzioni coinvolte, automatizzano le verifiche e producono la documentazione necessaria senza appesantire l\u2019operatività.',
+    body: 'Partiamo da procedure e requisiti normativi per progettare flussi digitali che semplificano la collaborazione tra le funzioni coinvolte, automatizzano le verifiche e producono la documentazione necessaria senza appesantire l’operatività.',
   },
   {
     title: 'Armonizzazione dei sistemi\ndi compliance',
-    body: 'Integriamo procedure e adempimenti che insistono su ambiti diversi ma sovrapposti \u2014 protezione dei dati, sicurezza delle informazioni, intelligenza artificiale \u2014 in un sistema unico e coerente, eliminando duplicazioni e incongruenze.',
+    body: 'Integriamo procedure e adempimenti che insistono su ambiti diversi ma sovrapposti — protezione dei dati, sicurezza delle informazioni, intelligenza artificiale — in un sistema unico e coerente, eliminando duplicazioni e incongruenze.',
   },
   {
     title: 'Information design per\npolicy e procedure',
-    body: 'Reingegnerizziamo la documentazione di compliance applicando metodologie di Legal Design: strutture visive, linguaggio accessibile, formati orientati all\u2019uso. Perché un documento chiaro è il primo passo per una compliance effettiva.',
+    body: 'Reingegnerizziamo la documentazione di compliance applicando metodologie di Legal Design: strutture visive, linguaggio accessibile, formati orientati all’uso. Perché un documento chiaro è il primo passo per una compliance effettiva.',
   },
   {
     title: 'Progettazione di interfacce e\nstrumenti operativi',
-    body: 'Disegniamo gli strumenti con cui l\u2019organizzazione comunica e gestisce la compliance verso l\u2019interno e verso l\u2019esterno: informative, condizioni d\u2019uso, moduli di consenso, dashboard di monitoraggio e reportistica.',
+    body: 'Disegniamo gli strumenti con cui l’organizzazione comunica e gestisce la compliance verso l’interno e verso l’esterno: informative, condizioni d’uso, moduli di consenso, dashboard di monitoraggio e reportistica.',
   },
   {
     title: 'Workflow e strumenti\ncollaborativi su misura',
     body: 'Sviluppiamo ambienti di lavoro digitali personalizzati per la gestione dei flussi di compliance, dalla raccolta delle informazioni alla produzione dei deliverable, facilitando il coordinamento tra le funzioni e la tracciabilità delle attività.',
   },
   {
-    title: 'Formazione all\u2019uso degli\nstrumenti',
-    body: 'Accompagniamo le persone nell\u2019adozione dei nuovi strumenti e processi con percorsi di formazione pratici, orientati all\u2019operatività quotidiana e calibrati sui diversi ruoli coinvolti.',
+    title: 'Formazione all’uso degli\nstrumenti',
+    body: 'Accompagniamo le persone nell’adozione dei nuovi strumenti e processi con percorsi di formazione pratici, orientati all’operatività quotidiana e calibrati sui diversi ruoli coinvolti.',
   },
 ];
 ---
 
-<Layout
-  title="Legal Design — Datyca"
-  description="Trasformiamo la compliance da adempimento formale a strumento di lavoro. Progettiamo sistemi che integrano requisiti normativi, processi organizzativi e strumenti digitali."
->
-  <main>
-    <Breadcrumb
-      items={[
-        { label: 'Home', href: '/' },
-        { label: 'Servizi' },
-        { label: 'Legal Design' },
-      ]}
-    />
-    <div class="ldes-page__dark">
-      <ServiceIntro
-        title="Legal Design"
-        subtitle="Design dei processi e degli strumenti di compliance"
-        bodyHtml={[
-          'Trasformiamo la compliance da adempimento formale a strumento di lavoro. Progettiamo sistemi che integrano requisiti normativi, processi organizzativi e strumenti digitali per rendere le <strong>regole comprensibili, applicabili e realmente utilizzate</strong> dalle persone all&rsquo;interno dell&rsquo;organizzazione.',
-          'Il nostro approccio parte da un principio concreto: una procedura che nessuno legge o comprende non genera conformità, genera rischio. Per questo non ci limitiamo a produrre documenti, ma progettiamo i flussi e gli strumenti che li rendono operativi.',
-        ]}
-        obiettivoText="Sistemi di compliance che funzionano davvero: chiari per le persone, integrati nei processi, capaci di semplificare il lavoro quotidiano anziché complicarlo."
-      />
-      <CosaFacciamoCards items={cosaFacciamoItems} />
-      <ServiziCorrelati services={serviziServices} current="legal-design" />
-    </div>
-    <Contatti />
-  </main>
-</Layout>
-
-<style>
-  .ldes-page__dark {
-    position: relative;
-  }
-</style>
+<ServicePageLayout
+  pageTitle="Legal Design — Datyca"
+  pageDescription="Trasformiamo la compliance da adempimento formale a strumento di lavoro. Progettiamo sistemi che integrano requisiti normativi, processi organizzativi e strumenti digitali."
+  breadcrumbParent="Servizi"
+  breadcrumbCurrent="Legal Design"
+  currentSlug="legal-design"
+  services={serviziServices}
+  intro={{
+    title: 'Legal Design',
+    subtitle: 'Design dei processi e degli strumenti di compliance',
+    bodyHtml: [
+      'Trasformiamo la compliance da adempimento formale a strumento di lavoro. Progettiamo sistemi che integrano requisiti normativi, processi organizzativi e strumenti digitali per rendere le <strong>regole comprensibili, applicabili e realmente utilizzate</strong> dalle persone all&rsquo;interno dell&rsquo;organizzazione.',
+      'Il nostro approccio parte da un principio concreto: una procedura che nessuno legge o comprende non genera conformità, genera rischio. Per questo non ci limitiamo a produrre documenti, ma progettiamo i flussi e gli strumenti che li rendono operativi.',
+    ],
+    obiettivoText: "Sistemi di compliance che funzionano davvero: chiari per le persone, integrati nei processi, capaci di semplificare il lavoro quotidiano anziché complicarlo.",
+  }}
+  cosaFacciamoItems={cosaFacciamoItems}
+/>
