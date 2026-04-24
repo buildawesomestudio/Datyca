@@ -20,6 +20,13 @@ const footerLinksRight = [
   { label: 'Cookie Policy', href: 'https://www.iubenda.com/privacy-policy/48742954/cookie-policy', external: true },
   { label: 'Preferenze cookie', href: '#', preferences: true },
 ];
+
+const socialLinks = [
+  { label: 'LinkedIn',  icon: 'icon-linkedin',  href: '#' },
+  { label: 'Facebook',  icon: 'icon-facebook',  href: '#' },
+  { label: 'Instagram', icon: 'icon-instagram', href: '#' },
+  { label: 'YouTube',   icon: 'icon-youtube',   href: '#' },
+];
 ---
 
 <section id="contatti" class="contatti">
@@ -147,6 +154,21 @@ const footerLinksRight = [
         </div>
       </div>
 
+      <div class="contatti__social" data-contatti-social>
+        {socialLinks.map(({ label, icon, href }) => (
+          <a
+            href={href}
+            class="contatti__social-link"
+            data-contatti-social-link
+            aria-label={label}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <svg class="contatti__social-icon" width="22" height="22" aria-hidden="true"><use href={`#${icon}`} /></svg>
+          </a>
+        ))}
+      </div>
+
       <div class="contatti__bottom">
         <a href="/" class="contatti__logo-link">
           <img
@@ -157,9 +179,14 @@ const footerLinksRight = [
             height="60"
           />
         </a>
-        <p class="contatti__copyright">
-          &copy; 2026 DATYCA Legal Design Lab S.r.l. &mdash; P.IVA 06954020829
-        </p>
+        <div class="contatti__bottom-right">
+          <p class="contatti__copyright">
+            &copy; 2026 DATYCA Legal Design Lab S.r.l. &mdash; P.IVA 06954020829
+          </p>
+          <p class="contatti__webmaster">
+            Webmaster <a href="https://buildawesome.studio" target="_blank" rel="noopener noreferrer" class="contatti__webmaster-link" data-contatti-webmaster>buildawesome.studio</a>
+          </p>
+        </div>
       </div>
     </footer>
   </div>
@@ -435,12 +462,40 @@ const footerLinksRight = [
     text-decoration: none;
   }
 
+  /* ── Social row ── */
+  .contatti__social {
+    display: flex;
+    gap: 24px;
+    justify-content: flex-end;
+    padding: 40px var(--_pad-x) 0;
+  }
+
+  .contatti__social-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-black-almost-900);
+    text-decoration: none;
+  }
+
+  .contatti__social-icon {
+    width: 22px;
+    height: 22px;
+  }
+
   /* ── Bottom bar ── */
   .contatti__bottom {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    padding: 60px var(--_pad-x) 60px;
+    padding: 40px var(--_pad-x) 60px;
+  }
+
+  .contatti__bottom-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
   }
 
   .contatti__logo {
@@ -455,6 +510,23 @@ const footerLinksRight = [
     line-height: 24px;
     color: var(--color-black-almost-900);
     text-align: right;
+  }
+
+  .contatti__webmaster {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: 11px;
+    line-height: 16px;
+    color: var(--color-black-almost-900);
+    opacity: 0.55;
+    text-align: right;
+    margin: 0;
+  }
+
+  .contatti__webmaster-link {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px solid currentColor;
   }
 
   @media (max-width: 1023px) {
@@ -500,13 +572,21 @@ const footerLinksRight = [
     .contatti__footer-col {
       flex: 1;
     }
+    .contatti__social {
+      justify-content: flex-start;
+      padding-left: var(--_pad-x);
+    }
     .contatti__bottom {
       flex-direction: column;
       align-items: flex-start;
       gap: 24px;
       padding-left: var(--_pad-x);
     }
-    .contatti__copyright {
+    .contatti__bottom-right {
+      align-items: flex-start;
+    }
+    .contatti__copyright,
+    .contatti__webmaster {
       text-align: left;
     }
     .contatti__input {
@@ -537,6 +617,8 @@ const footerLinksRight = [
       const submitBtn = section.querySelector('[data-contatti-submit]') as HTMLElement;
       const separator = section.querySelector('.contatti__separator') as HTMLElement;
       const footerLinks = section.querySelectorAll<HTMLAnchorElement>('[data-contatti-footer-link]');
+      const socialLinks = section.querySelectorAll<HTMLAnchorElement>('[data-contatti-social-link]');
+      const webmasterLink = section.querySelector('[data-contatti-webmaster]') as HTMLAnchorElement | null;
       const bottom = section.querySelector('.contatti__bottom') as HTMLElement;
       const form = section.querySelector('.contatti__form') as HTMLFormElement;
       const addresses = section.querySelectorAll<HTMLAnchorElement>('[data-contatti-address]');
@@ -550,6 +632,7 @@ const footerLinksRight = [
         gsap.set(submitBtn, { autoAlpha: 1, y: 0 });
         gsap.set(separator, { scaleX: 1 });
         gsap.set(footerLinks, { autoAlpha: 1, y: 0 });
+        gsap.set(socialLinks, { autoAlpha: 1, y: 0 });
         gsap.set(bottom, { autoAlpha: 1 });
       } else {
         gsap.set(title, { autoAlpha: 0 });
@@ -559,6 +642,7 @@ const footerLinksRight = [
         gsap.set(submitBtn, { autoAlpha: 0, y: 15 });
         gsap.set(separator, { scaleX: 0, transformOrigin: 'left center' });
         gsap.set(footerLinks, { autoAlpha: 0, y: 15 });
+        gsap.set(socialLinks, { autoAlpha: 0, y: 15 });
         gsap.set(bottom, { autoAlpha: 0 });
 
         const titleSplit = SplitText.create(title, { type: 'words', aria: 'none' });
@@ -613,11 +697,18 @@ const footerLinksRight = [
           ease: 'power2.out',
         }, 0.85);
 
+        // Social icons
+        revealTl.to(socialLinks, {
+          autoAlpha: 1, y: 0,
+          duration: 0.4, stagger: 0.05,
+          ease: 'power2.out',
+        }, 1.0);
+
         // Bottom bar
         revealTl.to(bottom, {
           autoAlpha: 1,
           duration: 0.5, ease: 'power2.out',
-        }, 1.0);
+        }, 1.1);
 
         revealTl.eventCallback('onComplete', () => {
           titleSplit.revert();
@@ -674,6 +765,42 @@ const footerLinksRight = [
           });
         }, { signal: ac.signal });
       });
+
+      // ── Hover: Social icons ──
+      socialLinks.forEach(link => {
+        link.addEventListener('mouseenter', () => {
+          gsap.to(link, {
+            color: '#F21763',
+            scale: 1.12,
+            duration: 0.25, ease: 'power2.out', overwrite: true,
+          });
+        }, { signal: ac.signal });
+
+        link.addEventListener('mouseleave', () => {
+          gsap.to(link, {
+            color: '#0D0826',
+            scale: 1,
+            duration: 0.25, ease: 'power2.out', overwrite: true,
+          });
+        }, { signal: ac.signal });
+      });
+
+      // ── Hover: Webmaster link ──
+      if (webmasterLink) {
+        webmasterLink.addEventListener('mouseenter', () => {
+          gsap.to(webmasterLink, {
+            color: '#F21763',
+            duration: 0.25, overwrite: true,
+          });
+        }, { signal: ac.signal });
+
+        webmasterLink.addEventListener('mouseleave', () => {
+          gsap.to(webmasterLink, {
+            color: '#0D0826',
+            duration: 0.25, overwrite: true,
+          });
+        }, { signal: ac.signal });
+      }
 
       // ── Preferenze cookie: riapre la modale iubenda ──
       const prefsLink = section.querySelector('[data-cookie-preferences]') as HTMLAnchorElement | null;
