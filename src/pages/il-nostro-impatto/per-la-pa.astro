@@ -198,6 +198,7 @@ const cosaFacciamoItems = [
 </style>
 
 <script>
+  import { MQ } from '@utils/breakpoints';
   import gsap from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
   import { SplitText } from 'gsap/SplitText';
@@ -253,8 +254,8 @@ const cosaFacciamoItems = [
     }
 
     const mm = gsap.matchMedia();
-    mm.add('(min-width: 768px)', setup);
-    mm.add('(max-width: 767px)', setup);
+    mm.add(MQ.tabletUp, setup);
+    mm.add(MQ.belowTablet, setup);
   }
 
   function initPaBgSquares() {
@@ -285,8 +286,8 @@ const cosaFacciamoItems = [
     }
 
     const mm = gsap.matchMedia();
-    mm.add('(min-width: 768px)', setup);
-    mm.add('(max-width: 767px)', setup);
+    mm.add(MQ.tabletUp, setup);
+    mm.add(MQ.belowTablet, setup);
   }
 
   // Page-level scripts run AFTER Layout's <script>, which means Layout's

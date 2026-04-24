@@ -58,6 +58,8 @@
 </style>
 
 <script>
+  import { MQ } from '@utils/breakpoints';
+  import { registerInit } from '@utils/init';
   import gsap from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -191,9 +193,9 @@
     }
 
     const mm = gsap.matchMedia();
-    mm.add('(min-width: 768px)', setupHeaderSwap);
-    mm.add('(max-width: 767px)', setupMobileLogoSwap);
+    mm.add(MQ.tabletUp, setupHeaderSwap);
+    mm.add(MQ.belowTablet, setupMobileLogoSwap);
   }
 
-  ((window as any).__initQueue ??= []).push(initHeaderCompact);
+  registerInit(initHeaderCompact);
 </script>

@@ -293,6 +293,8 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
 </style>
 
 <script>
+  import { MQ } from '@utils/breakpoints';
+  import { registerInit } from '@utils/init';
   import gsap from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -465,7 +467,7 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
     // Desktop: link hover animates arrow in from left + color shift.
     // Scoped to desktop so a stray trackpad hover on mobile can't hide the
     // top-level arrows, which must stay visible (they double as tap indicators).
-    mm.add('(min-width: 768px)', () => {
+    mm.add(MQ.tabletUp, () => {
       const desktopAc = new AbortController();
       const { signal: desktopSignal } = desktopAc;
 
@@ -486,7 +488,7 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
       return () => { desktopAc.abort(); };
     });
 
-    mm.add('(max-width: 767px)', () => {
+    mm.add(MQ.belowTablet, () => {
       // Top-level arrows stay visible static on mobile (no hover on touch)
       gsap.set('.megamenu-arrow--top', { autoAlpha: 1, x: 0 });
 
@@ -523,5 +525,5 @@ const rightColumn: (NavGroup | { label: string; href: string })[] = [
     });
   }
 
-  ((window as any).__initQueue ??= []).push(initMegamenu);
+  registerInit(initMegamenu);
 </script>

@@ -569,6 +569,7 @@
 </style>
 
 <script>
+  import { registerInit } from '@utils/init';
   import gsap from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -951,5 +952,5 @@
     window.addEventListener('datyca:leadmagnet:open', openModal);
   }
 
-  ((window as any).__initQueue ??= []).push(initLeadMagnetModal);
+  registerInit(initLeadMagnetModal);
 </script>

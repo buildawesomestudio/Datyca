@@ -187,6 +187,8 @@ const { title, subtitle, bodyHtml, ctaText, ctaHref, imageSrc, imageAlt, hideVis
 </style>
 
 <script>
+  import { MQ } from '@utils/breakpoints';
+  import { registerInit } from '@utils/init';
   import gsap from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
   import { SplitText } from 'gsap/SplitText';
@@ -299,9 +301,9 @@ const { title, subtitle, bodyHtml, ctaText, ctaHref, imageSrc, imageAlt, hideVis
     }
 
     const mm = gsap.matchMedia();
-    mm.add('(min-width: 768px)', setup);
-    mm.add('(max-width: 767px)', setup);
+    mm.add(MQ.tabletUp, setup);
+    mm.add(MQ.belowTablet, setup);
   }
 
-  ((window as any).__initQueue ??= []).push(initImpactIntro);
+  registerInit(initImpactIntro);
 </script>

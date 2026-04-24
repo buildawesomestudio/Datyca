@@ -194,6 +194,8 @@ const renderOrder = [4, 3, 2, 1, 0];
 </style>
 
 <script>
+  import { MQ } from '@utils/breakpoints';
+  import { registerInit } from '@utils/init';
   import gsap from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -358,7 +360,7 @@ const renderOrder = [4, 3, 2, 1, 0];
     // ── matchMedia: Desktop ───────────────────────────────────
     const mm = gsap.matchMedia();
 
-    mm.add('(min-width: 1024px)', () => {
+    mm.add(MQ.desktopUp, () => {
       currentLayer = -1;
       buildEntrance();
 
@@ -408,7 +410,7 @@ const renderOrder = [4, 3, 2, 1, 0];
     });
 
     // ── matchMedia: Mobile / Tablet ─────────────────────────
-    mm.add('(max-width: 1023px)', () => {
+    mm.add(MQ.belowDesktop, () => {
       currentLayer = -1;
       const ac = new AbortController();
 
@@ -522,5 +524,5 @@ const renderOrder = [4, 3, 2, 1, 0];
     });
   }
 
-  ((window as any).__initQueue ??= []).push(initCosaFacciamo);
+  registerInit(initCosaFacciamo);
 </script>

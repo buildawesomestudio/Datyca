@@ -169,6 +169,8 @@
 </style>
 
 <script>
+  import { MQ } from '@utils/breakpoints';
+  import { registerInit } from '@utils/init';
   import gsap from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
   import lottie from 'lottie-web';
@@ -212,7 +214,7 @@
     const mm = gsap.matchMedia();
 
     /* ═══ DESKTOP: pinned scrub with state transitions ═══ */
-    mm.add('(min-width: 768px)', () => {
+    mm.add(MQ.tabletUp, () => {
       const states = section.querySelectorAll<HTMLElement>('.tp-state');
 
       // 1. Create ALL lotties BEFORE hiding — containers are fully visible at this point
@@ -340,7 +342,7 @@
     });
 
     /* ═══ MOBILE: no pin, all visible in flow ═══ */
-    mm.add('(max-width: 767px)', () => {
+    mm.add(MQ.belowTablet, () => {
       createAll();
 
       // Section visibility gate — pause all when section is off-screen
@@ -362,5 +364,5 @@
     });
   }
 
-  ((window as any).__initQueue ??= []).push(initPrincipi);
+  registerInit(initPrincipi);
 </script>

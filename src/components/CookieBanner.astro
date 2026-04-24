@@ -168,6 +168,7 @@ const cookiePolicyUrl = 'https://www.iubenda.com/privacy-policy/48742954/cookie-
 </style>
 
 <script>
+  import { registerInit } from '@utils/init';
   import gsap from 'gsap';
 
   function initCookieBanner() {
@@ -286,5 +287,5 @@ const cookiePolicyUrl = 'https://www.iubenda.com/privacy-policy/48742954/cookie-
     });
   }
 
-  ((window as any).__initQueue ??= []).push(initCookieBanner);
+  registerInit(initCookieBanner);
 </script>
