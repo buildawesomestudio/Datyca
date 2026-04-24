@@ -28,7 +28,7 @@ jobs:
           protocol: ftps
           port: 21
           local-dir: ./dist/
-          server-dir: /
+          server-dir: /www.datyca.com/
           state-name: .ftp-deploy-sync-state.json
           log-level: standard
           exclude: |
