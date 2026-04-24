@@ -1,0 +1,40 @@
+# Security headers for datyca.com (Aruba Easy Linux + Apache).
+# Placed in public/ → Astro copies to dist/.htaccess → deployed by CI to
+# the web root alongside index.html. Applies to all files served from /.
+
+<IfModule mod_headers.c>
+    # HSTS — force HTTPS for 1 year, include subdomains.
+    # No "preload" directive: without manual submission to hstspreload.org
+    # it has no effect, and keeping it off leaves us free to downgrade if
+    # an HTTPS issue ever surfaces.
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+    # Block MIME sniffing — browsers must trust the Content-Type header,
+    # preventing certain XSS vectors (e.g. text/plain served as JS).
+    Header always set X-Content-Type-Options "nosniff"
+
+    # Clickjacking protection — allow embedding only from same origin.
+    # SAMEORIGIN is wider than DENY but compatible with preview tools and
+    # future iframes of our own (e.g. iubenda policy page from datyca.com).
+    Header always set X-Frame-Options "SAMEORIGIN"
+
+    # Minimal Referer leakage: send full URL to same-origin, only origin
+    # to cross-origin HTTPS, nothing to downgraded HTTP. Good privacy +
+    # keeps analytics working (origin still propagates).
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # Disable browser features we don't use. interest-cohort disables
+    # Chrome's now-deprecated FLoC just in case some browser revives it.
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), interest-cohort=()"
+</IfModule>
+
+# Deny access to sensitive dotfiles if accidentally deployed
+<FilesMatch "^\.(env|git|htpasswd|htaccess)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order deny,allow
+        Deny from all
+    </IfModule>
+</FilesMatch>
