@@ -13,13 +13,19 @@
  */
 
 // ============================================
-// CONFIGURATION — loaded from external config file (outside web root)
+// CONFIGURATION — loaded from external config file
+// Tries two locations: one level above web root (legacy), then /private/
+// inside web root (protected by .htaccess — used on shared hosting where
+// FTP root IS the web root and no "parent" directory is accessible).
 // ============================================
 $configPath = dirname(__DIR__) . '/contact-config.php';
 if (!file_exists($configPath)) {
+    $configPath = __DIR__ . '/private/contact-config.php';
+}
+if (!file_exists($configPath)) {
     http_response_code(500);
     echo json_encode(['message' => 'Configurazione server mancante']);
-    error_log('contact-config.php not found at: ' . $configPath);
+    error_log('contact-config.php not found');
     exit;
 }
 require $configPath;
@@ -32,7 +38,6 @@ $BASE_URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 
 $ALLOWED_ORIGINS = [
     'https://datyca.com',
     'https://www.datyca.com',
-    'https://darkorchid-falcon-584985.hostingersite.com',
     'http://localhost:4321',
     'http://localhost:3000',
 ];

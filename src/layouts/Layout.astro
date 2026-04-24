@@ -25,13 +25,8 @@ const { title = 'Datyca', description = '' } = Astro.props;
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  {/* iOS Safari address bar UI when expanded — match the dark page background.
-      Defensive: the primary fix for the translucent chrome blur is body's
-      dark background in global.css (theme-color does NOT control the
-      translucent toolbars). Kept here as an extra hardening layer that
-      costs nothing. See .claude/rules/ios-safari.md → "body background MUST
-      match the dominant page color". */}
   <meta name="theme-color" content="#0D0826" />
+  <meta name="version" content="v.1.0" />
   {description && <meta name="description" content={description} />}
   <link rel="preload" href={optikDemiBold} as="font" type="font/woff2" crossorigin />
   <link rel="preload" href={optikRegular} as="font" type="font/woff2" crossorigin />

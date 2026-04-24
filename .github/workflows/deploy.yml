@@ -1,11 +1,9 @@
-name: Deploy to Hostinger
+name: Deploy to Aruba
 
 on:
   push:
     branches: [main]
-
-permissions:
-  contents: write
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
@@ -21,7 +19,21 @@ jobs:
       - run: npm ci
       - run: npm run build
 
-      - uses: JamesIves/github-pages-deploy-action@v4
+      - name: Deploy via FTPS to Aruba
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          branch: deploy
-          folder: dist
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
+          local-dir: ./dist/
+          server-dir: /
+          state-name: .ftp-deploy-sync-state.json
+          log-level: standard
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/.DS_Store
+            private/contact-config.php

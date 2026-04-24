@@ -1,64 +1,148 @@
-# Checklist migrazione a produzione `datyca.com`
+# Deploy a produzione `datyca.com` su Aruba
 
-Task da completare **quando il sito passa dal dominio di staging Hostinger (`darkorchid-falcon-584985.hostingersite.com`) al dominio ufficiale `datyca.com` ospitato su Aruba Hosting**.
+Hosting: **Aruba Easy Linux** — `ftp.datyca.com`, path FTP `/` (coincide con la web root).
+CI/CD: push su `main` → GitHub Actions builda Astro e carica `dist/` via **FTPS** sulla root Aruba.
 
-## File da aggiornare
+---
 
-### 1. `public/firma-founder.html`
-Sostituire **3 occorrenze** di `https://darkorchid-falcon-584985.hostingersite.com` con `https://datyca.com`:
-- Linea ~28: href link logo
-- Linea ~29: src immagine logo
-- Linea ~33: src immagine badge ISO 42001
-- Linea ~36: src immagine badge AIGP
+## Flusso di deploy
 
-### 2. `public/firma-team.html`
-Sostituire **2 occorrenze** di `https://darkorchid-falcon-584985.hostingersite.com` con `https://datyca.com`:
-- Linea ~10: href link logo
-- Linea ~11: src immagine logo
-- Linea ~15: src immagine badge ISO 42001
-
-### 3. `public/contact.php` (opzionale)
-Linea 35: rimuovere `'https://darkorchid-falcon-584985.hostingersite.com'` dalla whitelist CORS **se non si vuole più permettere submit dal dominio di staging**. Se lo staging resta attivo per test, lasciare com'è.
-
-### 4. Comando di ricerca globale
-
-Per essere sicuri di non perdere occorrenze future:
-
-```bash
-grep -rn "darkorchid" --include="*.astro" --include="*.php" --include="*.html" --include="*.ts" --include="*.js" --include="*.json" --include="*.mjs" .
+```
+git push (main) ─► GitHub Actions
+                    ├─ npm ci
+                    ├─ npm run build        (Astro → dist/)
+                    └─ FTPS upload dist/    (SamKirkland/FTP-Deploy-Action)
+                                            └─ ftp.datyca.com:21, path /
 ```
 
-## File che NON richiedono modifiche
+Delta upload: SamKirkland salva un file `.ftp-deploy-sync-state.json` sul server e carica solo i file cambiati dai deploy successivi. Il primo deploy è completo (~pochi minuti), i successivi sono molto più veloci.
 
-- `public/email-preview-leadmagnet.html` → già usa `https://datyca.com` (assicurarsi che logo/fonts/PDF siano caricati su prod)
-- `public/email-preview.html` → usa path relativi, funziona su qualsiasi dominio
-- `public/email-preview-notification.html` → usa path relativi
-- Template email dentro `public/contact.php` → usa `$BASE_URL` dinamico (si adatta automaticamente al dominio del server)
+---
 
-## Brevo — verifiche su template
+## Setup iniziale (una tantum) — prima del primo push
 
-Se in futuro aggiungi/duplichi template su Brevo ispirandoti a quello del lead magnet, verifica che usino `https://datyca.com/...` e non link allo staging.
+### 1. PHP version su Aruba → 8.4
 
-## Caricamento assets su produzione Aruba
+Pannello Aruba → Gestione Hosting → **PHP Management** → seleziona **PHP 8.4** → Save.
 
-Assicurarsi che sulla nuova hosting Aruba siano presenti:
+### 2. GitHub Secrets (3)
 
-- `/images/logo-full_dark.png` (usato nelle email)
-- `/images/why-datyca/iso-42001.png`
-- `/images/why-datyca/aigp.png`
-- `/fonts/Optik-Regular.woff2`
-- `/fonts/Optik-Medium.woff2`
-- `/fonts/Spectralregular.woff2`
-- `/fonts/Spectral500.woff2`
-- `/fonts/Spectralitalic.woff2`
-- `/docs/DATYCA_Guida_AI_Governance_10_Step.pdf`
-- `/contact.php` (+ `contact-config.php` fuori web root con chiavi aggiornate)
-- `/lead-magnet.php` (+ stesse chiavi in `contact-config.php`)
+Da terminale con `gh` CLI (una volta sola):
 
-## Configurazione Aruba (post-migrazione)
+```bash
+gh secret set FTP_SERVER   --body "ftp.datyca.com"
+gh secret set FTP_USERNAME --body "13008380@aruba.it"
+gh secret set FTP_PASSWORD              # prompt interattivo: incolla la password
+```
 
-1. DNS: i TXT/CNAME Brevo e Google già presenti restano validi (il dominio non cambia, solo il target dei record A).
-2. PHP session: verificare che `session_start()` funzioni su Aruba (per rate limiting di contact.php e lead-magnet.php).
-3. cURL abilitato (richiesto per Brevo/Resend/Turnstile).
-4. Env file `contact-config.php` caricato **fuori** dalla web root di Aruba.
-5. Verificare che il PDF della guida sia raggiungibile pubblicamente: `https://datyca.com/docs/DATYCA_Guida_AI_Governance_10_Step.pdf`
+Oppure via UI GitHub: Settings → Secrets and variables → Actions → New repository secret.
+
+### 3. `contact-config.php` sul server (upload manuale, una tantum)
+
+Il file contiene secrets (API key Brevo/Resend/Turnstile) e **non è nel repo**. Va caricato a mano una volta sola, nella cartella `/private/` del server Aruba.
+
+a. Prepara il file partendo da `contact-config.example.php` nel repo, compilando:
+   - `$RESEND_API_KEY`
+   - `$BREVO_API_KEY`
+   - `$TURNSTILE_SECRET`
+   - `$CONTACT_EMAIL`
+
+b. Via FTP client (Cyberduck / FileZilla) con le credenziali Aruba:
+   - Host: `ftp.datyca.com` — Port: `21` — Protocol: **FTPS esplicito (AUTH TLS)**
+   - User: `13008380@aruba.it` — Password: quella di login Aruba
+   - Naviga in `/` (web root)
+   - Carica il file in `/private/contact-config.php`
+
+c. Verifica che `/private/.htaccess` (uploadato dal CI) stia proteggendo la cartella: apri in browser `https://datyca.com/private/contact-config.php` → deve restituire **403 Forbidden**. Se vedi il contenuto o il file ti viene proposto in download, il `.htaccess` non sta funzionando — NON procedere col go-live.
+
+### 4. DNS
+
+Il dominio `datyca.com` è registrato presso Aruba, quindi i record A / AAAA puntano già all'hosting Aruba (IP 89.46.110.76). **Nessuna azione DNS richiesta**.
+
+I record DNS aggiuntivi (TXT di Brevo per DKIM/SPF, eventuali Google Search Console) sono già configurati sul pannello Aruba e non cambiano.
+
+### 5. Verifica assets già presenti su prod
+
+Dopo il primo deploy, verifica che questi URL rispondano 200:
+
+- `https://datyca.com/images/logo-full_dark.png` (usato nelle email)
+- `https://datyca.com/images/why-datyca/iso-42001.png`
+- `https://datyca.com/images/why-datyca/aigp.png`
+- `https://datyca.com/fonts/Optik-Regular.woff2`
+- `https://datyca.com/fonts/Optik-Medium.woff2`
+- `https://datyca.com/docs/DATYCA_Guida_AI_Governance_10_Step.pdf`
+- `https://datyca.com/contact.php` (risponde JSON con errore CORS/405 se GET — è ok, significa che esiste)
+- `https://datyca.com/lead-magnet.php` (idem)
+
+---
+
+## Il go-live (quando tutto è pronto)
+
+```bash
+git push origin main
+```
+
+Questo triggera la GitHub Action. Puoi seguire il deploy su **Actions** tab del repo.
+Durata attesa: **~3–5 minuti** al primo deploy, **~30s–1m** ai successivi.
+
+---
+
+## Verifiche post go-live
+
+- [ ] `https://datyca.com` carica in ≤2s
+- [ ] Form contatti: invio test con email reale → arrivo email
+- [ ] Lead magnet: opt-in → arrivo email Brevo con PDF
+- [ ] `https://datyca.com/private/contact-config.php` → **403**
+- [ ] DevTools Network: font `.woff2` caricati da `/_astro/` (non 404)
+- [ ] Cookie banner iubenda appare al primo visit
+- [ ] Mobile iOS: Hero video parte, pin sections funzionano
+- [ ] Google Search Console: riverifica proprietà se richiesto
+
+---
+
+## Rollback in caso di regressione
+
+1. **Codice**: `git revert <sha>` sul main → push → CI ridispiega automaticamente la versione corretta.
+2. **Disattivazione temporanea sito**: caricare via FTP un `/index.html` di manutenzione nella root. La GitHub Action però al prossimo deploy lo sovrascriverà con Astro.
+3. **Rollback DNS** (estremo, riporta su Hostinger): richiede cambio record A presso il DNS Aruba, propagazione 15min–48h. Assicurarsi che Hostinger sia ancora attivo.
+
+---
+
+## Sicurezza — cosa NON committare mai
+
+- `contact-config.php` (vero, con secrets) — solo su server via FTP manuale
+- `.env` (locale) — già in `.gitignore`
+- Chiavi API in plain text — solo GitHub Secrets o config fuori dal repo
+
+---
+
+## File strutture su produzione
+
+```
+/ (web root + FTP root Aruba)
+├── index.html                        ← da dist/
+├── _astro/                           ← asset hashed (CSS, JS, font, img)
+├── images/
+├── fonts/
+├── docs/
+├── animations/
+├── video/
+├── contact.php                       ← da dist/ (ex public/)
+├── lead-magnet.php                   ← da dist/
+├── firma-founder.html, firma-team.html
+├── favicon.svg
+├── private/
+│   ├── .htaccess                     ← da dist/ (uploadato dal CI)
+│   └── contact-config.php            ← MAI dal CI, solo upload manuale
+└── .ftp-deploy-sync-state.json       ← creato da SamKirkland (non toccare)
+```
+
+---
+
+## Dismissione Hostinger (quando confermi che Aruba funziona)
+
+Dopo 2–4 settimane di prod Aruba senza problemi:
+
+1. Rimuovi il sito da Hostinger (pannello Hostinger → Hosting → Manage → Delete Website).
+2. Disdici il piano Hostinger al prossimo rinnovo.
+3. Su GitHub, elimina il branch residuo `deploy` se presente: `git push origin --delete deploy`
