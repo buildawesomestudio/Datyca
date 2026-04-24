@@ -5,6 +5,7 @@ import HeaderCompact from '../components/HeaderCompact.astro';
 import Megamenu from '../components/Megamenu.astro';
 import CookieBanner from '../components/CookieBanner.astro';
 import LeadMagnetModal from '../components/LeadMagnetModal.astro';
+import IconSprite from '../components/IconSprite.astro';
 // Import font files to get their hashed, built URLs. Hardcoding '/src/fonts/...'
 // in <link rel="preload"> works in `astro dev` (Vite proxy) but 404s in production
 // where Astro emits '/_astro/Optik-*.<hash>.woff2'. Using `?url` imports lets Astro
@@ -329,6 +330,7 @@ const { title = 'Datyca', description = '' } = Astro.props;
 </head>
 <body>
 
+  <IconSprite />
   <Header />
   <HeaderCompact />
   <Megamenu />

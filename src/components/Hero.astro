@@ -54,6 +54,7 @@
 
   #hero-video-frame {
     position: absolute;
+    inset: 0;
     overflow: hidden;
   }
 
@@ -240,8 +241,10 @@
       );
       const allLines = splits.flatMap(s => s.lines);
 
-      // Initial states
-      gsap.set('#hero-video-frame', { top: 0, left: 0, right: 0, bottom: 0 });
+      // Initial states. #hero-video-frame sizing lives in CSS (`inset: 0`) so
+      // the poster is visible from first paint, before GSAP/fonts are ready.
+      // The tl.fromTo below imposes {top:0,left:0,right:0,bottom:0} as its
+      // explicit start state when the scrub timeline runs.
       gsap.set('#hero-content', { yPercent: -50, autoAlpha: 1 });
       gsap.set(allLines, { autoAlpha: 0, y: 20 });
       gsap.set('#hero-cta', { autoAlpha: 0, y: 20 });
