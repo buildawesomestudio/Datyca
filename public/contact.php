@@ -33,7 +33,7 @@ require $configPath;
 // contact-config.php must define:
 // $RESEND_API_KEY, $TURNSTILE_SECRET, $CONTACT_EMAIL
 $FROM_EMAIL = 'Datyca <noreply@datyca.com>';
-$BASE_URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'];
+$BASE_URL = 'https://datyca.com';
 
 $ALLOWED_ORIGINS = [
     'https://datyca.com',
