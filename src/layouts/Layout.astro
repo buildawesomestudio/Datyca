@@ -313,11 +313,17 @@ const { title = 'Datyca', description = '' } = Astro.props;
           setTimeout(T.load, 2000);
         }
       }
-      if (document.readyState === 'complete') {
-        schedule();
-      } else {
-        window.addEventListener('load', schedule, { once: true });
-      }
+      // Auto-schedule disabled on purpose. A previous iteration loaded
+      // Turnstile in requestIdleCallback at window.load on every page, then
+      // rendered the widget as soon as it was ready. With `appearance:
+      // interaction-only` that keeps a Cloudflare challenge iframe alive on
+      // every page; on Safari the iframe runs periodic self-checks that fail
+      // inside about:blank sub-iframes (sandbox without allow-scripts),
+      // producing a TypeError loop that hogs CPU → scroll freeze + invisible
+      // elements. Now Contatti calls T.load() on first focusin, and the
+      // LeadMagnet modal calls it on open — both real user gestures. The
+      // <link rel="preload"> in <head> still warms the network cache, so the
+      // first user interaction does not pay the download cost.
     })();
   </script>
 </head>

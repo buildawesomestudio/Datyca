@@ -674,8 +674,10 @@
       // visible "jump" upward. Let the user focus manually — that keeps the
       // autofill UX intact without the layout shift.
 
-      // Best-effort: ensure Turnstile is already loading when the modal opens,
-      // so the widget is ready by the time the user reaches submit.
+      // Lazy Turnstile: load only when the modal is opened (a real user
+      // gesture). The script is preloaded in <head>, so the actual fetch is
+      // already cached. Module-scope onReady() above will render the widget
+      // as soon as the loader reports ready.
       (window as any).datycaTurnstile?.load();
     }
 

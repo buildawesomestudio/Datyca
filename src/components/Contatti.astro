@@ -811,23 +811,25 @@ const socialLinks = [
         });
       }
 
-      const T = (window as any).datycaTurnstile;
-      if (T) {
+      // Lazy Turnstile: defer both load() AND widget render until the user
+      // first interacts with the form (focusin bubbles from any field).
+      // Why: with `appearance: 'interaction-only'` an always-rendered widget
+      // keeps a Cloudflare iframe alive on every page, and that iframe runs
+      // periodic self-checks that fail on Safari (about:blank sandbox without
+      // allow-scripts) → CPU loop → scroll freeze + invisible elements. By
+      // mounting the widget only on first interaction, idle pages have zero
+      // Cloudflare iframe alive. The submit handler below also calls load()
+      // + render as a safety net for users who autofill+submit without focus.
+      let turnstileBootstrapped = false;
+      function bootstrapTurnstile() {
+        if (turnstileBootstrapped) return;
+        turnstileBootstrapped = true;
+        const T = (window as any).datycaTurnstile;
+        if (!T) return;
         T.load();
         T.onReady((ok: boolean) => { if (ok) renderTurnstileWidget(); });
       }
-
-      // Secondary trigger: if idle never fires (heavy pages, background tab
-      // that just resumed, etc.) kick the loader as soon as the form nears
-      // the viewport. load() is idempotent.
-      const io = new IntersectionObserver((entries) => {
-        if (entries.some(e => e.isIntersecting)) {
-          (window as any).datycaTurnstile?.load();
-          io.disconnect();
-        }
-      }, { rootMargin: '200px' });
-      io.observe(form);
-      ac.signal.addEventListener('abort', () => io.disconnect());
+      form.addEventListener('focusin', bootstrapTurnstile, { signal: ac.signal });
 
       // ── Form validation ──
       const validationRules: Record<string, { test: (v: string) => boolean; message: string }> = {
