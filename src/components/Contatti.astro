@@ -179,14 +179,9 @@ const socialLinks = [
             height="60"
           />
         </a>
-        <div class="contatti__bottom-right">
-          <p class="contatti__copyright">
-            &copy; 2026 DATYCA Legal Design Lab S.r.l. &mdash; P.IVA 06954020829
-          </p>
-          <p class="contatti__webmaster">
-            Webmaster <a href="https://buildawesome.studio" target="_blank" rel="noopener noreferrer" class="contatti__webmaster-link" data-contatti-webmaster>buildawesome.studio</a>
-          </p>
-        </div>
+        <p class="contatti__copyright">
+          &copy; 2026 DATYCA Legal Design Lab S.r.l. &mdash; P.IVA 06954020829
+        </p>
       </div>
     </footer>
   </div>
@@ -283,6 +278,14 @@ const socialLinks = [
     color: var(--color-black-almost-900);
   }
 
+  /* Reserve space on the right of the email input for password-manager
+     autofill badges (1Password, iCloud Keychain, Bitwarden). Without this,
+     the badge overlays the text or resizes the input on focus, causing a
+     visible layout shift when the modal/form first gets focus. */
+  .contatti__input[type="email"] {
+    padding-right: 48px;
+  }
+
   .contatti__input:-webkit-autofill,
   .contatti__input:-webkit-autofill:hover,
   .contatti__input:-webkit-autofill:focus {
@@ -362,11 +365,19 @@ const socialLinks = [
     overflow: hidden;
   }
 
-  /* ── Turnstile ── */
+  /* ── Turnstile ──
+     With `appearance: interaction-only` the widget is invisible most of the
+     time, so the container stays at 0 height. When Cloudflare decides to show
+     a challenge the iframe appears — the transition smooths the resulting
+     height change so it does not snap the submit button down abruptly. */
   .contatti__turnstile {
     align-self: flex-end;
     margin-top: 12px;
     min-height: 0;
+    transition: min-height 0.2s ease;
+  }
+  .contatti__turnstile:not(:empty) {
+    min-height: 70px;
   }
 
   /* ── Submit row ── */
@@ -491,13 +502,6 @@ const socialLinks = [
     padding: 40px var(--_pad-x) 60px;
   }
 
-  .contatti__bottom-right {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 4px;
-  }
-
   .contatti__logo {
     width: 193px;
     height: 60px;
@@ -510,23 +514,6 @@ const socialLinks = [
     line-height: 24px;
     color: var(--color-black-almost-900);
     text-align: right;
-  }
-
-  .contatti__webmaster {
-    font-family: var(--font-sans);
-    font-weight: 400;
-    font-size: 11px;
-    line-height: 16px;
-    color: var(--color-black-almost-900);
-    opacity: 0.55;
-    text-align: right;
-    margin: 0;
-  }
-
-  .contatti__webmaster-link {
-    color: inherit;
-    text-decoration: none;
-    border-bottom: 1px solid currentColor;
   }
 
   @media (max-width: 1023px) {
@@ -582,11 +569,7 @@ const socialLinks = [
       gap: 24px;
       padding-left: var(--_pad-x);
     }
-    .contatti__bottom-right {
-      align-items: flex-start;
-    }
-    .contatti__copyright,
-    .contatti__webmaster {
+    .contatti__copyright {
       text-align: left;
     }
     .contatti__input {
@@ -618,7 +601,6 @@ const socialLinks = [
       const separator = section.querySelector('.contatti__separator') as HTMLElement;
       const footerLinks = section.querySelectorAll<HTMLAnchorElement>('[data-contatti-footer-link]');
       const socialLinks = section.querySelectorAll<HTMLAnchorElement>('[data-contatti-social-link]');
-      const webmasterLink = section.querySelector('[data-contatti-webmaster]') as HTMLAnchorElement | null;
       const bottom = section.querySelector('.contatti__bottom') as HTMLElement;
       const form = section.querySelector('.contatti__form') as HTMLFormElement;
       const addresses = section.querySelectorAll<HTMLAnchorElement>('[data-contatti-address]');
@@ -785,23 +767,6 @@ const socialLinks = [
         }, { signal: ac.signal });
       });
 
-      // ── Hover: Webmaster link ──
-      if (webmasterLink) {
-        webmasterLink.addEventListener('mouseenter', () => {
-          gsap.to(webmasterLink, {
-            color: '#F21763',
-            duration: 0.25, overwrite: true,
-          });
-        }, { signal: ac.signal });
-
-        webmasterLink.addEventListener('mouseleave', () => {
-          gsap.to(webmasterLink, {
-            color: '#0D0826',
-            duration: 0.25, overwrite: true,
-          });
-        }, { signal: ac.signal });
-      }
-
       // ── Preferenze cookie: riapre la modale iubenda ──
       const prefsLink = section.querySelector('[data-cookie-preferences]') as HTMLAnchorElement | null;
       prefsLink?.addEventListener('click', (e) => {
@@ -826,36 +791,43 @@ const socialLinks = [
         }, { signal: ac.signal });
       });
 
-      // ── Turnstile lazy-load ──
+      // ── Turnstile: use the shared loader declared in Layout.astro ──
+      // Loader is scheduled on requestIdleCallback at window.load; an
+      // IntersectionObserver below also calls load() so that even on a slow
+      // network the script has started fetching well before the form is in
+      // view. Rendering the widget in the local container is deferred until
+      // the loader reports "ready".
       const TURNSTILE_SITE_KEY = '0x4AAAAAAC97pyXgUgHeiHAx';
-      let turnstileLoaded = false;
       let turnstileWidgetId: string | null = null;
 
-      function loadTurnstile() {
-        if (turnstileLoaded) return;
-        turnstileLoaded = true;
-        const script = document.createElement('script');
-        script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad';
-        script.async = true;
-        (window as any).onTurnstileLoad = () => {
-          const container = document.getElementById('contatti-turnstile');
-          if (container && (window as any).turnstile) {
-            turnstileWidgetId = (window as any).turnstile.render(container, {
-              sitekey: TURNSTILE_SITE_KEY,
-              appearance: 'interaction-only',
-              theme: 'light',
-            });
-          }
-        };
-        document.head.appendChild(script);
+      function renderTurnstileWidget() {
+        if (turnstileWidgetId !== null) return;
+        const container = document.getElementById('contatti-turnstile');
+        if (!container || !(window as any).turnstile) return;
+        turnstileWidgetId = (window as any).turnstile.render(container, {
+          sitekey: TURNSTILE_SITE_KEY,
+          appearance: 'interaction-only',
+          theme: 'light',
+        });
       }
 
-      // Load Turnstile on first interaction with any form field
-      const firstInteraction = () => {
-        loadTurnstile();
-        form.removeEventListener('focusin', firstInteraction);
-      };
-      form.addEventListener('focusin', firstInteraction, { signal: ac.signal });
+      const T = (window as any).datycaTurnstile;
+      if (T) {
+        T.load();
+        T.onReady((ok: boolean) => { if (ok) renderTurnstileWidget(); });
+      }
+
+      // Secondary trigger: if idle never fires (heavy pages, background tab
+      // that just resumed, etc.) kick the loader as soon as the form nears
+      // the viewport. load() is idempotent.
+      const io = new IntersectionObserver((entries) => {
+        if (entries.some(e => e.isIntersecting)) {
+          (window as any).datycaTurnstile?.load();
+          io.disconnect();
+        }
+      }, { rootMargin: '200px' });
+      io.observe(form);
+      ac.signal.addEventListener('abort', () => io.disconnect());
 
       // ── Form validation ──
       const validationRules: Record<string, { test: (v: string) => boolean; message: string }> = {
@@ -971,18 +943,50 @@ const socialLinks = [
           return;
         }
 
-        // Get Turnstile token
+        // Turnstile gating: wait for the shared loader to be ready (or to
+        // confirm failure). Avoids the old silent "Verifica richiesta" error
+        // when a fast user on a slow network clicks submit before the script
+        // has finished loading.
+        setSubmitting(true);
+
+        const T = (window as any).datycaTurnstile;
+        if (T) {
+          T.load();
+          // Only surface a user-visible "verification in progress" message when
+          // the wait is actually noticeable — otherwise it just flickers.
+          if (T.state !== 'ready' && T.state !== 'failed') {
+            showStatus('Verifica antispam in corso...', 'success');
+          }
+          const ready = await new Promise<boolean>((resolve) => T.onReady(resolve));
+          if (!ready) {
+            clearStatus();
+            showStatus('Verifica antispam non disponibile. Scrivici direttamente a info@datyca.com.', 'error');
+            setSubmitting(false);
+            return;
+          }
+          renderTurnstileWidget();
+        }
+
+        // Poll for a token: the widget generates one shortly after render.
+        // `interaction-only` challenges may require user input — in that case
+        // the token appears when Cloudflare decides to show the challenge UI.
         let turnstileToken = '';
-        if ((window as any).turnstile && turnstileWidgetId != null) {
-          turnstileToken = (window as any).turnstile.getResponse(turnstileWidgetId) || '';
+        const tokenDeadline = Date.now() + 3000;
+        while (Date.now() < tokenDeadline) {
+          if ((window as any).turnstile && turnstileWidgetId != null) {
+            turnstileToken = (window as any).turnstile.getResponse(turnstileWidgetId) || '';
+            if (turnstileToken) break;
+          }
+          await new Promise(r => setTimeout(r, 150));
         }
         if (!turnstileToken) {
-          showStatus('Verifica di sicurezza in corso, riprova tra qualche secondo.', 'error');
-          loadTurnstile(); // ensure it's loading
+          clearStatus();
+          showStatus('Verifica antispam non completata. Riprova o scrivici a info@datyca.com.', 'error');
+          setSubmitting(false);
           return;
         }
 
-        setSubmitting(true);
+        clearStatus();
 
         try {
           const formData = Object.fromEntries(new FormData(form));

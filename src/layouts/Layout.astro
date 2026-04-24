@@ -30,11 +30,21 @@ const { title = 'Datyca', description = '' } = Astro.props;
   {description && <meta name="description" content={description} />}
   <link rel="preload" href={optikDemiBold} as="font" type="font/woff2" crossorigin />
   <link rel="preload" href={optikRegular} as="font" type="font/woff2" crossorigin />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  {/* `?v=2` bumps the cached copy served to browsers that visited an older
+      Datyca site (different favicon). Bump again whenever the favicon changes. */}
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
   {/* Warm up the iubenda CDN connection (DNS + TLS) in advance so that when
       iubenda_cs.js is lazy-loaded post-paint, the handshake is already done. */}
   <link rel="dns-prefetch" href="https://cdn.iubenda.com" />
   <link rel="preconnect" href="https://cdn.iubenda.com" crossorigin />
+  {/* Same pattern for Cloudflare Turnstile (bot verification in contact +
+      lead magnet forms). Preconnect opens the TLS handshake early; preload
+      fetches the 30KB script in background with fetchpriority=low so it does
+      not compete with font/CSS/hero on the critical path. The actual execution
+      is scheduled later via requestIdleCallback (see loader script below). */}
+  <link rel="dns-prefetch" href="https://challenges.cloudflare.com" />
+  <link rel="preconnect" href="https://challenges.cloudflare.com" crossorigin />
+  <link rel="preload" href="https://challenges.cloudflare.com/turnstile/v0/api.js" as="script" fetchpriority="low" crossorigin />
   <title>{title}</title>
 
   {/* iubenda Cookie Solution — config MUST be defined before iubenda_cs.js loads.
@@ -241,6 +251,74 @@ const { title = 'Datyca', description = '' } = Astro.props;
     'https://connect.facebook.net/en_US/fbevents.js');
     fbq('init', '4220747128235906');
     fbq('track', 'PageView');
+  </script>
+
+  {/* Cloudflare Turnstile shared loader — same lazy-load pattern as iubenda:
+      preconnect + preload in background, actual execution deferred to an idle
+      window so it never competes with hero animations or input events. A small
+      state machine (unloaded/loading/ready/failed) lets forms await readiness
+      at submit time instead of failing silently when the user is very fast on
+      a slow network. Exposed on `window.datycaTurnstile` so both Contatti and
+      LeadMagnetModal share one script load, one callback, one state. */}
+  <script is:inline>
+    (function () {
+      var T = {
+        state: 'unloaded', // 'unloaded' | 'loading' | 'ready' | 'failed'
+        _waiters: [],
+        _failTimer: null,
+        onReady: function (cb) {
+          if (T.state === 'ready') { cb(true); return; }
+          if (T.state === 'failed') { cb(false); return; }
+          T._waiters.push(cb);
+        },
+        load: function () {
+          if (T.state !== 'unloaded') return;
+          T.state = 'loading';
+          window.onDatycaTurnstileLoad = function () {
+            if (T._failTimer) { clearTimeout(T._failTimer); T._failTimer = null; }
+            T.state = 'ready';
+            var waiters = T._waiters; T._waiters = [];
+            waiters.forEach(function (cb) { try { cb(true); } catch (e) {} });
+          };
+          // 5s CDN timeout: if the script never resolves (outage, blocked by
+          // aggressive adblock), fail gracefully instead of leaving the form
+          // waiting forever. Forms will then show a human fallback (email).
+          T._failTimer = setTimeout(function () {
+            if (T.state === 'loading') {
+              T.state = 'failed';
+              var waiters = T._waiters; T._waiters = [];
+              waiters.forEach(function (cb) { try { cb(false); } catch (e) {} });
+            }
+          }, 5000);
+          var s = document.createElement('script');
+          s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onDatycaTurnstileLoad';
+          s.async = true;
+          s.onerror = function () {
+            if (T._failTimer) { clearTimeout(T._failTimer); T._failTimer = null; }
+            T.state = 'failed';
+            var waiters = T._waiters; T._waiters = [];
+            waiters.forEach(function (cb) { try { cb(false); } catch (e) {} });
+          };
+          document.head.appendChild(s);
+        }
+      };
+      window.datycaTurnstile = T;
+
+      function schedule() {
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(T.load, { timeout: 2500 });
+        } else {
+          // Safari <16.4: 2000ms sits past the hero entrance animation so the
+          // script parse does not contend with GSAP's first-paint work.
+          setTimeout(T.load, 2000);
+        }
+      }
+      if (document.readyState === 'complete') {
+        schedule();
+      } else {
+        window.addEventListener('load', schedule, { once: true });
+      }
+    })();
   </script>
 </head>
 <body>

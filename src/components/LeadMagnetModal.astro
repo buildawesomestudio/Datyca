@@ -309,6 +309,13 @@
     -webkit-appearance: none;
   }
 
+  /* Reserve space for password-manager autofill badges on the email field
+     (1Password, iCloud Keychain, Bitwarden). Prevents the badge from
+     resizing the input on focus and jumping the flex-centered modal up. */
+  .lm-modal__input[type="email"] {
+    padding-right: 44px;
+  }
+
   .lm-modal__input:focus {
     border-color: var(--color-purple-500);
   }
@@ -426,12 +433,20 @@
     font-weight: 600;
   }
 
-  /* ── TURNSTILE ─────────────────────────────────────────── */
+  /* ── TURNSTILE ───────────────────────────────────────────
+     `appearance: interaction-only` keeps the container empty most of the
+     time. When Cloudflare escalates to a visible challenge the iframe
+     appears — the transition smooths the resulting height change so the
+     submit button does not snap down. */
   .lm-modal__turnstile {
     min-height: 0;
+    transition: min-height 0.2s ease;
   }
   .lm-modal__turnstile:empty {
     display: none;
+  }
+  .lm-modal__turnstile:not(:empty) {
+    min-height: 70px;
   }
 
   /* ── BANNER (error) ───────────────────────────────────── */
@@ -652,9 +667,16 @@
         .to(card,      { autoAlpha: 1, scale: 1, duration: 0.35, ease: 'power2.out' }, 0)
         .to(formPane,  { autoAlpha: 1, duration: 0.3, ease: 'power2.out' }, 0.1);
 
-      tl.call(() => {
-        emailInput.focus({ preventScroll: true });
-      });
+      // No programmatic email focus: triggering focus on an <input type="email">
+      // while the open animation is still running causes password managers
+      // (1Password, iCloud Keychain) to inject an autofill badge that resizes
+      // the input, which re-centers the flex-centered modal and produces a
+      // visible "jump" upward. Let the user focus manually — that keeps the
+      // autofill UX intact without the layout shift.
+
+      // Best-effort: ensure Turnstile is already loading when the modal opens,
+      // so the widget is ready by the time the user reaches submit.
+      (window as any).datycaTurnstile?.load();
     }
 
     function closeModal() {
@@ -738,35 +760,27 @@
       else clearFieldError();
     });
 
-    // ── Turnstile lazy-load ──────────────────────
+    // ── Turnstile: use the shared loader declared in Layout.astro ──
+    // Script fetch is already scheduled on requestIdleCallback at window.load;
+    // openModal() above also calls load() defensively. We only need to render
+    // the widget into our local container once the loader reports ready.
     const TURNSTILE_SITE_KEY = '0x4AAAAAAC97pyXgUgHeiHAx';
-    let turnstileLoaded = false;
     let turnstileWidgetId: string | null = null;
 
-    function loadTurnstile() {
-      if (turnstileLoaded) return;
-      turnstileLoaded = true;
-      const script = document.createElement('script');
-      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onLeadMagnetTurnstileLoad';
-      script.async = true;
-      (window as any).onLeadMagnetTurnstileLoad = () => {
-        const container = document.getElementById('leadmagnet-turnstile');
-        if (container && (window as any).turnstile) {
-          turnstileWidgetId = (window as any).turnstile.render(container, {
-            sitekey: TURNSTILE_SITE_KEY,
-            appearance: 'interaction-only',
-            theme: 'light',
-          });
-        }
-      };
-      document.head.appendChild(script);
+    function renderTurnstileWidget() {
+      if (turnstileWidgetId !== null) return;
+      const container = document.getElementById('leadmagnet-turnstile');
+      if (!container || !(window as any).turnstile) return;
+      turnstileWidgetId = (window as any).turnstile.render(container, {
+        sitekey: TURNSTILE_SITE_KEY,
+        appearance: 'interaction-only',
+        theme: 'light',
+      });
     }
 
-    const firstInteraction = () => {
-      loadTurnstile();
-      form.removeEventListener('focusin', firstInteraction);
-    };
-    form.addEventListener('focusin', firstInteraction);
+    (window as any).datycaTurnstile?.onReady((ok: boolean) => {
+      if (ok) renderTurnstileWidget();
+    });
 
     // ── Hovers ──────────────────────────────────
     privacyLink?.addEventListener('mouseenter', () => {
@@ -853,14 +867,34 @@
         return;
       }
 
-      // Get Turnstile token
+      // Turnstile gating — same pattern as Contatti: wait for readiness with
+      // visible feedback, fall back to a human email if the CDN is down.
+      const T = (window as any).datycaTurnstile;
+      if (T) {
+        T.load();
+        if (T.state !== 'ready' && T.state !== 'failed') {
+          setState('loading');
+        }
+        const ready = await new Promise<boolean>((resolve) => T.onReady(resolve));
+        if (!ready) {
+          setState('error', 'Verifica antispam non disponibile. Scrivici a info@datyca.com per ricevere la guida.');
+          return;
+        }
+        renderTurnstileWidget();
+      }
+
+      // Poll the widget for a token — it generates one shortly after render.
       let turnstileToken = '';
-      if ((window as any).turnstile && turnstileWidgetId !== null) {
-        turnstileToken = (window as any).turnstile.getResponse(turnstileWidgetId) || '';
+      const tokenDeadline = Date.now() + 3000;
+      while (Date.now() < tokenDeadline) {
+        if ((window as any).turnstile && turnstileWidgetId !== null) {
+          turnstileToken = (window as any).turnstile.getResponse(turnstileWidgetId) || '';
+          if (turnstileToken) break;
+        }
+        await new Promise(r => setTimeout(r, 150));
       }
       if (!turnstileToken) {
-        loadTurnstile();
-        setState('error', 'Verifica di sicurezza in corso, riprova tra qualche secondo.');
+        setState('error', 'Verifica antispam non completata. Riprova tra qualche secondo.');
         return;
       }
 
