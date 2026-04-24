@@ -555,6 +555,7 @@
 
 <script>
   import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
   function initLeadMagnetModal() {
     const root = document.getElementById('leadmagnet-modal');
@@ -680,6 +681,12 @@
             try { (window as any).turnstile.reset(turnstileWidgetId); } catch { /* ignore */ }
           }
           lastFocused?.focus?.();
+          // Safety net: force ScrollTrigger to recompute start/end with the
+          // scrollbar-gutter-stable viewport restored. Handles edge cases
+          // where a spurious refresh during the modal lifetime left some
+          // once:true reveal triggers in a stale "already passed" state,
+          // so their onEnter never fires when the user resumes scrolling.
+          requestAnimationFrame(() => ScrollTrigger.refresh());
         },
       });
       tl.to(card,     { autoAlpha: 0, scale: 0.95, duration: 0.25, ease: 'power2.in' }, 0)

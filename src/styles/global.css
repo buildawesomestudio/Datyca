@@ -128,8 +128,12 @@ html {
   overscroll-behavior-y: none;
   /* Smooth in-page anchor jumps (same-page #hash clicks) */
   scroll-behavior: smooth;
-  /* No explicit background — body's background propagates to the canvas
-     (the area shown during rubber-band / beyond body's box). */
+  /* Always reserve the classic scrollbar gutter so opening a modal
+     (which sets overflow: hidden on <html>) doesn't reflow the document.
+     Without this, the document widens by ~15px on desktop, ScrollTrigger
+     does a spurious refresh mid-modal, and some once-true reveal triggers
+     get stale and never fire their onEnter after close. */
+  scrollbar-gutter: stable;
 }
 
 body {
