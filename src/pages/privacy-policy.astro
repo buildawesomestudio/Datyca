@@ -2,7 +2,6 @@
 import Layout from '../layouts/Layout.astro';
 import Breadcrumb from '../components/Breadcrumb.astro';
 import Contatti from '../components/Contatti.astro';
-import '../styles/legal-pages.css';
 
 const sections = [
   { id: 'chi-siamo',       label: 'Chi siamo' },
@@ -273,9 +272,29 @@ const extLinks = [
 </Layout>
 
 <style>
-  /* Shared classes (.pp-anchor-nav, .pp-divider, .pp-section, .pp-contact-box,
-     .pp-treatment, and the light-theme palette) live in src/styles/legal-pages.css
-     — imported above in the frontmatter. Page-specific classes stay here. */
+  /* ── Local light-theme palette (legal document readability) ──
+     This page intentionally departs from the site-wide dark theme: long-form
+     legal text reads better on a light background. The Datyca dark Header
+     stays on top (its bg is #0D0826), then a dark hero with the title, then
+     the light content area, then the white Contatti footer at the bottom. */
+  .pp-hero,
+  .pp-light,
+  .pp-content,
+  .pp-section,
+  .pp-section :global(p),
+  .pp-anchor-nav,
+  .pp-summary,
+  .pp-treatment,
+  .pp-contact-box,
+  .pp-extlinks {
+    --pp-text:        #2A2A2A;
+    --pp-text-light:  #555555;
+    --pp-light-gray:  #E1E1E1;
+    --pp-row-stripe:  #F8F8FC;
+    --pp-blue-tint:   #F0F0FF;
+    --pp-bg:          var(--color-white-snow);
+    --pp-white:       #FFFFFF;
+  }
 
   /* ── DARK HERO ──────────────────────────────────────────────── */
   .pp-hero {
@@ -362,6 +381,53 @@ const extLinks = [
     margin: 0;
   }
 
+  /* ── ANCHOR NAV ─────────────────────────────────────────────── */
+  .pp-anchor-nav {
+    background: var(--pp-white);
+    border: 1px solid var(--pp-light-gray);
+    border-radius: 12px;
+    padding: clamp(24px, 3vw, 36px);
+    margin-bottom: clamp(40px, 5vw, 56px);
+  }
+  .pp-anchor-nav__title {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--color-grey-400);
+    margin-bottom: 16px;
+  }
+  .pp-anchor-nav__list {
+    list-style: none;
+    counter-reset: pp-nav;
+    columns: 2;
+    column-gap: 40px;
+    padding: 0;
+    margin: 0;
+  }
+  .pp-anchor-nav__item {
+    counter-increment: pp-nav;
+    margin-bottom: 8px;
+    break-inside: avoid;
+  }
+  .pp-anchor-nav__item a {
+    color: var(--pp-text);
+    text-decoration: none;
+    font-size: 15px;
+    display: block;
+    padding: 4px 0;
+    transition: color 0.2s var(--ease-signature);
+  }
+  .pp-anchor-nav__item a::before {
+    content: counter(pp-nav) ". ";
+    color: var(--color-purple-500);
+    font-weight: 600;
+    margin-right: 4px;
+  }
+  .pp-anchor-nav__item a:hover {
+    color: var(--color-purple-500);
+  }
+
   /* ── SUMMARY TABLE ──────────────────────────────────────────── */
   .pp-summary {
     margin-bottom: clamp(40px, 5vw, 56px);
@@ -415,6 +481,108 @@ const extLinks = [
     color: var(--pp-text-light);
     margin-top: 16px;
     line-height: 1.7;
+  }
+
+  /* ── DIVIDER ───────────────────────────────────────────────── */
+  .pp-divider {
+    border: none;
+    border-top: 1px solid var(--pp-light-gray);
+    margin: 0 0 clamp(40px, 5vw, 52px);
+  }
+
+  /* ── SECTIONS ──────────────────────────────────────────────── */
+  .pp-section {
+    margin-bottom: clamp(40px, 5vw, 52px);
+    /* Header is fixed (~120px desktop / 80px mobile) — push anchor jumps below it */
+    scroll-margin-top: 140px;
+  }
+  .pp-section__num {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--color-purple-500);
+    margin-bottom: 8px;
+  }
+  .pp-section__title {
+    font-family: var(--font-sans);
+    font-size: clamp(22px, 2.4vw, 26px);
+    font-weight: 600;
+    color: var(--color-black-almost-900);
+    margin-bottom: 20px;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+  }
+  .pp-section p {
+    font-size: clamp(15px, 1.1vw, 16px);
+    color: var(--pp-text-light);
+    margin-bottom: 14px;
+    line-height: 1.75;
+  }
+  .pp-section p strong {
+    color: var(--pp-text);
+    font-weight: 600;
+  }
+  .pp-section a {
+    color: var(--color-purple-500);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .pp-section a:hover { text-decoration: underline; }
+
+  /* ── CONTACT BOX ───────────────────────────────────────────── */
+  .pp-contact-box {
+    background: var(--pp-white);
+    border: 1px solid var(--pp-light-gray);
+    border-left: 4px solid var(--color-purple-500);
+    border-radius: 0 8px 8px 0;
+    padding: 20px 24px;
+    margin: 16px 0 20px;
+  }
+  .pp-contact-box p {
+    margin-bottom: 4px;
+    font-size: 15px;
+  }
+  .pp-contact-box p:last-child { margin-bottom: 0; }
+
+  /* ── TREATMENT BLOCKS ──────────────────────────────────────── */
+  .pp-treatment {
+    background: var(--pp-white);
+    border: 1px solid var(--pp-light-gray);
+    border-radius: 12px;
+    padding: clamp(20px, 2.5vw, 28px) clamp(20px, 3vw, 32px);
+    margin: 20px 0;
+  }
+  .pp-treatment__title {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-black-almost-900);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .pp-treatment__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-purple-500);
+    flex-shrink: 0;
+  }
+  .pp-treatment p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--pp-text-light);
+    margin-bottom: 10px;
+  }
+  .pp-treatment p:last-child { margin-bottom: 0; }
+  .pp-treatment__legal {
+    font-size: 13px !important;
+    color: var(--color-grey-400) !important;
+    font-style: italic;
+    margin-top: 8px;
+    margin-bottom: 0 !important;
   }
 
   /* ── RETENTION LIST ────────────────────────────────────────── */
@@ -488,8 +656,14 @@ const extLinks = [
     color: var(--color-grey-400) !important;
   }
 
-  /* ── MOBILE (page-specific; shared mobile rules live in legal-pages.css) ─ */
+  /* ── MOBILE ────────────────────────────────────────────────── */
   @media (max-width: 767px) {
+    .pp-section {
+      scroll-margin-top: 100px;
+    }
+    .pp-anchor-nav__list {
+      columns: 1;
+    }
     .pp-extlinks {
       flex-direction: column;
     }

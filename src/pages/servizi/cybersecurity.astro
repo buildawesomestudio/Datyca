@@ -1,23 +1,28 @@
 ---
-import ServicePageLayout from '../../layouts/ServicePageLayout.astro';
+import Layout from '../../layouts/Layout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import ServiceIntro from '../../components/ServiceIntro.astro';
+import CosaFacciamoCards from '../../components/CosaFacciamoCards.astro';
+import ServiziCorrelati from '../../components/ServiziCorrelati.astro';
+import Contatti from '../../components/Contatti.astro';
 
 const serviziServices = [
   {
     slug: 'data-protection',
     title: 'Data Protection',
-    description: 'Sistemi di intelligenza artificiale affidabili, trasparenti e centrati sull’uomo',
+    description: 'Sistemi di intelligenza artificiale affidabili, trasparenti e centrati sull\u2019uomo',
     href: '/servizi/data-protection',
   },
   {
     slug: 'legal-desk',
     title: 'Legal Desk',
-    description: 'Sistemi di intelligenza artificiale affidabili, trasparenti e centrati sull’uomo',
+    description: 'Sistemi di intelligenza artificiale affidabili, trasparenti e centrati sull\u2019uomo',
     href: '/servizi/legal-desk',
   },
   {
     slug: 'cybersecurity',
     title: 'Cybersecurity',
-    description: 'Sistemi di intelligenza artificiale affidabili, trasparenti e centrati sull’uomo',
+    description: 'Sistemi di intelligenza artificiale affidabili, trasparenti e centrati sull\u2019uomo',
     href: '/servizi/cybersecurity',
   },
 ];
@@ -50,21 +55,37 @@ const cosaFacciamoItems = [
 ];
 ---
 
-<ServicePageLayout
-  pageTitle="Cybersecurity — Datyca"
-  pageDescription="Progettiamo e implementiamo sistemi di gestione della sicurezza delle informazioni pienamente integrati nella governance aziendale."
-  breadcrumbParent="Servizi"
-  breadcrumbCurrent="Cybersecurity"
-  currentSlug="cybersecurity"
-  services={serviziServices}
-  intro={{
-    title: 'Cybersecurity',
-    subtitle: 'Sicurezza delle informazioni e resilienza operativa',
-    bodyHtml: [
-      'Progettiamo e implementiamo sistemi di gestione della sicurezza delle informazioni pienamente integrati nella governance aziendale, coerenti con il quadro normativo nazionale ed europeo e con i principali standard internazionali di settore.',
-      'L&rsquo;approccio combina prevenzione, resilienza e conformità per <strong>presidiare la sicurezza informatica in modo sistematico</strong>, assicurando che ogni processo, ruolo e decisione sia tracciabile, conforme e allineato agli obiettivi strategici dell&rsquo;organizzazione.',
-    ],
-    obiettivoText: "Garantire la continuità operativa dell'organizzazione e la protezione dei suoi asset digitali, costruendo un sistema di sicurezza che evolve insieme alle minacce e al quadro normativo.",
-  }}
-  cosaFacciamoItems={cosaFacciamoItems}
-/>
+<Layout
+  title="Cybersecurity — Datyca"
+  description="Progettiamo e implementiamo sistemi di gestione della sicurezza delle informazioni pienamente integrati nella governance aziendale."
+>
+  <main>
+    <Breadcrumb
+      items={[
+        { label: 'Home', href: '/' },
+        { label: 'Servizi' },
+        { label: 'Cybersecurity' },
+      ]}
+    />
+    <div class="cs-page__dark">
+      <ServiceIntro
+        title="Cybersecurity"
+        subtitle="Sicurezza delle informazioni e resilienza operativa"
+        bodyHtml={[
+          'Progettiamo e implementiamo sistemi di gestione della sicurezza delle informazioni pienamente integrati nella governance aziendale, coerenti con il quadro normativo nazionale ed europeo e con i principali standard internazionali di settore.',
+          'L&rsquo;approccio combina prevenzione, resilienza e conformità per <strong>presidiare la sicurezza informatica in modo sistematico</strong>, assicurando che ogni processo, ruolo e decisione sia tracciabile, conforme e allineato agli obiettivi strategici dell&rsquo;organizzazione.',
+        ]}
+        obiettivoText="Garantire la continuità operativa dell'organizzazione e la protezione dei suoi asset digitali, costruendo un sistema di sicurezza che evolve insieme alle minacce e al quadro normativo."
+      />
+      <CosaFacciamoCards items={cosaFacciamoItems} />
+      <ServiziCorrelati services={serviziServices} current="cybersecurity" />
+    </div>
+    <Contatti />
+  </main>
+</Layout>
+
+<style>
+  .cs-page__dark {
+    position: relative;
+  }
+</style>
