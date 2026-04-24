@@ -1,7 +1,12 @@
 {
   "name": "datyca",
+  "private": true,
   "type": "module",
   "version": "1.0.0",
+  "description": "Datyca Legal Design Lab — Astro + GSAP + Tailwind",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -9,6 +14,7 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/sitemap": "^3.7.2",
     "@tailwindcss/vite": "^4.1.18",
     "astro": "^5.17.1",
     "gsap": "^3.14.2",
