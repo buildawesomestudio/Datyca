@@ -1,28 +1,23 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import Breadcrumb from '../../components/Breadcrumb.astro';
-import ServiceIntro from '../../components/ServiceIntro.astro';
-import CosaFacciamoCards from '../../components/CosaFacciamoCards.astro';
-import ServiziCorrelati from '../../components/ServiziCorrelati.astro';
-import Contatti from '../../components/Contatti.astro';
+import ServicePageLayout from '../../layouts/ServicePageLayout.astro';
 
 const serviziServices = [
   {
     slug: 'cybersecurity',
     title: 'Cybersecurity',
-    description: 'Sistemi di intelligenza artificiale affidabili, trasparenti e centrati sull\u2019uomo',
+    description: 'Sistemi di intelligenza artificiale affidabili, trasparenti e centrati sull’uomo',
     href: '/servizi/cybersecurity',
   },
   {
     slug: 'legal-desk',
     title: 'Legal Desk',
-    description: 'Sistemi di intelligenza artificiale affidabili, trasparenti e centrati sull\u2019uomo',
+    description: 'Sistemi di intelligenza artificiale affidabili, trasparenti e centrati sull’uomo',
     href: '/servizi/legal-desk',
   },
   {
     slug: 'data-protection',
     title: 'Data Protection',
-    description: 'Sistemi di intelligenza artificiale affidabili, trasparenti e centrati sull\u2019uomo',
+    description: 'Sistemi di intelligenza artificiale affidabili, trasparenti e centrati sull’uomo',
     href: '/servizi/data-protection',
   },
 ];
@@ -38,7 +33,7 @@ const cosaFacciamoItems = [
   },
   {
     title: 'Proprietà intellettuale e\ninnovazione',
-    body: 'Assistiamo l\u2019organizzazione nella tutela degli asset immateriali: marchi, brevetti, diritto d\u2019autore, segreti commerciali e know-how aziendale.',
+    body: 'Assistiamo l’organizzazione nella tutela degli asset immateriali: marchi, brevetti, diritto d’autore, segreti commerciali e know-how aziendale.',
   },
   {
     title: 'Marketing e comunicazione',
@@ -46,7 +41,7 @@ const cosaFacciamoItems = [
   },
   {
     title: 'Strumenti digitali e\ntecnologie',
-    body: 'Assistiamo nell\u2019adozione e nell\u2019utilizzo conforme delle strumentazioni informatiche e telematiche, dalla redazione delle policy interne alla gestione dei profili legali connessi all\u2019uso delle tecnologie.',
+    body: 'Assistiamo nell’adozione e nell’utilizzo conforme delle strumentazioni informatiche e telematiche, dalla redazione delle policy interne alla gestione dei profili legali connessi all’uso delle tecnologie.',
   },
   {
     title: 'Pareri e risposte operative',
@@ -55,37 +50,21 @@ const cosaFacciamoItems = [
 ];
 ---
 
-<Layout
-  title="Legal Desk — Datyca"
-  description="Affianchiamo le organizzazioni come partner legale di riferimento nella gestione quotidiana delle questioni giuridiche legate al business."
->
-  <main>
-    <Breadcrumb
-      items={[
-        { label: 'Home', href: '/' },
-        { label: 'Servizi' },
-        { label: 'Legal Desk' },
-      ]}
-    />
-    <div class="ld-page__dark">
-      <ServiceIntro
-        title="Legal Desk"
-        subtitle="Assistenza legale continuativa per il business"
-        bodyHtml={[
-          'Affianchiamo le organizzazioni come partner legale di riferimento nella gestione quotidiana delle questioni giuridiche legate al business. Un <strong>pool di professionisti</strong> organizzati per aree di specializzazione garantisce interventi rapidi, multidisciplinari e costantemente aggiornati.',
-          'Il modello è pensato per le PMI che necessitano di un presidio legale strutturato e per le organizzazioni più complesse che intendono integrare il proprio ufficio legale interno.',
-        ]}
-        obiettivoText="Disporre di un presidio legale costante, flessibile e personalizzato, che cresce con l'organizzazione e trasforma la gestione delle questioni giuridiche da costo imprevisto a investimento nella qualità dei processi."
-      />
-      <CosaFacciamoCards items={cosaFacciamoItems} />
-      <ServiziCorrelati services={serviziServices} current="legal-desk" />
-    </div>
-    <Contatti />
-  </main>
-</Layout>
-
-<style>
-  .ld-page__dark {
-    position: relative;
-  }
-</style>
+<ServicePageLayout
+  pageTitle="Legal Desk — Datyca"
+  pageDescription="Affianchiamo le organizzazioni come partner legale di riferimento nella gestione quotidiana delle questioni giuridiche legate al business."
+  breadcrumbParent="Servizi"
+  breadcrumbCurrent="Legal Desk"
+  currentSlug="legal-desk"
+  services={serviziServices}
+  intro={{
+    title: 'Legal Desk',
+    subtitle: 'Assistenza legale continuativa per il business',
+    bodyHtml: [
+      'Affianchiamo le organizzazioni come partner legale di riferimento nella gestione quotidiana delle questioni giuridiche legate al business. Un <strong>pool di professionisti</strong> organizzati per aree di specializzazione garantisce interventi rapidi, multidisciplinari e costantemente aggiornati.',
+      'Il modello è pensato per le PMI che necessitano di un presidio legale strutturato e per le organizzazioni più complesse che intendono integrare il proprio ufficio legale interno.',
+    ],
+    obiettivoText: "Disporre di un presidio legale costante, flessibile e personalizzato, che cresce con l'organizzazione e trasforma la gestione delle questioni giuridiche da costo imprevisto a investimento nella qualità dei processi.",
+  }}
+  cosaFacciamoItems={cosaFacciamoItems}
+/>
