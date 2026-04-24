@@ -211,6 +211,37 @@ const { title = 'Datyca', description = '' } = Astro.props;
       display: none !important;
     }
   </style>
+
+  {/* Third-party trackers — prior-blocking pattern tied to iubenda purposes.
+      Every script is inert (type="text/plain") until iubenda rewrites the
+      type after consent is recorded for the matching purpose:
+        - data-iub-purposes="4" → Measurement (GA4)
+        - data-iub-purposes="5" → Marketing / Targeting (Meta Pixel)
+      Consent Mode v2 signals are emitted by iubenda automatically — gtag
+      queues them until gtag.js finishes loading, so no explicit default
+      state is needed here.
+      Meta Pixel's <noscript> fallback is intentionally omitted: a user with
+      JS disabled cannot express consent via the iubenda banner, so loading
+      the pixel unconditionally for them would be tracking without consent. */}
+  <script type="text/plain" class="_iub_cs_activate" data-iub-purposes="4" async src="https://www.googletagmanager.com/gtag/js?id=G-C1YZJ9M543"></script>
+  <script type="text/plain" class="_iub_cs_activate" data-iub-purposes="4" is:raw>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-C1YZJ9M543');
+  </script>
+  <script type="text/plain" class="_iub_cs_activate" data-iub-purposes="5" is:raw>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '4220747128235906');
+    fbq('track', 'PageView');
+  </script>
 </head>
 <body>
 
