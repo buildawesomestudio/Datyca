@@ -7,18 +7,16 @@ let svgContent = fs.readFileSync(svgPath, 'utf-8');
 
 svgContent = svgContent
   .replace('<svg ', '<svg id="p01-svg" aria-hidden="true" class="tp-anim-svg" ')
-  .replace(/style="[^"]*"/g, '');
+  .replace(/style="[^"]*"/, '');
 ---
 
 <Fragment set:html={svgContent} />
 
 <script>
-import { registerInit } from '@utils/init';
-
 // Pause immediately — Principi component manages play/pause per state
 function initPrincipio01() {
   const svg = document.getElementById('p01-svg') as SVGSVGElement | null;
   if (svg) svg.pauseAnimations();
 }
-registerInit(initPrincipio01);
+((window as any).__initQueue ??= []).push(initPrincipio01);
 </script>

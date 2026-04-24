@@ -279,8 +279,6 @@ const navItems: NavItem[] = [
 </style>
 
 <script>
-  import { MQ } from '@utils/breakpoints';
-  import { registerInit } from '@utils/init';
   import gsap from 'gsap';
 
   function initHeader() {
@@ -355,7 +353,7 @@ const navItems: NavItem[] = [
     // ═══ NAV INTERACTIONS (desktop hover) ═══
     const mm = gsap.matchMedia();
 
-    mm.add(MQ.tabletUp, () => {
+    mm.add('(min-width: 768px)', () => {
       const colorPurple = root.getPropertyValue('--color-purple-500').trim();
       const colorText = root.getPropertyValue('--color-text').trim();
 
@@ -449,5 +447,5 @@ const navItems: NavItem[] = [
     });
   }
 
-  registerInit(initHeader);
+  ((window as any).__initQueue ??= []).push(initHeader);
 </script>

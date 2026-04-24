@@ -204,8 +204,6 @@ const layerPaths = {
 </style>
 
 <script>
-  import { MQ } from '@utils/breakpoints';
-  import { registerInit } from '@utils/init';
   import gsap from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -319,9 +317,9 @@ const layerPaths = {
     }
 
     const mm = gsap.matchMedia();
-    mm.add(MQ.tabletUp, setup);
-    mm.add(MQ.belowTablet, setup);
+    mm.add('(min-width: 768px)', setup);
+    mm.add('(max-width: 767px)', setup);
   }
 
-  registerInit(initPromoCards);
+  ((window as any).__initQueue ??= []).push(initPromoCards);
 </script>

@@ -147,8 +147,6 @@
 </style>
 
 <script>
-  import { MQ } from '@utils/breakpoints';
-  import { registerInit } from '@utils/init';
   import gsap from 'gsap';
   import { SplitText } from 'gsap/SplitText';
 
@@ -410,8 +408,8 @@
     // stays synchronous; only matchMedia setup waits.
     const runMatchMedia = () => {
       const mm = gsap.matchMedia();
-      mm.add(MQ.desktopUp, setupHero);
-      mm.add(MQ.belowDesktop, setupHeroMobile);
+      mm.add('(min-width: 1024px)', setupHero);
+      mm.add('(max-width: 1023px)', setupHeroMobile);
     };
 
     if (document.fonts && document.fonts.status !== 'loaded') {
@@ -421,5 +419,5 @@
     }
   }
 
-  registerInit(initHero);
+  ((window as any).__initQueue ??= []).push(initHero);
 </script>
