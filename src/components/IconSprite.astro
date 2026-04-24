@@ -1,13 +1,18 @@
 ---
 /**
  * Inline SVG icon sprite — defined once in Layout, referenced via <use href="#icon-*">
- * from anywhere in the page. `display: none` hides the sprite container; individual
- * <symbol>s remain referenceable. `fill="currentColor"` lets callers recolor via CSS
- * `color`. All usages set `aria-hidden="true"` on the consuming <svg>.
+ * from anywhere in the page. `fill="currentColor"` lets callers recolor via CSS
+ * `color`. All consuming <svg> set `aria-hidden="true"`.
+ *
+ * Container is hidden via size:0 + overflow:hidden rather than `display: none`:
+ * during rapid refresh Safari can render the <symbol>s as images for one frame
+ * before the inline style applies — zero-size + clipped container is bulletproof
+ * against that race.
  */
 ---
 
-<svg xmlns="http://www.w3.org/2000/svg" style="display: none;" aria-hidden="true">
+<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"
+     style="position: absolute; width: 0; height: 0; overflow: hidden;">
   <symbol id="icon-chevron-down" viewBox="0 0 170 170">
     <path d="M3.05025 41.0503C5.78392 38.3166 10.216 38.3166 12.9497 41.0503L85.5005 113.601L158.023 41.0795C160.757 38.3459 165.189 38.3459 167.922 41.0795C170.656 43.8132 170.656 48.2453 167.922 50.979L90.5288 128.373C88.8691 130.032 86.5836 130.682 84.4321 130.327C82.9732 130.125 81.5655 129.465 80.4438 128.343L3.05025 50.9497C0.316582 48.216 0.316583 43.7839 3.05025 41.0503Z" fill="currentColor" />
   </symbol>
