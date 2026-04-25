@@ -40,8 +40,17 @@ const { title, description, heroTitle, heroSubtitle, breadcrumbLabel } = Astro.p
   </main>
 </Layout>
 
-<style>
-  /* Local light-theme palette (legal document readability). Defined on the
+<style is:global>
+  /* `is:global` is mandatory here. Astro's scoped CSS applies the layout's
+     data-astro-cid only to elements written inside this layout's template
+     — NOT to slot content. Most `.legal-*` classes (anchor-nav, section,
+     divider, contact-box, treatment) live in the slot (= page markup) and
+     carry the *page's* astro-cid, not this layout's, so a scoped selector
+     like `.legal-section[data-astro-cid-XXX]` would never match.
+     `is:global` removes the scope; safe because `.legal-*` is a dedicated
+     namespace used only by the legal pages.
+
+     Local light-theme palette (legal document readability). Defined on the
      light wrap + content so children inherit the vars naturally; values
      are also available to page-scoped classes (`.legal-table`,
      `.legal-retention`...) via CSS custom-property inheritance. */
