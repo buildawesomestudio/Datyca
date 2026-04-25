@@ -714,20 +714,20 @@ const socialLinks = [
       submitBtn.addEventListener('mouseenter', () => {
         gsap.to(submitBtn, {
           backgroundColor: '#6666FF',
-          duration: 0.3, overwrite: true,
+          duration: 0.3, overwrite: 'auto',
         });
         gsap.to(submitArrow, {
-          x: 5, duration: 0.3, ease: 'power2.out', overwrite: true,
+          x: 5, duration: 0.3, ease: 'power2.out', overwrite: 'auto',
         });
       }, { signal: ac.signal });
 
       submitBtn.addEventListener('mouseleave', () => {
         gsap.to(submitBtn, {
           backgroundColor: '#4545F7',
-          duration: 0.3, overwrite: true,
+          duration: 0.3, overwrite: 'auto',
         });
         gsap.to(submitArrow, {
-          x: 0, duration: 0.3, ease: 'power2.out', overwrite: true,
+          x: 0, duration: 0.3, ease: 'power2.out', overwrite: 'auto',
         });
       }, { signal: ac.signal });
 
@@ -736,14 +736,14 @@ const socialLinks = [
         link.addEventListener('mouseenter', () => {
           gsap.to(link, {
             color: '#F21763',
-            duration: 0.25, overwrite: true,
+            duration: 0.25, overwrite: 'auto',
           });
         }, { signal: ac.signal });
 
         link.addEventListener('mouseleave', () => {
           gsap.to(link, {
             color: '#0D0826',
-            duration: 0.25, overwrite: true,
+            duration: 0.25, overwrite: 'auto',
           });
         }, { signal: ac.signal });
       });
@@ -754,7 +754,7 @@ const socialLinks = [
           gsap.to(link, {
             color: '#F21763',
             scale: 1.12,
-            duration: 0.25, ease: 'power2.out', overwrite: true,
+            duration: 0.25, ease: 'power2.out', overwrite: 'auto',
           });
         }, { signal: ac.signal });
 
@@ -762,7 +762,7 @@ const socialLinks = [
           gsap.to(link, {
             color: '#0D0826',
             scale: 1,
-            duration: 0.25, ease: 'power2.out', overwrite: true,
+            duration: 0.25, ease: 'power2.out', overwrite: 'auto',
           });
         }, { signal: ac.signal });
       });
@@ -779,14 +779,14 @@ const socialLinks = [
         addr.addEventListener('mouseenter', () => {
           gsap.to(addr, {
             color: '#F21763',
-            duration: 0.25, overwrite: true,
+            duration: 0.25, overwrite: 'auto',
           });
         }, { signal: ac.signal });
 
         addr.addEventListener('mouseleave', () => {
           gsap.to(addr, {
             color: '#4545F7',
-            duration: 0.25, overwrite: true,
+            duration: 0.25, overwrite: 'auto',
           });
         }, { signal: ac.signal });
       });
