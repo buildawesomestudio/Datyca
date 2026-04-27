@@ -800,44 +800,52 @@ const socialLinks = [
         }, { signal: ac.signal });
       });
 
-      // ── Turnstile: use the shared loader declared in Layout.astro ──
-      // The shared loader's auto-schedule is disabled on purpose (see comment
-      // in Layout.astro). Network is warmed by `<link rel="preload">` in
-      // <head>, but T.load() (script parse) and turnstile.render() (widget
-      // mount) both happen on first focusin — see bootstrapTurnstile below.
+      // ── Turnstile: render only at submit ──
+      // Layout.astro auto-schedules T.load() in idle, so the API script is
+      // parsed and `window.turnstile` is ready by the time the user reaches
+      // submit. The widget itself (the iframe that runs the actual challenge)
+      // is rendered ONLY inside handleSubmit() below — never on focus.
+      // Why: on Safari, turnstile.render() blocks the main thread for ~1.5s
+      // (community.cloudflare.com/t/1500ms-hang-...). Rendering on focus
+      // would freeze the form for that window every time the user clicks an
+      // input. Rendering at submit moves the block to a moment where the
+      // user already expects a wait (spinner). It also makes the Safari
+      // self-check loop in interaction-only widgets structurally impossible:
+      // the iframe lives <2s and only inside the in-flight submission.
       const TURNSTILE_SITE_KEY = '0x4AAAAAAC97pyXgUgHeiHAx';
       let turnstileWidgetId: string | null = null;
 
-      function renderTurnstileWidget() {
-        if (turnstileWidgetId !== null) return;
-        const container = document.getElementById('contatti-turnstile');
-        if (!container || !(window as any).turnstile) return;
-        turnstileWidgetId = (window as any).turnstile.render(container, {
-          sitekey: TURNSTILE_SITE_KEY,
-          appearance: 'interaction-only',
-          theme: 'light',
+      function getTurnstileToken(): Promise<string | null> {
+        return new Promise((resolve) => {
+          const container = document.getElementById('contatti-turnstile');
+          if (!container || !(window as any).turnstile) {
+            resolve(null);
+            return;
+          }
+
+          let resolved = false;
+          const safeResolve = (val: string | null) => {
+            if (resolved) return;
+            resolved = true;
+            resolve(val);
+          };
+
+          turnstileWidgetId = (window as any).turnstile.render(container, {
+            sitekey: TURNSTILE_SITE_KEY,
+            appearance: 'interaction-only',
+            theme: 'light',
+            callback: (token: string) => safeResolve(token),
+            'error-callback': () => safeResolve(null),
+            'timeout-callback': () => safeResolve(null),
+          });
+
+          // Hard ceiling: with appearance:interaction-only, ~10% of users get
+          // a visible "Verify you are human" checkbox that waits for a click.
+          // 30s gives a human enough time to interact; if nothing arrives by
+          // then the submit handler shows a generic error.
+          setTimeout(() => safeResolve(null), 30000);
         });
       }
-
-      // Lazy Turnstile: defer both load() AND widget render until the user
-      // first interacts with the form (focusin bubbles from any field).
-      // Why: with `appearance: 'interaction-only'` an always-rendered widget
-      // keeps a Cloudflare iframe alive on every page, and that iframe runs
-      // periodic self-checks that fail on Safari (about:blank sandbox without
-      // allow-scripts) → CPU loop → scroll freeze + invisible elements. By
-      // mounting the widget only on first interaction, idle pages have zero
-      // Cloudflare iframe alive. The submit handler below also calls load()
-      // + render as a safety net for users who autofill+submit without focus.
-      let turnstileBootstrapped = false;
-      function bootstrapTurnstile() {
-        if (turnstileBootstrapped) return;
-        turnstileBootstrapped = true;
-        const T = (window as any).datycaTurnstile;
-        if (!T) return;
-        T.load();
-        T.onReady((ok: boolean) => { if (ok) renderTurnstileWidget(); });
-      }
-      form.addEventListener('focusin', bootstrapTurnstile, { signal: ac.signal });
 
       // ── Form validation ──
       const validationRules: Record<string, { test: (v: string) => boolean; message: string }> = {
@@ -953,52 +961,39 @@ const socialLinks = [
           return;
         }
 
-        // Turnstile gating: wait for the shared loader to be ready (or to
-        // confirm failure). Avoids the old silent "Verifica richiesta" error
-        // when a fast user on a slow network clicks submit before the script
-        // has finished loading.
+        // From here on the user has committed to a submit — show the spinner
+        // and start Turnstile work. setSubmitting(true) happens BEFORE any
+        // await so the button label switches immediately.
         setSubmitting(true);
+        clearStatus();
 
+        // 1. Make sure the API script is parsed. Idle-preloaded by Layout,
+        // so this resolves instantly in the common case; only matters if the
+        // user is faster than the idle scheduler or the CDN is slow.
         const T = (window as any).datycaTurnstile;
         if (T) {
           T.load();
-          // Only surface a user-visible "verification in progress" message when
-          // the wait is actually noticeable — otherwise it just flickers.
-          if (T.state !== 'ready' && T.state !== 'failed') {
-            showStatus('Verifica antispam in corso...', 'success');
-          }
           const ready = await new Promise<boolean>((resolve) => T.onReady(resolve));
           if (!ready) {
-            clearStatus();
             showStatus('Verifica antispam non disponibile. Scrivici direttamente a info@datyca.com.', 'error');
             setSubmitting(false);
             return;
           }
-          renderTurnstileWidget();
         }
 
-        // Poll for a token: the widget generates one shortly after render.
-        // `interaction-only` challenges may require user input — in that case
-        // the token appears when Cloudflare decides to show the challenge UI.
-        let turnstileToken = '';
-        const tokenDeadline = Date.now() + 3000;
-        while (Date.now() < tokenDeadline) {
-          if ((window as any).turnstile && turnstileWidgetId != null) {
-            turnstileToken = (window as any).turnstile.getResponse(turnstileWidgetId) || '';
-            if (turnstileToken) break;
-          }
-          await new Promise(r => setTimeout(r, 150));
-        }
-        if (!turnstileToken) {
-          clearStatus();
-          showStatus('Verifica antispam non completata. Riprova o scrivici a info@datyca.com.', 'error');
-          setSubmitting(false);
-          return;
-        }
-
-        clearStatus();
-
+        // 2-3. Render the widget, await the token, send to backend. Wrapped
+        // in try/finally so the widget is always destroyed on the way out
+        // (including when the token times out or the fetch throws). Tokens
+        // are single-use, so keeping the iframe alive after submit wins
+        // nothing and would re-introduce the Safari self-check loop — a
+        // retry just re-renders from scratch.
         try {
+          const turnstileToken = await getTurnstileToken();
+          if (!turnstileToken) {
+            showStatus('Verifica antispam non completata. Riprova o scrivici a info@datyca.com.', 'error');
+            return;
+          }
+
           const formData = Object.fromEntries(new FormData(form));
           formData['cf-turnstile-response'] = turnstileToken;
 
@@ -1013,10 +1008,6 @@ const socialLinks = [
           if (res.ok) {
             showStatus('Messaggio inviato con successo!', 'success');
             form.reset();
-            // Reset Turnstile for potential re-submission
-            if ((window as any).turnstile && turnstileWidgetId != null) {
-              (window as any).turnstile.reset(turnstileWidgetId);
-            }
             // Animate success on button
             gsap.to(submitBtn, {
               backgroundColor: '#16a34a',
@@ -1050,6 +1041,10 @@ const socialLinks = [
         } catch {
           showStatus('Errore di connessione. Controlla la tua rete e riprova.', 'error');
         } finally {
+          if ((window as any).turnstile && turnstileWidgetId !== null) {
+            try { (window as any).turnstile.remove(turnstileWidgetId); } catch { /* ignore */ }
+            turnstileWidgetId = null;
+          }
           setSubmitting(false);
         }
       }

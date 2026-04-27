@@ -92,7 +92,7 @@
           </label>
         </div>
 
-        {/* Turnstile container — lazy-mounted on first focus */}
+        {/* Turnstile container — populated only at submit time */}
         <div id="leadmagnet-turnstile" class="lm-modal__turnstile"></div>
 
         <p class="lm-modal__banner" data-lm-banner role="alert"></p>
@@ -608,6 +608,9 @@
     let lastFocused: HTMLElement | null = null;
     let previousOverflow = '';
     let spinnerTween: gsap.core.Tween | null = null;
+    // Set to true if closeModal fires while a submit is in flight, so the
+    // post-await branches in submit() don't update a hidden modal.
+    let submitCancelled = false;
 
     // ── State management ─────────────────────────────
     type LMState = 'idle' | 'form' | 'loading' | 'success' | 'error';
@@ -686,21 +689,21 @@
       // the input, which re-centers the flex-centered modal and produces a
       // visible "jump" upward. Let the user focus manually — that keeps the
       // autofill UX intact without the layout shift.
-
-      // Lazy Turnstile: load only when the modal is opened (a real user
-      // gesture). The script is preloaded in <head>, so the actual fetch is
-      // already cached. onReady() registered here re-runs on every open, so
-      // the widget is recreated after closeModal() destroys it via remove().
-      const T = (window as any).datycaTurnstile;
-      if (T) {
-        T.load();
-        T.onReady((ok: boolean) => { if (ok) renderTurnstileWidget(); });
-      }
+      //
+      // No Turnstile work here either: the widget is rendered only at
+      // submit (see submit() below). Keeps the modal animation smooth on
+      // Safari, where turnstile.render() blocks the main thread for ~1.5s.
     }
 
     function closeModal() {
       if (!isOpen) return;
       isOpen = false;
+      // If a submit is in flight (loading state) when the user closes the
+      // modal, mark it cancelled so its post-await branches stop touching
+      // the hidden modal (no error banner left behind for the next open).
+      if (root.getAttribute('data-state') === 'loading') {
+        submitCancelled = true;
+      }
       if (autoCloseTimer !== null) {
         clearTimeout(autoCloseTimer);
         autoCloseTimer = null;
@@ -718,13 +721,12 @@
           form.reset();
           clearFieldError();
           clearPrivacyError();
-          // Destroy the Turnstile iframe instead of resetting it. `reset()`
-          // keeps the Cloudflare iframe alive in the DOM; on Safari that
-          // iframe runs periodic self-checks inside about:blank sub-iframes
-          // (sandbox without allow-scripts) → TypeError loop → CPU saturated
-          // → main thread frozen after the modal closes (cursor doesn't turn
-          // into a pointer on links, scroll stutters). `remove()` deletes the
-          // iframe entirely; the widget is recreated on the next openModal().
+          // Safety net: if the user closes the modal mid-submit, destroy any
+          // widget the in-flight render() created. Normally submit()'s
+          // finally block handles cleanup, but the timing of close vs. the
+          // render callback is racy — calling remove() here too is idempotent
+          // and avoids leaving a Cloudflare iframe alive (Safari self-check
+          // loop). turnstileWidgetId is nulled so the next submit re-renders.
           if ((window as any).turnstile && turnstileWidgetId !== null) {
             try { (window as any).turnstile.remove(turnstileWidgetId); } catch { /* ignore */ }
             turnstileWidgetId = null;
@@ -787,21 +789,50 @@
       else clearFieldError();
     });
 
-    // ── Turnstile: use the shared loader declared in Layout.astro ──
-    // The shared loader's auto-schedule is disabled on purpose. Network is
-    // warmed by `<link rel="preload">` in <head>, but T.load() and the widget
-    // render both happen on openModal() — see the call site there.
+    // ── Turnstile: render only at submit ──
+    // Layout.astro auto-schedules T.load() in idle, so the API script is
+    // parsed and `window.turnstile` is ready by the time the user reaches
+    // submit. The widget itself (the iframe that runs the actual challenge)
+    // is rendered ONLY inside submit() below — never at openModal or focus.
+    // Why: on Safari, turnstile.render() blocks the main thread for ~1.5s
+    // while the challenge runs (community.cloudflare.com/t/1500ms-hang-...).
+    // Rendering at openModal would freeze the page during the modal's open
+    // animation; rendering at submit moves that block to a moment where the
+    // user already expects a wait (spinner). It also makes the Safari
+    // self-check loop in interaction-only widgets structurally impossible:
+    // the iframe lives <2s and only inside the submit's loading state.
     const TURNSTILE_SITE_KEY = '0x4AAAAAAC97pyXgUgHeiHAx';
     let turnstileWidgetId: string | null = null;
 
-    function renderTurnstileWidget() {
-      if (turnstileWidgetId !== null) return;
-      const container = document.getElementById('leadmagnet-turnstile');
-      if (!container || !(window as any).turnstile) return;
-      turnstileWidgetId = (window as any).turnstile.render(container, {
-        sitekey: TURNSTILE_SITE_KEY,
-        appearance: 'interaction-only',
-        theme: 'light',
+    function getTurnstileToken(): Promise<string | null> {
+      return new Promise((resolve) => {
+        const container = document.getElementById('leadmagnet-turnstile');
+        if (!container || !(window as any).turnstile) {
+          resolve(null);
+          return;
+        }
+
+        let resolved = false;
+        const safeResolve = (val: string | null) => {
+          if (resolved) return;
+          resolved = true;
+          resolve(val);
+        };
+
+        turnstileWidgetId = (window as any).turnstile.render(container, {
+          sitekey: TURNSTILE_SITE_KEY,
+          appearance: 'interaction-only',
+          theme: 'light',
+          callback: (token: string) => safeResolve(token),
+          'error-callback': () => safeResolve(null),
+          'timeout-callback': () => safeResolve(null),
+        });
+
+        // Hard ceiling: with appearance:interaction-only, ~10% of users get a
+        // visible "Verify you are human" checkbox that waits for a click.
+        // 30s gives a human enough time to interact; if nothing arrives by
+        // then the submit handler shows a generic error.
+        setTimeout(() => safeResolve(null), 30000);
       });
     }
 
@@ -890,52 +921,52 @@
         return;
       }
 
-      // Turnstile gating — same pattern as Contatti: wait for readiness with
-      // visible feedback, fall back to a human email if the CDN is down.
+      // From here on the user has committed to a submit attempt — the
+      // spinner takes over, and Turnstile work begins. setState BEFORE
+      // any await so the UI is responsive while we wait for the script.
+      setState('loading');
+      submitCancelled = false;
+
+      // 1. Make sure the API script is parsed. Idle-preloaded by Layout,
+      // so this resolves instantly in the common case; only matters when
+      // the user is faster than the idle scheduler or the CDN is slow.
       const T = (window as any).datycaTurnstile;
       if (T) {
         T.load();
-        if (T.state !== 'ready' && T.state !== 'failed') {
-          setState('loading');
-        }
         const ready = await new Promise<boolean>((resolve) => T.onReady(resolve));
+        if (submitCancelled) return;
         if (!ready) {
           setState('error', 'Verifica antispam non disponibile. Scrivici a info@datyca.com per ricevere la guida.');
           return;
         }
-        renderTurnstileWidget();
       }
 
-      // Poll the widget for a token — it generates one shortly after render.
-      let turnstileToken = '';
-      const tokenDeadline = Date.now() + 3000;
-      while (Date.now() < tokenDeadline) {
-        if ((window as any).turnstile && turnstileWidgetId !== null) {
-          turnstileToken = (window as any).turnstile.getResponse(turnstileWidgetId) || '';
-          if (turnstileToken) break;
-        }
-        await new Promise(r => setTimeout(r, 150));
-      }
-      if (!turnstileToken) {
-        setState('error', 'Verifica antispam non completata. Riprova tra qualche secondo.');
-        return;
-      }
-
-      setState('loading');
-
-      const fd = new FormData(form);
-      const payload = {
-        email,
-        nome:   String(fd.get('nome')  || ''),
-        ruolo:  String(fd.get('ruolo') || ''),
-        consent_privacy:   !!fd.get('consent_privacy'),
-        consent_marketing: !!fd.get('consent_marketing'),
-        website: String(fd.get('website') || ''),
-        source:  currentSource,
-        'cf-turnstile-response': turnstileToken,
-      };
-
+      // 2-3. Render the widget, await the token, send to backend. Wrapped
+      // in try/finally so the widget is always destroyed on the way out
+      // (including when the token times out or the fetch throws). Tokens
+      // are single-use, so keeping the iframe alive after submit wins
+      // nothing and would re-introduce the Safari self-check loop — a
+      // retry just re-renders from scratch.
       try {
+        const turnstileToken = await getTurnstileToken();
+        if (submitCancelled) return;
+        if (!turnstileToken) {
+          setState('error', 'Verifica antispam non completata. Riprova tra qualche secondo.');
+          return;
+        }
+
+        const fd = new FormData(form);
+        const payload = {
+          email,
+          nome:   String(fd.get('nome')  || ''),
+          ruolo:  String(fd.get('ruolo') || ''),
+          consent_privacy:   !!fd.get('consent_privacy'),
+          consent_marketing: !!fd.get('consent_marketing'),
+          website: String(fd.get('website') || ''),
+          source:  currentSource,
+          'cf-turnstile-response': turnstileToken,
+        };
+
         const res = await fetch('/lead-magnet.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -944,18 +975,22 @@
         let data: any = {};
         try { data = await res.json(); } catch { /* non-JSON */ }
 
+        if (submitCancelled) return;
+
         if (res.ok && data && data.ok) {
           showSuccessPane();
           autoCloseTimer = window.setTimeout(closeModal, 8000);
         } else {
           const msg = (data && data.message) ? data.message : 'Errore sconosciuto. Riprova.';
           setState('error', msg);
-          if ((window as any).turnstile && turnstileWidgetId !== null) {
-            try { (window as any).turnstile.reset(turnstileWidgetId); } catch { /* ignore */ }
-          }
         }
       } catch {
-        setState('error', 'Connessione fallita. Riprova.');
+        if (!submitCancelled) setState('error', 'Connessione fallita. Riprova.');
+      } finally {
+        if ((window as any).turnstile && turnstileWidgetId !== null) {
+          try { (window as any).turnstile.remove(turnstileWidgetId); } catch { /* ignore */ }
+          turnstileWidgetId = null;
+        }
       }
     }
 
