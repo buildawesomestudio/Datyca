@@ -434,19 +434,25 @@
   }
 
   /* ── TURNSTILE ───────────────────────────────────────────
-     `appearance: interaction-only` keeps the container empty most of the
-     time. When Cloudflare escalates to a visible challenge the iframe
-     appears — the transition smooths the resulting height change so the
-     submit button does not snap down. */
+     The widget is invisible by default — only when Cloudflare escalates
+     to an interactive challenge does it become visible. The container
+     stays clipped to 0 height regardless of whether the iframe is mounted
+     (height:0 + overflow:hidden), so the modal never grows during the
+     ~1.5s the widget runs the invisible challenge. `is-visible` is
+     toggled on/off by Turnstile's before-/after-interactive-callback
+     only for the ~10% of users that get a "Verify you are human" checkbox
+     — only that case justifies the modal growing. Iframe stays alive
+     (just visually clipped) so the challenge runs in either path. */
   .lm-modal__turnstile {
-    min-height: 0;
-    transition: min-height 0.2s ease;
+    height: 0;
+    overflow: hidden;
   }
   .lm-modal__turnstile:empty {
     display: none;
   }
-  .lm-modal__turnstile:not(:empty) {
-    min-height: 70px;
+  .lm-modal__turnstile.is-visible {
+    height: auto;
+    overflow: visible;
   }
 
   /* ── BANNER (error) ───────────────────────────────────── */
@@ -812,6 +818,10 @@
           return;
         }
 
+        // Reset visibility in case a previous submit ended in the interactive
+        // path and the class is still attached.
+        container.classList.remove('is-visible');
+
         let resolved = false;
         const safeResolve = (val: string | null) => {
           if (resolved) return;
@@ -826,6 +836,11 @@
           callback: (token: string) => safeResolve(token),
           'error-callback': () => safeResolve(null),
           'timeout-callback': () => safeResolve(null),
+          // Reveal the iframe in the modal layout only when Cloudflare
+          // needs an interactive checkbox. The 90% of users on invisible
+          // challenges never see the modal grow.
+          'before-interactive-callback': () => container.classList.add('is-visible'),
+          'after-interactive-callback': () => container.classList.remove('is-visible'),
         });
 
         // Hard ceiling: with appearance:interaction-only, ~10% of users get a

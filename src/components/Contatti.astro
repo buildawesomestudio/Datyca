@@ -367,18 +367,25 @@ const socialLinks = [
   }
 
   /* ── Turnstile ──
-     With `appearance: interaction-only` the widget is invisible most of the
-     time, so the container stays at 0 height. When Cloudflare decides to show
-     a challenge the iframe appears — the transition smooths the resulting
-     height change so it does not snap the submit button down abruptly. */
+     The widget is invisible by default — only when Cloudflare escalates
+     to an interactive challenge does it become visible. The container
+     stays clipped to 0 height regardless of whether the iframe is mounted
+     (height:0 + overflow:hidden), so the submit button never shifts down
+     during the ~1.5s the widget runs the invisible challenge. `is-visible`
+     is toggled on/off by Turnstile's before-/after-interactive-callback
+     only for the ~10% of users that get a "Verify you are human" checkbox
+     — only that case justifies the form growing. Iframe stays alive (just
+     visually clipped) so the challenge runs in either path. */
   .contatti__turnstile {
     align-self: flex-end;
-    margin-top: 12px;
-    min-height: 0;
-    transition: min-height 0.2s ease;
+    height: 0;
+    margin: 0;
+    overflow: hidden;
   }
-  .contatti__turnstile:not(:empty) {
-    min-height: 70px;
+  .contatti__turnstile.is-visible {
+    height: auto;
+    margin-top: 12px;
+    overflow: visible;
   }
 
   /* ── Submit row ── */
@@ -823,6 +830,10 @@ const socialLinks = [
             return;
           }
 
+          // Reset visibility in case a previous submit ended in the interactive
+          // path and the class is still attached.
+          container.classList.remove('is-visible');
+
           let resolved = false;
           const safeResolve = (val: string | null) => {
             if (resolved) return;
@@ -837,6 +848,11 @@ const socialLinks = [
             callback: (token: string) => safeResolve(token),
             'error-callback': () => safeResolve(null),
             'timeout-callback': () => safeResolve(null),
+            // Reveal the iframe in the form layout only when Cloudflare
+            // needs an interactive checkbox. The 90% of users on invisible
+            // challenges never see the submit button shift down.
+            'before-interactive-callback': () => container.classList.add('is-visible'),
+            'after-interactive-callback': () => container.classList.remove('is-visible'),
           });
 
           // Hard ceiling: with appearance:interaction-only, ~10% of users get
