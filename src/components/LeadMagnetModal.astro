@@ -654,12 +654,18 @@
     // Track which page triggered the open. Read from CustomEvent detail
     // (whitelisted to known values) so it can be forwarded to the backend
     // and used to segment leads on Brevo (LEAD_SOURCE attribute + email tag).
-    let currentSource: 'home' | 'risorse' = 'home';
+    // The whitelist must mirror the one in lead-magnet.php — keep them in sync.
+    type LeadSource = 'home' | 'risorse' | 'impact-ai-learn-hub' | 'impact-per-la-pa' | 'impact-taig-lab';
+    const ALLOWED_SOURCES: LeadSource[] = [
+      'home', 'risorse', 'impact-ai-learn-hub', 'impact-per-la-pa', 'impact-taig-lab',
+    ];
+    let currentSource: LeadSource = 'home';
 
     function openModal(e?: Event) {
       if (isOpen) return;
       const detail = (e as CustomEvent | undefined)?.detail;
-      currentSource = detail?.source === 'risorse' ? 'risorse' : 'home';
+      const incoming = detail?.source;
+      currentSource = ALLOWED_SOURCES.includes(incoming) ? incoming as LeadSource : 'home';
       isOpen = true;
       lastFocused = document.activeElement as HTMLElement;
       previousOverflow = document.documentElement.style.overflow;

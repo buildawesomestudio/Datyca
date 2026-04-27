@@ -164,9 +164,18 @@ if (empty($turnstileToken)) {
 
 // Source page (which CTA opened the modal). Whitelisted to prevent attribute
 // pollution if someone forges the request — unknown values silently fall back
-// to 'home' so legacy clients without the field keep working.
+// to 'home' so legacy clients without the field keep working. Keep in sync
+// with ALLOWED_SOURCES in LeadMagnetModal.astro and the pathname mapping in
+// PromoCards.astro (getLeadMagnetSource).
 $source = $data['source'] ?? 'home';
-if (!in_array($source, ['home', 'risorse'], true)) {
+$allowedSources = [
+    'home',
+    'risorse',
+    'impact-ai-learn-hub',
+    'impact-per-la-pa',
+    'impact-taig-lab',
+];
+if (!in_array($source, $allowedSources, true)) {
     $source = 'home';
 }
 

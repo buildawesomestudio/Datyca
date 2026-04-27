@@ -306,11 +306,23 @@ const layerPaths = {
         }, { signal: ac.signal });
       });
 
-      /* ── Lead magnet: open modal on click ── */
+      /* ── Lead magnet: open modal on click ──
+         PromoCards is included on the home (via CtaImpatto) AND on each
+         /il-nostro-impatto/* page directly. Source must reflect WHICH page
+         the user converted from, not the component itself — derive it from
+         the pathname at click time. The PHP whitelist must contain every
+         value returned here (see lead-magnet.php). */
+      function getLeadMagnetSource(): string {
+        const path = window.location.pathname;
+        if (path.startsWith('/il-nostro-impatto/ai-learn-hub')) return 'impact-ai-learn-hub';
+        if (path.startsWith('/il-nostro-impatto/per-la-pa'))    return 'impact-per-la-pa';
+        if (path.startsWith('/il-nostro-impatto/taig-lab'))     return 'impact-taig-lab';
+        return 'home';
+      }
       section.querySelectorAll<HTMLButtonElement>('[data-promo-leadmagnet]').forEach(btn => {
         btn.addEventListener('click', () => {
           window.dispatchEvent(new CustomEvent('datyca:leadmagnet:open', {
-            detail: { source: 'home' },
+            detail: { source: getLeadMagnetSource() },
           }));
         }, { signal: ac.signal });
       });
