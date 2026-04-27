@@ -801,11 +801,10 @@ const socialLinks = [
       });
 
       // ── Turnstile: use the shared loader declared in Layout.astro ──
-      // Loader is scheduled on requestIdleCallback at window.load; an
-      // IntersectionObserver below also calls load() so that even on a slow
-      // network the script has started fetching well before the form is in
-      // view. Rendering the widget in the local container is deferred until
-      // the loader reports "ready".
+      // The shared loader's auto-schedule is disabled on purpose (see comment
+      // in Layout.astro). Network is warmed by `<link rel="preload">` in
+      // <head>, but T.load() (script parse) and turnstile.render() (widget
+      // mount) both happen on first focusin — see bootstrapTurnstile below.
       const TURNSTILE_SITE_KEY = '0x4AAAAAAC97pyXgUgHeiHAx';
       let turnstileWidgetId: string | null = null;
 

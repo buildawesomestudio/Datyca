@@ -676,9 +676,13 @@
 
       // Lazy Turnstile: load only when the modal is opened (a real user
       // gesture). The script is preloaded in <head>, so the actual fetch is
-      // already cached. Module-scope onReady() above will render the widget
-      // as soon as the loader reports ready.
-      (window as any).datycaTurnstile?.load();
+      // already cached. onReady() registered here re-runs on every open, so
+      // the widget is recreated after closeModal() destroys it via remove().
+      const T = (window as any).datycaTurnstile;
+      if (T) {
+        T.load();
+        T.onReady((ok: boolean) => { if (ok) renderTurnstileWidget(); });
+      }
     }
 
     function closeModal() {
@@ -701,8 +705,16 @@
           form.reset();
           clearFieldError();
           clearPrivacyError();
+          // Destroy the Turnstile iframe instead of resetting it. `reset()`
+          // keeps the Cloudflare iframe alive in the DOM; on Safari that
+          // iframe runs periodic self-checks inside about:blank sub-iframes
+          // (sandbox without allow-scripts) → TypeError loop → CPU saturated
+          // → main thread frozen after the modal closes (cursor doesn't turn
+          // into a pointer on links, scroll stutters). `remove()` deletes the
+          // iframe entirely; the widget is recreated on the next openModal().
           if ((window as any).turnstile && turnstileWidgetId !== null) {
-            try { (window as any).turnstile.reset(turnstileWidgetId); } catch { /* ignore */ }
+            try { (window as any).turnstile.remove(turnstileWidgetId); } catch { /* ignore */ }
+            turnstileWidgetId = null;
           }
           lastFocused?.focus?.();
           // Safety net: force ScrollTrigger to recompute start/end with the
@@ -763,9 +775,9 @@
     });
 
     // ── Turnstile: use the shared loader declared in Layout.astro ──
-    // Script fetch is already scheduled on requestIdleCallback at window.load;
-    // openModal() above also calls load() defensively. We only need to render
-    // the widget into our local container once the loader reports ready.
+    // The shared loader's auto-schedule is disabled on purpose. Network is
+    // warmed by `<link rel="preload">` in <head>, but T.load() and the widget
+    // render both happen on openModal() — see the call site there.
     const TURNSTILE_SITE_KEY = '0x4AAAAAAC97pyXgUgHeiHAx';
     let turnstileWidgetId: string | null = null;
 
@@ -779,10 +791,6 @@
         theme: 'light',
       });
     }
-
-    (window as any).datycaTurnstile?.onReady((ok: boolean) => {
-      if (ok) renderTurnstileWidget();
-    });
 
     // ── Hovers ──────────────────────────────────
     privacyLink?.addEventListener('mouseenter', () => {
