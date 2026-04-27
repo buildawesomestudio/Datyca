@@ -22,10 +22,10 @@ const footerLinksRight = [
 ];
 
 const socialLinks = [
-  { label: 'LinkedIn',  icon: 'icon-linkedin',  href: '#' },
-  { label: 'Facebook',  icon: 'icon-facebook',  href: '#' },
-  { label: 'Instagram', icon: 'icon-instagram', href: '#' },
-  { label: 'YouTube',   icon: 'icon-youtube',   href: '#' },
+  { label: 'LinkedIn',  icon: 'icon-linkedin',  href: 'https://www.linkedin.com/company/datyca-legal-design-lab/' },
+  { label: 'Facebook',  icon: 'icon-facebook',  href: 'https://www.facebook.com/profile.php?id=61564593341545' },
+  { label: 'Instagram', icon: 'icon-instagram', href: '#', disabled: true },
+  { label: 'YouTube',   icon: 'icon-youtube',   href: 'https://www.youtube.com/@datyca' },
 ];
 ---
 
@@ -155,14 +155,15 @@ const socialLinks = [
       </div>
 
       <div class="contatti__social" data-contatti-social>
-        {socialLinks.map(({ label, icon, href }) => (
+        {socialLinks.map(({ label, icon, href, disabled }) => (
           <a
             href={href}
             class="contatti__social-link"
             data-contatti-social-link
-            aria-label={label}
-            target="_blank"
-            rel="noopener noreferrer"
+            aria-label={disabled ? `${label} (in arrivo)` : label}
+            {...(disabled
+              ? { 'aria-disabled': 'true', tabindex: -1, 'data-social-disabled': '' }
+              : { target: '_blank', rel: 'noopener noreferrer' })}
           >
             <svg class="contatti__social-icon" width="22" height="22" aria-hidden="true"><use href={`#${icon}`} /></svg>
           </a>
@@ -749,7 +750,15 @@ const socialLinks = [
       });
 
       // ── Hover: Social icons ──
+      // Disabled links (placeholder for not-yet-active accounts) keep the icon
+      // visible but get no hover reaction and a click swallow, so they don't
+      // look interactive then do nothing on click.
       socialLinks.forEach(link => {
+        if (link.hasAttribute('data-social-disabled')) {
+          link.addEventListener('click', (e) => e.preventDefault(), { signal: ac.signal });
+          return;
+        }
+
         link.addEventListener('mouseenter', () => {
           gsap.to(link, {
             color: '#F21763',
