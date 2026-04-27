@@ -162,6 +162,14 @@ if (empty($turnstileToken)) {
     $errors['turnstile'] = 'Verifica di sicurezza richiesta';
 }
 
+// Source page (which CTA opened the modal). Whitelisted to prevent attribute
+// pollution if someone forges the request — unknown values silently fall back
+// to 'home' so legacy clients without the field keep working.
+$source = $data['source'] ?? 'home';
+if (!in_array($source, ['home', 'risorse'], true)) {
+    $source = 'home';
+}
+
 if (!empty($errors)) {
     http_response_code(400);
     echo json_encode(['message' => 'Dati non validi', 'errors' => $errors]);
@@ -224,6 +232,11 @@ $attributes = [
     'CONSENT_PRIVACY_AT' => $nowIso,
     'CONSENT_IP'         => $remoteIp,
     'CONSENT_SOURCE'     => BREVO_CONSENT_SOURCE,
+    // Which page the lead came from. Brevo registers new attributes on first
+    // use, no preconfiguration needed. Overwritten on each submission, so this
+    // reflects the LAST source — fine for segmentation, less so for funnel
+    // history (use the per-email tag below + GA4 events for that).
+    'LEAD_SOURCE'        => $source,
 ];
 // Preserve existing NOME / JOB_TITLE if the user re-submits without filling
 // the optional fields. Sending an empty string would wipe what they gave us
@@ -330,9 +343,11 @@ if ($displayName === '') {
 // ============================================
 // BREVO: send transactional email
 // ============================================
-// `tags` lets us slice stats per email type on Brevo's dashboard. When a
-// newsletter or other template is added later, give it a different tag
-// (e.g. 'newsletter_<YYYYMM>') to keep reports cleanly separated.
+// `tags` lets us slice stats per email type on Brevo's dashboard. The
+// `leadmagnet-<source>` variant gives a per-page breakdown on Transactional →
+// Statistics without any extra setup. When a newsletter or other template is
+// added later, give it a different tag (e.g. 'newsletter_<YYYYMM>') to keep
+// reports cleanly separated.
 $emailPayload = [
     'templateId' => BREVO_TEMPLATE_ID,
     'to'         => [
@@ -344,7 +359,7 @@ $emailPayload = [
     'params'     => [
         'NOME' => $displayName,
     ],
-    'tags'       => ['leadmagnet'],
+    'tags'       => ['leadmagnet-' . $source],
 ];
 
 $emailResult = brevoRequest($BREVO_API_KEY, '/smtp/email', $emailPayload);

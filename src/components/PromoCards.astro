@@ -309,7 +309,9 @@ const layerPaths = {
       /* ── Lead magnet: open modal on click ── */
       section.querySelectorAll<HTMLButtonElement>('[data-promo-leadmagnet]').forEach(btn => {
         btn.addEventListener('click', () => {
-          window.dispatchEvent(new CustomEvent('datyca:leadmagnet:open'));
+          window.dispatchEvent(new CustomEvent('datyca:leadmagnet:open', {
+            detail: { source: 'home' },
+          }));
         }, { signal: ac.signal });
       });
 

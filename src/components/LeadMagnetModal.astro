@@ -651,8 +651,15 @@
     }
 
     // ── Open / close with GSAP ──────────────────────
-    function openModal() {
+    // Track which page triggered the open. Read from CustomEvent detail
+    // (whitelisted to known values) so it can be forwarded to the backend
+    // and used to segment leads on Brevo (LEAD_SOURCE attribute + email tag).
+    let currentSource: 'home' | 'risorse' = 'home';
+
+    function openModal(e?: Event) {
       if (isOpen) return;
+      const detail = (e as CustomEvent | undefined)?.detail;
+      currentSource = detail?.source === 'risorse' ? 'risorse' : 'home';
       isOpen = true;
       lastFocused = document.activeElement as HTMLElement;
       previousOverflow = document.documentElement.style.overflow;
@@ -918,6 +925,7 @@
         consent_privacy:   !!fd.get('consent_privacy'),
         consent_marketing: !!fd.get('consent_marketing'),
         website: String(fd.get('website') || ''),
+        source:  currentSource,
         'cf-turnstile-response': turnstileToken,
       };
 
