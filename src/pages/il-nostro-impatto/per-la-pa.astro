@@ -47,12 +47,10 @@ const cosaFacciamoItems = [
             'La trasformazione digitale nella PA è un percorso che non ha equivalenti nel settore privato. Ogni scelta \u2014 adottare un sistema di intelligenza artificiale, digitalizzare un procedimento, innalzare i livelli di sicurezza informatica \u2014 si muove all\u2019interno di vincoli istituzionali, procedurali e normativi che richiedono una conoscenza profonda delle dinamiche del settore pubblico.',
             '<strong>Lavoriamo al fianco delle amministrazioni pubbliche da anni:</strong> conosciamo la complessità dei procedimenti, i rapporti con le Autorità di riferimento, le esigenze di trasparenza e le responsabilità specifiche di chi gestisce dati e servizi per i cittadini. Questa esperienza diretta ci consente di proporre <strong>soluzioni che funzionano dentro la realtà organizzativa della PA</strong>, non nonostante essa.',
           ]}
-        >
-          <img slot="visual" class="pa-deco-right" src="/images/circle_and_square.webp" alt="" aria-hidden="true" />
-        </ImpactIntro>
+          hideVisual={true}
+        />
 
         <section class="pa-visione">
-          <img class="pa-bg-squares" src="/images/squares.webp" alt="" aria-hidden="true" />
           <div class="pa-visione__inner">
             <h2 class="text-h2 pa-visione__title">La nostra visione</h2>
             <p class="text-body pa-visione__body">Le amministrazioni che affrontano la transizione digitale in modo strutturato <strong>non subiscono l'innovazione: la governano</strong>. Questo significa ripensare i modelli organizzativi e procedimentali dell'ente in modo sistemico, integrando sicurezza, protezione dei dati e governance dell'intelligenza artificiale come componenti native del cambiamento — non come adempimenti a posteriori.</p>
@@ -85,49 +83,9 @@ const cosaFacciamoItems = [
     overflow: hidden;
   }
 
-  /* ── Right column: circle + square image ── */
-  .pa-deco-right {
-    width: 150%;
-    max-width: none;
-    height: auto;
-  }
-
-  /* ── Circle + square: keep proportions on resize ── */
-  .pa-hero-area :global(.ii__visual) {
-    aspect-ratio: 3 / 4;
-  }
-
   .pa-hero-area :global(.impact-intro) {
     position: relative;
     z-index: 1;
-  }
-
-  /* ── 3 diagonal squares behind text ── */
-  .pa-visione {
-    position: relative;
-    overflow: visible;
-  }
-
-  .pa-bg-squares {
-    position: absolute;
-    width: min(444px, 32vw);
-    visibility: hidden;
-    bottom: calc(100% + 30px);
-    left: calc(clamp(40px, 10.9vw, 157px) + 216px);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .pa-visione__inner {
-    position: relative;
-    z-index: 1;
-  }
-
-  @media (max-width: 767px) {
-    .pa-bg-squares,
-    .pa-deco-right {
-      display: none;
-    }
   }
 
   /* ── La nostra visione ── */
@@ -257,43 +215,7 @@ const cosaFacciamoItems = [
     mm.add('(max-width: 767px)', setup);
   }
 
-  function initPaBgSquares() {
-    const squaresEl = document.querySelector('.pa-bg-squares') as HTMLElement;
-    const introSection = document.querySelector('.impact-intro') as HTMLElement;
-    if (!squaresEl || !introSection) return;
-
-    let hasRevealed = false;
-
-    function setup() {
-      if (hasRevealed) {
-        gsap.set(squaresEl, { autoAlpha: 1 });
-        return;
-      }
-
-      gsap.set(squaresEl, { autoAlpha: 0 });
-
-      ScrollTrigger.create({
-        id: 'pa-squares-reveal',
-        trigger: introSection,
-        start: 'top 75%',
-        once: true,
-        onEnter: () => {
-          hasRevealed = true;
-          gsap.to(squaresEl, { autoAlpha: 1, duration: 0.8, ease: 'power2.out' });
-        },
-      });
-    }
-
-    const mm = gsap.matchMedia();
-    mm.add('(min-width: 768px)', setup);
-    mm.add('(max-width: 767px)', setup);
-  }
-
-  // Page-level scripts run AFTER Layout's <script>, which means Layout's
-  // initPage() has already drained __initQueue by the time we'd push into it.
-  // Call the init directly — we're in module execution phase, DOM is parsed.
-  initPaVisione();
-  initPaBgSquares();
+  ((window as any).__initQueue ??= []).push(initPaVisione);
 </script>
 
 </Layout>

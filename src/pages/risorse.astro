@@ -199,10 +199,7 @@ import Contatti from '../components/Contatti.astro';
     }
   }
 
-  // Page-level scripts run AFTER Layout's <script>, which means Layout's
-  // initPage() has already drained __initQueue by the time we'd push into it.
-  // Call the init directly — we're in module execution phase, DOM is parsed.
-  initRisorse();
+  ((window as any).__initQueue ??= []).push(initRisorse);
 </script>
 
 </Layout>
