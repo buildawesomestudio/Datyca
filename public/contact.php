@@ -380,7 +380,7 @@ $autoReplyHtml = <<<HTML
   <meta name="x-apple-disable-message-reformatting">
   <meta name="color-scheme" content="light dark">
   <meta name="supported-color-schemes" content="light dark">
-  <title>Datyca — Messaggio ricevuto</title>
+  <title>DATYCA — Messaggio ricevuto</title>
 
   <!--[if mso]>
   <noscript>
@@ -567,7 +567,7 @@ if ($notifResult['code'] !== 200) {
 $replyResult = sendResendEmail($RESEND_API_KEY, [
     'from'    => $FROM_EMAIL,
     'to'      => $email,
-    'subject' => 'Abbiamo ricevuto il tuo messaggio — Datyca',
+    'subject' => 'Abbiamo ricevuto il tuo messaggio — DATYCA',
     'html'    => $autoReplyHtml,
 ]);
 

@@ -20,7 +20,7 @@ interface Props {
   ogImage?: string;
 }
 
-const { title = 'Datyca', description = '', ogImage = '/images/og-default.jpg' } = Astro.props;
+const { title = 'DATYCA', description = '', ogImage = '/images/og-default.jpg' } = Astro.props;
 
 // Build absolute URLs for og:image and og:url. `Astro.site` is configured in
 // astro.config.mjs and is required for crawlers (Facebook/WhatsApp) — relative
@@ -40,7 +40,7 @@ const ogImageURL = new URL(ogImage, Astro.site).toString();
 
   {/* Open Graph — used by Facebook, LinkedIn, WhatsApp, Telegram, Slack, Discord. */}
   <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="Datyca Legal Design Lab" />
+  <meta property="og:site_name" content="DATYCA Legal Design Lab" />
   <meta property="og:locale" content="it_IT" />
   <meta property="og:url" content={canonicalURL} />
   <meta property="og:title" content={title} />
@@ -48,7 +48,7 @@ const ogImageURL = new URL(ogImage, Astro.site).toString();
   <meta property="og:image" content={ogImageURL} />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="Datyca Legal Design Lab — Empowering trust, creating opportunities" />
+  <meta property="og:image:alt" content="DATYCA Legal Design Lab — Empowering trust, creating opportunities" />
 
   {/* Twitter / X — uses its own namespace; falls back to og:* when missing. */}
   <meta name="twitter:card" content="summary_large_image" />
@@ -340,19 +340,22 @@ const ogImageURL = new URL(ogImage, Astro.site).toString();
           setTimeout(T.load, 2000);
         }
       }
-      // Auto-schedule the SCRIPT LOAD in idle. We previously left this off
-      // because of a different bug — the prior iteration also auto-rendered
-      // the widget as soon as the script was ready, and with `appearance:
-      // interaction-only` that keeps a Cloudflare iframe alive on every page,
-      // which on Safari runs periodic self-checks inside about:blank
-      // sub-iframes (sandbox without allow-scripts) → TypeError loop → CPU
-      // saturated. The bug was caused by the rendered widget, NOT by the
-      // loaded script. The script alone (parsed and idle in memory) creates
-      // no iframe and no timer. So loading early is safe — turnstile.render()
-      // stays on-demand (Contatti on first focusin, LeadMagnet on openModal),
-      // which is what prevents the Safari iframe loop. Doing the script
-      // parse in an idle slot avoids the visible main-thread block on Safari
-      // at the moment the user first focuses the contact form.
+      // Auto-schedule the SCRIPT LOAD in idle. The script alone (parsed and
+      // idle in memory) creates no iframe and no timer, so loading early
+      // costs nothing visible to the user. turnstile.render() stays strictly
+      // on-demand: ONLY at submit time in Contatti and LeadMagnetModal,
+      // never on focus or modal open. Why this split:
+      //   - Rendering the widget keeps a Cloudflare iframe alive that on
+      //     Safari runs periodic self-checks inside about:blank sub-iframes
+      //     (sandbox without allow-scripts) → TypeError loop → CPU saturated.
+      //     Confining render() to the in-flight submission keeps the iframe
+      //     alive <2s, structurally avoiding the loop.
+      //   - turnstile.render() also blocks Safari's main thread for ~1.5s
+      //     while the challenge runs (community.cloudflare.com/t/1500ms-...).
+      //     Doing it at submit moves the block to a moment with a spinner,
+      //     instead of freezing the modal-open animation or the form on focus.
+      // Pre-parsing the script in an idle slot just removes the script-load
+      // latency from that submit-time block — net win, no downsides.
       schedule();
     })();
   </script>
