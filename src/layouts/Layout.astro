@@ -17,9 +17,16 @@ import optikDemiBold from '../fonts/Optik/Optik-DemiBold.woff2?url';
 interface Props {
   title?: string;
   description?: string;
+  ogImage?: string;
 }
 
-const { title = 'Datyca', description = '' } = Astro.props;
+const { title = 'Datyca', description = '', ogImage = '/images/og-default.jpg' } = Astro.props;
+
+// Build absolute URLs for og:image and og:url. `Astro.site` is configured in
+// astro.config.mjs and is required for crawlers (Facebook/WhatsApp) — relative
+// paths in og:image are silently ignored by some scrapers.
+const canonicalURL = new URL(Astro.url.pathname, Astro.site).toString();
+const ogImageURL = new URL(ogImage, Astro.site).toString();
 ---
 
 <html lang="it">
@@ -29,6 +36,25 @@ const { title = 'Datyca', description = '' } = Astro.props;
   <meta name="theme-color" content="#0D0826" />
   <meta name="version" content="v.1.0" />
   {description && <meta name="description" content={description} />}
+  <link rel="canonical" href={canonicalURL} />
+
+  {/* Open Graph — used by Facebook, LinkedIn, WhatsApp, Telegram, Slack, Discord. */}
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Datyca Legal Design Lab" />
+  <meta property="og:locale" content="it_IT" />
+  <meta property="og:url" content={canonicalURL} />
+  <meta property="og:title" content={title} />
+  {description && <meta property="og:description" content={description} />}
+  <meta property="og:image" content={ogImageURL} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Datyca Legal Design Lab — Empowering trust, creating opportunities" />
+
+  {/* Twitter / X — uses its own namespace; falls back to og:* when missing. */}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  {description && <meta name="twitter:description" content={description} />}
+  <meta name="twitter:image" content={ogImageURL} />
   <link rel="preload" href={optikDemiBold} as="font" type="font/woff2" crossorigin />
   <link rel="preload" href={optikRegular} as="font" type="font/woff2" crossorigin />
   {/* `?v=2` bumps the cached copy served to browsers that visited an older
