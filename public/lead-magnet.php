@@ -167,14 +167,23 @@ if (empty($turnstileToken)) {
 // to 'home' so legacy clients without the field keep working. Keep in sync
 // with ALLOWED_SOURCES in LeadMagnetModal.astro and the pathname mapping in
 // PromoCards.astro (getLeadMagnetSource).
-$source = $data['source'] ?? 'home';
-$allowedSources = [
-    'home',
-    'risorse',
-    'impact-ai-learn-hub',
-    'impact-per-la-pa',
-    'impact-taig-lab',
+//
+// Each source also maps to a boolean Brevo attribute (FROM_LM_*) that is
+// written = true on every submission and accumulates over time: Brevo's PATCH
+// semantics leave attributes not in the payload untouched, so a contact that
+// once downloaded the home guide and later the risorse guide ends up with
+// BOTH flags = true without any extra read. This gives historical "passed
+// through this source at least once" segmentation in the dashboard, while
+// LAST_LEAD_SOURCE separately holds the most recent touchpoint.
+$sourceToFlagAttribute = [
+    'home'                => 'FROM_LM_HOME',
+    'risorse'             => 'FROM_LM_RISORSE',
+    'impact-ai-learn-hub' => 'FROM_LM_AI_LEARN_HUB',
+    'impact-per-la-pa'    => 'FROM_LM_PER_LA_PA',
+    'impact-taig-lab'     => 'FROM_LM_TAIG_LAB',
 ];
+$source = $data['source'] ?? 'home';
+$allowedSources = array_keys($sourceToFlagAttribute);
 if (!in_array($source, $allowedSources, true)) {
     $source = 'home';
 }
@@ -241,11 +250,10 @@ $attributes = [
     'CONSENT_PRIVACY_AT' => $nowIso,
     'CONSENT_IP'         => $remoteIp,
     'CONSENT_SOURCE'     => BREVO_CONSENT_SOURCE,
-    // Which page the lead came from. Brevo registers new attributes on first
-    // use, no preconfiguration needed. Overwritten on each submission, so this
-    // reflects the LAST source — fine for segmentation, less so for funnel
-    // history (use the per-email tag below + GA4 events for that).
-    'LEAD_SOURCE'        => $source,
+    // Last touchpoint (overwritten each submission) — pairs with the
+    // boolean FROM_LM_* flag below, which preserves the full history.
+    'LAST_LEAD_SOURCE'           => $source,
+    $sourceToFlagAttribute[$source] => true,
 ];
 // Preserve existing NOME / JOB_TITLE if the user re-submits without filling
 // the optional fields. Sending an empty string would wipe what they gave us

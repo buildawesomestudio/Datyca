@@ -31,9 +31,43 @@ if (!file_exists($configPath)) {
 require $configPath;
 
 // contact-config.php must define:
-// $RESEND_API_KEY, $TURNSTILE_SECRET, $CONTACT_EMAIL
+// $RESEND_API_KEY, $TURNSTILE_SECRET, $CONTACT_EMAIL, $BREVO_API_KEY
 $FROM_EMAIL = 'Datyca <noreply@datyca.com>';
 $BASE_URL = 'https://datyca.com';
+
+// Defensive: surface a clear error when the config file exists but
+// $BREVO_API_KEY is missing/empty. Same guard as lead-magnet.php so an
+// incomplete config fails loudly instead of producing a cryptic Brevo 401.
+if (!isset($BREVO_API_KEY) || !is_string($BREVO_API_KEY) || trim($BREVO_API_KEY) === '') {
+    http_response_code(500);
+    echo json_encode(['message' => 'Chiave Brevo non configurata sul server. Aggiungi $BREVO_API_KEY a contact-config.php.']);
+    error_log('contact.php: $BREVO_API_KEY is missing or empty in ' . $configPath);
+    exit;
+}
+
+// Non-secret Brevo configuration. Kept inline because rotating list IDs is a
+// code change tied to segmentation logic, not an ops action.
+//   - CONTACTS_LIST_ID:   "Contatti - form sito" — every privacy-accepting
+//                         submission lands here, regardless of marketing consent.
+//                         Used for archive/analytics ONLY, never for marketing
+//                         sends (the marketing consent may be missing).
+//   - NEWSLETTER_LIST_ID: "Newsletter Datyca" — marketing list, same one used
+//                         by lead-magnet.php. Added only when marketing is ticked.
+//   - CONSENT_SOURCE:     legal audit-trail label (GDPR art. 7) — versioned
+//                         so changes to the checkbox copy create a v2 etc.
+//   - LAST_LEAD_SOURCE / FROM_*: marketing analytics. LAST_LEAD_SOURCE holds
+//                         the last touchpoint (overwritten each submission);
+//                         FROM_CONTACT_FORM_FOOTER is a boolean flag that, once
+//                         set true, persists forever — Brevo's PATCH semantics
+//                         leave attributes not in the payload untouched, so
+//                         the same contact accumulates flags from each form
+//                         it ever passed through (FROM_LM_HOME, FROM_LM_RISORSE
+//                         from lead-magnet.php, etc.) without any extra GET.
+const BREVO_CONTACTS_LIST_ID   = 6;
+const BREVO_NEWSLETTER_LIST_ID = 3;
+const BREVO_CONSENT_SOURCE     = 'contact_form_v1';
+const BREVO_LAST_LEAD_SOURCE   = 'contact_form_footer';
+const BREVO_FROM_FLAG_NAME     = 'FROM_CONTACT_FORM_FOOTER';
 
 $ALLOWED_ORIGINS = [
     'https://datyca.com',
@@ -148,6 +182,15 @@ if (mb_strlen($message) < 10) {
     $errors['messaggio'] = 'Il messaggio deve avere almeno 10 caratteri';
 } elseif (mb_strlen($message) > 2000) {
     $errors['messaggio'] = 'Il messaggio è troppo lungo (max 2000 caratteri)';
+}
+
+// Strict boolean check: the frontend sends real booleans (see Contatti.astro
+// payload override). An unchecked / missing checkbox is always false.
+$consentPrivacy   = !empty($data['consent_privacy'])   && $data['consent_privacy']   === true;
+$consentMarketing = !empty($data['consent_marketing']) && $data['consent_marketing'] === true;
+
+if (!$consentPrivacy) {
+    $errors['consent_privacy'] = 'Il consenso al trattamento dei dati è obbligatorio';
 }
 
 $turnstileToken = $data['cf-turnstile-response'] ?? '';
@@ -547,6 +590,28 @@ function sendResendEmail($apiKey, $payload) {
     return ['code' => $httpCode, 'body' => json_decode($result, true)];
 }
 
+// ============================================
+// BREVO: helper (mirrors lead-magnet.php)
+// ============================================
+function brevoRequest($apiKey, $endpoint, $payload) {
+    $ch = curl_init('https://api.brevo.com/v3' . $endpoint);
+    curl_setopt_array($ch, [
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => json_encode($payload),
+        CURLOPT_HTTPHEADER     => [
+            'api-key: ' . $apiKey,
+            'content-type: application/json',
+            'accept: application/json',
+        ],
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT        => 15,
+    ]);
+    $result   = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    return ['code' => $httpCode, 'body' => json_decode($result, true)];
+}
+
 // 1) Notification to Datyca
 $notifResult = sendResendEmail($RESEND_API_KEY, [
     'from'     => $FROM_EMAIL,
@@ -561,6 +626,52 @@ if ($notifResult['code'] !== 200) {
     http_response_code(500);
     echo json_encode(['message' => 'Errore nell\'invio del messaggio. Riprova più tardi.']);
     exit;
+}
+
+// ============================================
+// BREVO: upsert contact (best-effort — never blocks the user-facing success)
+// ============================================
+// Runs only after the Resend notification succeeded, so we never write a
+// contact for a submission the user wasn't told was received. The call is
+// best-effort: any failure is logged but does NOT change the response — the
+// message is already in info@datyca.com's inbox, that's the only thing the
+// user actually depends on. Reconstruction from logs / inbox is possible if
+// Brevo is down.
+//
+// List membership rules:
+//   - listIds[0] = CONTACTS_LIST_ID  (always — privacy is mandatory and we
+//                                     archive every form submission here for
+//                                     internal analytics, not marketing)
+//   - + NEWSLETTER_LIST_ID           (only if marketing checkbox was ticked)
+$nowIso = gmdate('Y-m-d\TH:i:s\Z');
+$remoteIp = $_SERVER['REMOTE_ADDR'] ?? '';
+
+$brevoListIds = [BREVO_CONTACTS_LIST_ID];
+if ($consentMarketing) {
+    $brevoListIds[] = BREVO_NEWSLETTER_LIST_ID;
+}
+
+$brevoAttributes = [
+    'NOME'                   => $name,
+    'CONSENT_PRIVACY_AT'     => $nowIso,
+    'CONSENT_IP'             => $remoteIp,
+    'CONSENT_SOURCE'         => BREVO_CONSENT_SOURCE,
+    'LAST_LEAD_SOURCE'       => BREVO_LAST_LEAD_SOURCE,
+    BREVO_FROM_FLAG_NAME     => true,
+];
+if ($consentMarketing) {
+    $brevoAttributes['CONSENT_MARKETING_AT'] = $nowIso;
+}
+
+$brevoResult = brevoRequest($BREVO_API_KEY, '/contacts', [
+    'email'         => $email,
+    'attributes'    => $brevoAttributes,
+    'listIds'       => $brevoListIds,
+    'updateEnabled' => true,
+]);
+$brevoCode = $brevoResult['code'];
+if ($brevoCode !== 200 && $brevoCode !== 201 && $brevoCode !== 204) {
+    error_log('contact.php Brevo /contacts failed (' . $brevoCode . ') for ' . $email . ': ' . json_encode($brevoResult['body']));
 }
 
 // 2) Auto-reply to sender (non-blocking — log error but don't fail)

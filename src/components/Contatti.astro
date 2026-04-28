@@ -116,6 +116,28 @@ const socialLinks = [
           <span class="contatti__error"></span>
         </div>
 
+        <div class="contatti__consents">
+          <div class="contatti__consent-wrap" data-contatti-privacy-wrap>
+            <label class="contatti__consent">
+              <input type="checkbox" name="consent_privacy" data-contatti-privacy required />
+              <span class="contatti__consent-text">
+                Ho preso visione della
+                <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" data-contatti-privacy-link>Privacy Policy</a>
+                e acconsento al trattamento dei miei dati per essere ricontattato/a in merito alla mia richiesta.
+                <span class="contatti__required" aria-hidden="true">*</span>
+              </span>
+            </label>
+            <span class="contatti__consent-error" data-contatti-privacy-error></span>
+          </div>
+
+          <label class="contatti__consent">
+            <input type="checkbox" name="consent_marketing" />
+            <span class="contatti__consent-text">
+              Voglio ricevere aggiornamenti e approfondimenti di DATYCA su AI Governance, data protection e cybersecurity. Posso revocare il consenso in qualsiasi momento dal link di disiscrizione presente in ogni email.
+            </span>
+          </label>
+        </div>
+
         <!-- Turnstile widget container -->
         <div id="contatti-turnstile" class="contatti__turnstile"></div>
 
@@ -451,6 +473,98 @@ const socialLinks = [
     display: block;
   }
 
+  /* ── Consents (privacy + marketing) ── */
+  .contatti__consents {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 20px;
+  }
+
+  .contatti__required {
+    color: var(--color-purple-500);
+  }
+
+  .contatti__consent {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+  }
+
+  /* Branded checkbox: 2px black border, zero radius, purple fill when checked.
+     Mirrors the input field aesthetic — no native OS widget look. */
+  .contatti__consent input[type="checkbox"] {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    margin: 2px 0 0;
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent;
+    border: 2px solid var(--color-black-almost-900);
+    border-radius: 0;
+    cursor: pointer;
+    position: relative;
+    display: grid;
+    place-content: center;
+    padding: 0;
+  }
+
+  .contatti__consent input[type="checkbox"]:checked {
+    background: var(--color-purple-500);
+    border-color: var(--color-purple-500);
+  }
+
+  .contatti__consent input[type="checkbox"]:checked::after {
+    content: '';
+    width: 10px;
+    height: 5px;
+    border-left: 2px solid var(--color-white-almost);
+    border-bottom: 2px solid var(--color-white-almost);
+    transform: translate(0, -2px) rotate(-45deg);
+  }
+
+  .contatti__consent input[type="checkbox"]:focus-visible {
+    border-color: var(--color-purple-500);
+  }
+
+  .contatti__consent-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .contatti__consent-error {
+    display: none;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--color-red);
+    padding-left: 32px;
+  }
+
+  .contatti__consent-wrap--error .contatti__consent input[type="checkbox"] {
+    border-color: var(--color-red);
+  }
+
+  .contatti__consent-wrap--error .contatti__consent-error {
+    display: block;
+  }
+
+  .contatti__consent-text {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--color-black-almost-900);
+  }
+
+  .contatti__consent-text a {
+    color: var(--color-purple-500);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    font-weight: 600;
+  }
 
   /* ── Separator ── */
   .contatti__separator {
@@ -604,7 +718,10 @@ const socialLinks = [
       const title = section.querySelector('.contatti__title') as HTMLElement;
       const sediLabel = section.querySelector('.contatti__sedi-label') as HTMLElement;
       const sedi = section.querySelectorAll<HTMLElement>('.contatti__sede');
-      const fields = section.querySelectorAll<HTMLElement>('.contatti__field, .contatti__row');
+      const fields = section.querySelectorAll<HTMLElement>('.contatti__field, .contatti__row, .contatti__consents');
+      const privacyWrap = section.querySelector('[data-contatti-privacy-wrap]') as HTMLElement | null;
+      const privacyCb = section.querySelector('[data-contatti-privacy]') as HTMLInputElement | null;
+      const privacyErr = section.querySelector('[data-contatti-privacy-error]') as HTMLElement | null;
       const submitBtn = section.querySelector('[data-contatti-submit]') as HTMLElement;
       const separator = section.querySelector('.contatti__separator') as HTMLElement;
       const footerLinks = section.querySelectorAll<HTMLAnchorElement>('[data-contatti-footer-link]');
@@ -916,6 +1033,21 @@ const socialLinks = [
         input.addEventListener('blur', validateOnBlur, { signal: ac.signal });
       });
 
+      // ── Privacy checkbox: clear error as soon as user ticks it ──
+      function showPrivacyError(message: string) {
+        if (!privacyWrap || !privacyErr) return;
+        privacyWrap.classList.add('contatti__consent-wrap--error');
+        privacyErr.textContent = message;
+      }
+      function clearPrivacyError() {
+        if (!privacyWrap || !privacyErr) return;
+        privacyWrap.classList.remove('contatti__consent-wrap--error');
+        privacyErr.textContent = '';
+      }
+      privacyCb?.addEventListener('change', () => {
+        if (privacyCb.checked) clearPrivacyError();
+      }, { signal: ac.signal });
+
       // ── Submit state helpers ──
       const submitLabel = submitBtn.querySelector('[data-contatti-submit-label]') as HTMLElement;
       const statusEl = section.querySelector('[data-contatti-status]') as HTMLElement;
@@ -967,6 +1099,13 @@ const socialLinks = [
           }
         }
 
+        if (privacyCb && !privacyCb.checked) {
+          showPrivacyError('Per inviare il messaggio è necessario accettare la Privacy Policy.');
+          valid = false;
+        } else {
+          clearPrivacyError();
+        }
+
         if (!valid) {
           // Shake the submit button
           gsap.to(submitBtn, {
@@ -1010,7 +1149,13 @@ const socialLinks = [
             return;
           }
 
-          const formData = Object.fromEntries(new FormData(form));
+          // FormData → plain object, then override the two checkboxes as
+          // booleans (FormData yields 'on' for checked / omits unchecked —
+          // the PHP backend expects strict booleans for consent flags).
+          const fd = new FormData(form);
+          const formData: Record<string, unknown> = Object.fromEntries(fd);
+          formData['consent_privacy']      = !!fd.get('consent_privacy');
+          formData['consent_marketing']    = !!fd.get('consent_marketing');
           formData['cf-turnstile-response'] = turnstileToken;
 
           const res = await fetch('/contact.php', {

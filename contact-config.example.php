@@ -15,9 +15,12 @@ $RESEND_API_KEY    = 'your_resend_api_key_here';
 $TURNSTILE_SECRET  = 'your_turnstile_secret_key_here';
 $CONTACT_EMAIL     = 'info@datyca.com';
 
-// ── Lead magnet (lead-magnet.php) ──────────────────────────
+// ── Brevo (lead-magnet.php + contact.php) ──────────────────
 // Brevo API key (generated in the Brevo dashboard → SMTP & API → API Keys).
-// Used for both the /contacts upsert and the /smtp/email transactional send.
-// Only the API key is a secret — list ID, template ID and consent source are
-// non-sensitive configuration and live as constants inside lead-magnet.php.
+// Used by:
+//   - lead-magnet.php → /contacts upsert + /smtp/email transactional send
+//   - contact.php     → /contacts upsert (archive every form submission;
+//                       email delivery itself goes via Resend, not Brevo)
+// Only the API key is a secret — list IDs, template IDs and consent sources
+// are non-sensitive configuration and live as constants inside the PHP files.
 $BREVO_API_KEY     = 'your_brevo_api_key_here';
