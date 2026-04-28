@@ -273,6 +273,17 @@ const renderOrder = [4, 3, 2, 1, 0];
           });
         }
       });
+
+      // Cursor-cache fix: hovering a label fires 10 gsap.to() that mutate
+      // visibility (autoAlpha) on layers + labels in the same frame as the
+      // mouseenter. WebKit/Chromium update the cursor only on real mousemove
+      // or after a layout flush — so the pointer cursor stays "stale" on
+      // whatever was under the mouse before, and propagates page-wide until
+      // the user clicks somewhere. Forcing a sync reflow flushes the pending
+      // style mutations and triggers the deferred cursor re-evaluation
+      // (WebKit #101857). Costs ~2–8ms, runs only when the active layer
+      // actually changes (max ~5 times per visit), invisible to the user.
+      void document.body.offsetHeight;
     }
 
     // ── Entrance animation ────────────────────────────────────
