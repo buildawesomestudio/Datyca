@@ -119,6 +119,20 @@
   box-sizing: border-box;
 }
 
+/* Pointer cursor on all interactive elements.
+   Tailwind v4 preflight removed `cursor: pointer` from <button> by default,
+   and `<a>` elements styled with `text-decoration: none` (which we use almost
+   everywhere) lose the implicit link-pointer cursor in some browser/render
+   paths. Forcing it here covers every interactive element site-wide so we
+   don't have to remember it on each new component. */
+a[href],
+button:not(:disabled),
+[role="button"]:not(:disabled),
+label[for],
+summary {
+  cursor: pointer;
+}
+
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
