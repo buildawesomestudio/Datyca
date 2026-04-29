@@ -381,6 +381,29 @@ const ogImageURL = new URL(ogImage, Astro.site).toString();
     gsap.config({ nullTargetWarn: false });
     ScrollTrigger.config({ ignoreMobileResize: true });
 
+    /* Cursor-cache fix (WebKit #101857 + Chromium #26723).
+     * GSAP `autoAlpha` toggles `visibility: hidden ↔ visible`. Browsers
+     * re-evaluate the cursor only on real mousemove or after a layout
+     * flush — so when a hover handler runs `gsap.to(..., { autoAlpha })`
+     * synchronously inside `mouseenter`, the cursor stays stuck on
+     * whatever was under the pointer before the mutation, even after the
+     * mouse moves to a new element. The bug propagates page-wide until
+     * the user clicks. We have ~30+ such hover handlers (Header dropdowns,
+     * Megamenu, Hero/CTA hovers, CosaFacciamo, footer links, ecc.):
+     * patching each is fragile. One global reflow trigger on every element
+     * transition keeps the cursor in sync at ~zero cost: throttled to
+     * 100ms (well within the 16ms-per-frame budget × 6 frames), and a
+     * `void offsetHeight` read is essentially free when layout is clean
+     * — only the rare dirty-layout case actually flushes (~2–8ms). */
+    let _lastCursorReflow = 0;
+    document.addEventListener('mouseover', () => {
+      const now = performance.now();
+      if (now - _lastCursorReflow > 100) {
+        void document.body.offsetHeight;
+        _lastCursorReflow = now;
+      }
+    }, { passive: true });
+
     /* ── Native-navigation lifecycle ────────────────────────────────
      *  No ClientRouter: every cross-page click is a full reload, so
      *  browser handles scroll restoration (back/forward via bfcache or
