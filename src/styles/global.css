@@ -119,21 +119,11 @@
   box-sizing: border-box;
 }
 
-/* Pointer cursor on all interactive elements.
-   Tailwind v4 preflight removed `cursor: pointer` from <button> by default,
-   and `<a>` elements styled with `text-decoration: none` (which we use almost
-   everywhere) lose the implicit link-pointer cursor in some browser/render
-   paths. Forcing it here covers every interactive element site-wide so we
-   don't have to remember it on each new component.
-   Descendant selector also targets <img>, <svg>, <span> children of links
-   and buttons — without it, hovering an <img> inside an <a> can fall back
-   to the image's default cursor in some browsers (Safari notably) instead
-   of inheriting pointer from the link. */
-a[href], a[href] *,
-button:not(:disabled), button:not(:disabled) *,
-[role="button"]:not(:disabled), [role="button"]:not(:disabled) *,
-label[for], label[for] *,
-summary, summary * {
+/* Tailwind v4 preflight dropped `cursor: pointer` from <button> by default
+   (browsers natively use `default`/`auto` for buttons). Restore it for our
+   buttons. <a href> already gets pointer from the browser default. */
+button:not(:disabled),
+[role="button"]:not(:disabled) {
   cursor: pointer;
 }
 
