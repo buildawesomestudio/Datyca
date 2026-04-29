@@ -81,6 +81,35 @@ const ogImageURL = new URL(ogImage, Astro.site).toString();
       is decoupled from iubenda's internals.
       `banner.customClass` tags iubenda's default banner so we can hide it
       reliably regardless of which banner layout iubenda serves. */}
+  {/* iubenda's iubenda_cs.js (v1.98.0+) creates a 2D canvas and calls
+      getImageData() repeatedly without `willReadFrequently: true`. Chrome
+      backs the canvas on GPU by default, so each getImageData triggers a
+      sync GPU→CPU readback that stalls the main thread. The visible
+      symptom is that cursor rendering falls behind: hovering interactive
+      elements shows the wrong cursor (default arrow instead of pointer)
+      because the browser's cursor-update pipeline can't keep up with the
+      compositor under sustained main-thread pressure.
+      We can't change iubenda's code, but we can patch
+      HTMLCanvasElement.prototype.getContext BEFORE iubenda loads so any
+      future getContext('2d') call gets `willReadFrequently: true`
+      injected. CPU-backed canvases have fast readback (no GPU sync), so
+      iubenda's tracking work doesn't stall the thread anymore.
+      Must run before iubenda_cs.js loads → place this above the iubenda
+      config script. We only patch the first invocation per canvas
+      (browsers cache the context type per canvas), so this is a no-op for
+      anything that already opted in. Our own code uses no canvases. */}
+  <script is:inline>
+    (function () {
+      var orig = HTMLCanvasElement.prototype.getContext;
+      HTMLCanvasElement.prototype.getContext = function (type, attrs) {
+        if (type === '2d') {
+          attrs = Object.assign({ willReadFrequently: true }, attrs || {});
+        }
+        return orig.call(this, type, attrs);
+      };
+    })();
+  </script>
+
   <script is:inline>
     window._iub = window._iub || [];
     window._iub.csConfiguration = {
@@ -380,29 +409,6 @@ const ogImageURL = new URL(ogImage, Astro.site).toString();
     gsap.registerPlugin(ScrollTrigger, SplitText);
     gsap.config({ nullTargetWarn: false });
     ScrollTrigger.config({ ignoreMobileResize: true });
-
-    /* Cursor-cache fix (WebKit #101857 + Chromium #26723).
-     * GSAP `autoAlpha` toggles `visibility: hidden ↔ visible`. Browsers
-     * re-evaluate the cursor only on real mousemove or after a layout
-     * flush — so when a hover handler runs `gsap.to(..., { autoAlpha })`
-     * synchronously inside `mouseenter`, the cursor stays stuck on
-     * whatever was under the pointer before the mutation, even after the
-     * mouse moves to a new element. The bug propagates page-wide until
-     * the user clicks. We have ~30+ such hover handlers (Header dropdowns,
-     * Megamenu, Hero/CTA hovers, CosaFacciamo, footer links, ecc.):
-     * patching each is fragile. One global reflow trigger on every element
-     * transition keeps the cursor in sync at ~zero cost: throttled to
-     * 100ms (well within the 16ms-per-frame budget × 6 frames), and a
-     * `void offsetHeight` read is essentially free when layout is clean
-     * — only the rare dirty-layout case actually flushes (~2–8ms). */
-    let _lastCursorReflow = 0;
-    document.addEventListener('mouseover', () => {
-      const now = performance.now();
-      if (now - _lastCursorReflow > 100) {
-        void document.body.offsetHeight;
-        _lastCursorReflow = now;
-      }
-    }, { passive: true });
 
     /* ── Native-navigation lifecycle ────────────────────────────────
      *  No ClientRouter: every cross-page click is a full reload, so
