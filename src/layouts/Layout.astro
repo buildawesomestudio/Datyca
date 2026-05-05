@@ -84,14 +84,10 @@ const ogImageURL = new URL(ogImage, Astro.site).toString();
   {/* iubenda's iubenda_cs.js (v1.98.0+) creates a 2D canvas and calls
       getImageData() repeatedly without `willReadFrequently: true`. Chrome
       backs the canvas on GPU by default, so each getImageData triggers a
-      sync GPU→CPU readback that stalls the main thread. The visible
-      symptom is that cursor rendering falls behind: hovering interactive
-      elements shows the wrong cursor (default arrow instead of pointer)
-      because the browser's cursor-update pipeline can't keep up with the
-      compositor under sustained main-thread pressure.
-      We can't change iubenda's code, but we can patch
-      HTMLCanvasElement.prototype.getContext BEFORE iubenda loads so any
-      future getContext('2d') call gets `willReadFrequently: true`
+      sync GPU→CPU readback that stalls the main thread (Chrome logs
+      ~19 console warnings about it). Pure performance fix: patching
+      HTMLCanvasElement.prototype.getContext BEFORE iubenda loads makes
+      any future getContext('2d') call get `willReadFrequently: true`
       injected. CPU-backed canvases have fast readback (no GPU sync), so
       iubenda's tracking work doesn't stall the thread anymore.
       Must run before iubenda_cs.js loads → place this above the iubenda
