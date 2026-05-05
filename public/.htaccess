@@ -28,6 +28,17 @@
     Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), interest-cohort=()"
 </IfModule>
 
+# Favicon + apple-touch-icon: revalidate every load. Without this, browsers
+# (Safari especially) cache the bytes indefinitely on heuristic freshness, so
+# any future logo change takes weeks to propagate. `no-cache` doesn't mean
+# "don't store" — it means "store, then revalidate before reuse" via
+# If-Modified-Since / ETag, which is cheap (304 with empty body).
+<FilesMatch "^(favicon\.svg|apple-touch-icon\.png)$">
+    <IfModule mod_headers.c>
+        Header set Cache-Control "no-cache, must-revalidate"
+    </IfModule>
+</FilesMatch>
+
 # Deny access to sensitive dotfiles if accidentally deployed
 <FilesMatch "^\.(env|git|htpasswd|htaccess)$">
     <IfModule mod_authz_core.c>

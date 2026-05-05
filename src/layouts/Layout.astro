@@ -57,9 +57,11 @@ const ogImageURL = new URL(ogImage, Astro.site).toString();
   <meta name="twitter:image" content={ogImageURL} />
   <link rel="preload" href={optikDemiBold} as="font" type="font/woff2" crossorigin />
   <link rel="preload" href={optikRegular} as="font" type="font/woff2" crossorigin />
-  {/* `?v=2` bumps the cached copy served to browsers that visited an older
-      Datyca site (different favicon). Bump again whenever the favicon changes. */}
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
+  {/* Favicon + apple-touch-icon. Cache invalidation is handled server-side
+      via Cache-Control: no-cache, must-revalidate (.htaccess) — no query-string
+      versioning needed. Safari ignores ?v= on favicons anyway. */}
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   {/* Warm up the iubenda CDN connection (DNS + TLS) in advance so that when
       iubenda_cs.js is lazy-loaded post-paint, the handshake is already done. */}
   <link rel="dns-prefetch" href="https://cdn.iubenda.com" />
